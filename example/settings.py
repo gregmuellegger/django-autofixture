@@ -78,7 +78,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
 
-    '<REPLACE:APPNAME>',
+    'django_testdata',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
