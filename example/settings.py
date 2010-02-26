@@ -78,7 +78,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
 
-    'django_testdata',
+    'django_autofixture',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

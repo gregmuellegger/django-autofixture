@@ -3,7 +3,7 @@ from decimal import Decimal
 from datetime import date, datetime
 from django.db import models
 from django.test import TestCase
-from django_testdata.autofixture import AutoFixture
+from django_autofixture.autofixture import AutoFixture
 
 
 def y2k():

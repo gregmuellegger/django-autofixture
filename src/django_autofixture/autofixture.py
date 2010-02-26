@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db.models import fields
 from django.utils.datastructures import SortedDict
-from django_testdata import generators
+from django_autofixture import generators
 
 
 class CreateInstanceError(Exception):
