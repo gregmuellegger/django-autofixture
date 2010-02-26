@@ -15,6 +15,7 @@ class BasicModel(models.Model):
     blankchars = models.CharField(max_length=100, blank=True)
     nullchars = models.CharField(max_length=100, blank=True, null=True)
     slugfield = models.SlugField()
+    textfield = models.TextField()
 
     defaultint = models.IntegerField(default=1)
     intfield = models.IntegerField()
@@ -54,8 +55,6 @@ class UniqueTogetherTestModel(models.Model):
 
     class Meta:
         unique_together = ('choice1', 'choice2')
-
-
 
 
 class TestBasicModel(TestCase):

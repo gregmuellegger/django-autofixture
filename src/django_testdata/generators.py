@@ -42,6 +42,8 @@ class NoneGenerator(Generator):
 
 class StringGenerator(Generator):
     coerce_type = unicode
+    singleline_chars = string.letters + u' '
+    multiline_chars = singleline_chars + u'\n'
 
     def __init__(self, chars=None, multiline=False, min_length=0, max_length=1000, *args, **kwargs):
         assert min_length >= 0
@@ -50,11 +52,10 @@ class StringGenerator(Generator):
         self.min_length = min_length
         self.max_length = max_length
         if self.chars is None:
-            self.chars = string.letters
             if multiline:
-                self.chars += string.whitespace
+                self.chars = self.multiline_chars
             else:
-                self.chars += ' '
+                self.chars = self.singleline_chars
         super(StringGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
@@ -72,8 +73,42 @@ class SlugGenerator(StringGenerator):
         super(SlugGenerator, self).__init__(chars, multiline=False, *args, **kwargs)
 
 
-class LoremGenerator(StringGenerator):
-    pass
+class LoremGenerator(Generator):
+    coerce_type = unicode
+    common = True
+    count = 3
+    method = 'b'
+
+    def __init__(self, count=None, method=None, *args, **kwargs):
+        if count is not None:
+            self.count = count
+        if method is not None:
+            self.method = method
+        super(LoremGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        from django.contrib.webdesign.lorem_ipsum import paragraphs, sentence, \
+            words
+        if self.method == 'w':
+            return words(self.count, common=self.common)
+        elif self.method == 's':
+            return u' '.join([sentence()
+                for i in xrange(self.count)])
+        else:
+            paras = paragraphs(self.count, common=self.common)
+        if self.method == 'p':
+            paras = ['<p>%s</p>' % p for p in paras]
+        return u'\n\n'.join(paras)
+
+class LoremSentenceGenerator(LoremGenerator):
+    method = 's'
+
+class LoremHTMLGenerator(LoremGenerator):
+    method = 'p'
+
+class LoremWordGenerator(LoremGenerator):
+    count = 7
+    method = 'w'
 
 
 class IntegerGenerator(Generator):

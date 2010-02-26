@@ -9,6 +9,18 @@ class CreateInstanceError(Exception):
 
 
 class AutoFixture(object):
+    '''
+    We don't support the following fields atm:
+
+        * Related fields (``ForeingKey`` etc.)
+        * File fields
+        * ``FilePathField``
+        * ``TimeField``
+        * ``URLField``
+        * ``XMLField``
+
+    We plan to support any field expect the ``XMLField``. Patches are welcome.
+    '''
     class CONTINUE(object):
         pass
 
@@ -29,6 +41,7 @@ class AutoFixture(object):
         (fields.SmallIntegerField, generators.SmallIntegerGenerator),
         (fields.IntegerField, generators.IntegerGenerator),
         (fields.IPAddressField, generators.IPAddressGenerator),
+        (fields.TextField, generators.LoremGenerator),
     ))
 
     def __init__(self, model,
