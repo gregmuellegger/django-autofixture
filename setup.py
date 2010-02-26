@@ -27,9 +27,9 @@ class UltraMagicString(object):
 long_description = UltraMagicString(file('README').read())
 
 setup(
-    name = 'django-testdata',
+    name = 'django-autofixture',
     version = '0.1.0pre1',
-    url = 'https://launchpad.net/django-testdata',
+    url = 'https://launchpad.net/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
     long_description = long_description,
