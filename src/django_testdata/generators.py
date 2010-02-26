@@ -40,13 +40,6 @@ class NoneGenerator(Generator):
         return None
 
 
-class BooleanGenerator(Generator):
-    coerce_type = bool
-
-    def generate(self):
-        return random.choice((True, False))
-
-
 class StringGenerator(Generator):
     coerce_type = unicode
 
@@ -72,16 +65,27 @@ class StringGenerator(Generator):
         return value
 
 
+class SlugGenerator(StringGenerator):
+    def __init__(self, chars=None, *args, **kwargs):
+        if chars is None:
+            chars = string.ascii_lowercase + string.digits + '-'
+        super(SlugGenerator, self).__init__(chars, multiline=False, *args, **kwargs)
+
+
 class LoremGenerator(StringGenerator):
     pass
 
 
 class IntegerGenerator(Generator):
     coerce_type = int
+    min_value = -2 ** 31
+    max_value = 2 ** 31 - 1
 
-    def __init__(self, min_value=-2**32, max_value=2**32-1, *args, **kwargs):
-        self.min_value = min_value
-        self.max_value = max_value
+    def __init__(self, min_value=None, max_value=None, *args, **kwargs):
+        if min_value is not None:
+            self.min_value = min_value
+        if max_value is not None:
+            self.max_value = max_value
         super(IntegerGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
@@ -89,8 +93,17 @@ class IntegerGenerator(Generator):
         return value
 
 
+class SmallIntegerGenerator(IntegerGenerator):
+    min_value = -2 ** 7
+    max_value = 2 ** 7 - 1
+
+
 class PositiveIntegerGenerator(IntegerGenerator):
-    coerce_type = abs
+    min_value = 0
+
+
+class PositiveSmallIntegerGenerator(SmallIntegerGenerator):
+    min_value = 0
 
 
 class ChoicesGenerator(Generator):
@@ -105,6 +118,19 @@ class ChoicesGenerator(Generator):
 
     def generate(self):
         return random.choice(self.values)
+
+
+class BooleanGenerator(ChoicesGenerator):
+    def __init__(self, none=False, *args, **kwargs):
+        values = (True, False)
+        if none:
+            values = values + (None,)
+        super(BooleanGenerator, self).__init__(values=values, *args, **kwargs)
+
+
+class NullBooleanGenerator(BooleanGenerator):
+    def __init__(self, none=True, *args, **kwargs):
+        super(NullBooleanGenerator, self).__init__(none=none, *args, **kwargs)
 
 
 class DateTimeGenerator(Generator):

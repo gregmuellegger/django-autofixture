@@ -1,22 +1,35 @@
 # -*- coding: utf-8 -*-
 from django.db.models import fields
+from django.utils.datastructures import SortedDict
 from django_testdata import generators
 
 
+class CreateInstanceError(Exception):
+    pass
+
+
 class AutoFixture(object):
+    class CONTINUE(object):
+        pass
+
     overwrite_defaults = False
     follow_fks = False
     generate_fks = False
 
     none_chance = 0.2
+    tries = 1000
 
-    field_to_generator = {
-        fields.BooleanField: generators.BooleanGenerator,
-        fields.DateField: generators.DateGenerator,
-        fields.IntegerField: generators.IntegerGenerator,
-        fields.PositiveIntegerField: generators.PositiveIntegerGenerator,
-        fields.IPAddressField: generators.IPAddressGenerator,
-    }
+    field_to_generator = SortedDict((
+        (fields.BooleanField, generators.BooleanGenerator),
+        (fields.NullBooleanField, generators.NullBooleanGenerator),
+        (fields.DateTimeField, generators.DateTimeGenerator),
+        (fields.DateField, generators.DateGenerator),
+        (fields.PositiveSmallIntegerField, generators.PositiveSmallIntegerGenerator),
+        (fields.PositiveIntegerField, generators.PositiveIntegerGenerator),
+        (fields.SmallIntegerField, generators.SmallIntegerGenerator),
+        (fields.IntegerField, generators.IntegerGenerator),
+        (fields.IPAddressField, generators.IPAddressGenerator),
+    ))
 
     def __init__(self, model,
             field_values=None, none_chance=None,
@@ -67,18 +80,17 @@ class AutoFixture(object):
                 min_length = 0
             else:
                 min_length = 1
-            return generators.StringGenerator(
+            if isinstance(field, fields.SlugField):
+                generator = generators.SlugGenerator
+            else:
+                generator = generators.StringGenerator
+            return generator(
                 min_length=min_length,
                 max_length=field.max_length)
         elif isinstance(field, fields.DecimalField):
             return generators.DecimalGenerator(
                 decimal_places=field.decimal_places,
                 max_digits=field.max_digits)
-        # DateTimeField is checked here explicitly because its a subclass of
-        # DateTimeField and would cause problems if used in the
-        # field_to_generator dictionary
-        if isinstance(field, fields.DateTimeField):
-            return generators.DateTimeGenerator(**kwargs)
         if isinstance(field, fields.BigIntegerField):
             return generators.IntegerGenerator(
                 min_value=-field.MAX_BIGINT - 1,
@@ -89,19 +101,66 @@ class AutoFixture(object):
                 return generator(**kwargs)
         return None
 
+    def get_value(self, field):
+        generator = self.get_generator(field)
+        if generator is None:
+            return self.CONTINUE
+        value = generator.get_value()
+        return value
+
+    def process_field(self, instance, field):
+        value = self.get_value(field)
+        if value is self.CONTINUE:
+            return
+        setattr(instance, field.name, value)
+
+    def is_unique(self, lookups):
+        return not bool(
+                self.model._default_manager.filter(**lookups))
+
+    def check_constrains(self, instance):
+        '''
+        Return field names which need recalculation.
+        '''
+        for field in instance._meta.fields:
+            if field.unique:
+                unique = self.is_unique(
+                    {field.name: getattr(instance, field.name)})
+                if not unique:
+                    return (field,)
+        if instance._meta.unique_together:
+            for fields in instance._meta.unique_together:
+                check = {}
+                for field_name in fields:
+                    check[field_name] = getattr(instance, field_name)
+                if not self.is_unique(check):
+                    return [instance._meta.get_field_by_name(field_name)[0]
+                        for field_name in fields]
+        return ()
+
     def create(self, count=1, commit=True):
         '''
         Create and return ``count`` model instances.
         '''
         object_list = []
         for i in xrange(count):
+            tries = self.tries
             instance = self.model()
-            for field in instance._meta.fields:
-                generator = self.get_generator(field)
-                if generator is None:
-                    continue
-                value = generator.get_value()
-                setattr(instance, field.name, value)
+            process = instance._meta.fields
+            while process and tries > 0:
+                for field in process:
+                    self.process_field(instance, field)
+                process = self.check_constrains(instance)
+                tries -= 1
+            if tries == 0:
+                raise CreateInstanceError(
+                    u'Cannot solve constraints for "%s", tried %d times. '
+                    u'Please check value generators or model constraints.' % (
+                        '%s.%s' % (
+                            self.model._meta.app_label,
+                            self.model._meta.object_name),
+                        self.tries,
+                ))
             if commit:
                 instance.save()
             object_list.append(instance)
