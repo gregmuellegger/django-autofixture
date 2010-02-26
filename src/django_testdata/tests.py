@@ -22,6 +22,8 @@ class BasicModel(models.Model):
     pintfield = models.PositiveIntegerField()
     sintfield = models.SmallIntegerField()
     psintfield = models.PositiveSmallIntegerField()
+    if hasattr(models, 'BigIntegerField'):
+        bigintegerfield = models.BigIntegerField()
 
     STRING_CHOICES = (
         ('a', 'A'),
@@ -37,7 +39,6 @@ class BasicModel(models.Model):
     decimalfield = models.DecimalField(max_digits=10, decimal_places=4)
 
     emailfield = models.EmailField()
-    bigintegerfield = models.BigIntegerField()
     ipaddressfield = models.IPAddressField()
 
 
@@ -83,6 +84,8 @@ class TestBasicModel(TestCase):
             self.assertEquals(type(obj.sintfield), int)
             self.assertEquals(type(obj.pintfield), int)
             self.assertEquals(type(obj.psintfield), int)
+            if hasattr(models, 'BigIntegerField'):
+                self.assertEquals(type(obj.bigintfield), int)
             self.assertEquals(type(obj.datefield), date)
             self.assertEquals(type(obj.datetimefield), datetime)
             self.assertEquals(type(obj.defaultdatetime), datetime)

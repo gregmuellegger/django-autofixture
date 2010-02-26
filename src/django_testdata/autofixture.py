@@ -104,11 +104,12 @@ class AutoFixture(object):
             return generators.DecimalGenerator(
                 decimal_places=field.decimal_places,
                 max_digits=field.max_digits)
-        if isinstance(field, fields.BigIntegerField):
-            return generators.IntegerGenerator(
-                min_value=-field.MAX_BIGINT - 1,
-                max_value=field.MAX_BIGINT,
-                **kwargs)
+        if hasattr(fields, 'BigIntegerField'):
+            if isinstance(field, fields.BigIntegerField):
+                return generators.IntegerGenerator(
+                    min_value=-field.MAX_BIGINT - 1,
+                    max_value=field.MAX_BIGINT,
+                    **kwargs)
         for field_class, generator in self.field_to_generator.items():
             if isinstance(field, field_class):
                 return generator(**kwargs)
