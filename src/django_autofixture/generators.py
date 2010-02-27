@@ -357,6 +357,20 @@ class InstanceGenerator(Generator):
         return self.autofixture.create()[0]
 
 
+class MultipleInstanceGenerator(InstanceGenerator):
+    def __init__(self, *args, **kwargs):
+        self.min_count = kwargs.pop('min_count', 1)
+        self.max_count = kwargs.pop('max_count', 10)
+        super(MultipleInstanceGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        instances = []
+        for i in xrange(random.randint(self.min_count, self.max_count)):
+            instances.append(
+                super(MultipleInstanceGenerator, self).generate())
+        return instances
+
+
 class InstanceSelector(Generator):
     '''
     Select one or more instances from a queryset.

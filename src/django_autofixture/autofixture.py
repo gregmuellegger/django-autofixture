@@ -18,8 +18,6 @@ class AutoFixture(object):
     We don't support the following fields yet:
 
         * ``XMLField``
-        * ``OneToOneField``
-        * ``ManyToManyField``
         * ``FileField``
         * ``ImageField``
 
@@ -31,6 +29,8 @@ class AutoFixture(object):
     overwrite_defaults = False
     follow_fk = True
     generate_fk = False
+    follow_m2m = (1, 5)
+    generate_m2m = False
 
     none_chance = 0.2
     tries = 1000
@@ -55,7 +55,8 @@ class AutoFixture(object):
 
     def __init__(self, model,
             field_values=None, none_chance=None, overwrite_defaults=None,
-            constraints=None, follow_fk=None, generate_fk=None):
+            constraints=None, follow_fk=None, generate_fk=None,
+            follow_m2m=None, generate_m2m=None):
         '''
         Parameters:
             ``model``: 
@@ -87,6 +88,18 @@ class AutoFixture(object):
                 also be created with random values. Default is ``False``. The
                 ``follow_fk`` parameter will be ignored if this one is set to
                 ``True``.
+
+            ``follow_m2m``: A tuple containing minium and maximum of model
+                instances that are assigned to ``ManyToManyField``. No new
+                instances will be created. Default is (1, 5).
+                You can ignore ``ManyToManyField`` fields by setting this
+                parameter to ``False``.
+
+            ``generate_m2m``: A tuple containing minimum and maximum number of
+                model instance that are newly created and assigned to the
+                ``ManyToManyField``. Default is ``False`` which disables the
+                generation of new related instances. The value of
+                ``follow_m2m`` will be ignored if this parameter is set.
         '''
         self.model = model
         self.field_values = field_values or {}
@@ -99,9 +112,15 @@ class AutoFixture(object):
             self.follow_fk = follow_fk
         if generate_fk is not None:
             self.generate_fk = generate_fk
+        if follow_m2m is not None:
+            self.follow_m2m = follow_m2m
+        if generate_m2m is not None:
+            self.generate_m2m = generate_m2m
 
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
+
+        self._field_generators = {}
 
     def add_constraint(self, constraint):
         self.constraints.append(constraint)
@@ -156,6 +175,35 @@ class AutoFixture(object):
                         field.rel.to._meta.object_name,
                     )
             ))
+        if isinstance(field, related.ManyToManyField):
+            if self.generate_m2m:
+                min_count, max_count = self.generate_m2m[0:2]
+                return generators.MultipleInstanceGenerator(
+                    AutoFixture(field.rel.to),
+                    limit_choices_to=field.rel.limit_choices_to,
+                    min_count=min_count,
+                    max_count=max_count,
+                    **kwargs)
+            elif self.follow_m2m:
+                min_count, max_count = self.follow_m2m[0:2]
+                return generators.InstanceSelector(
+                    field.rel.to,
+                    limit_choices_to=field.rel.limit_choices_to,
+                    min_count=min_count,
+                    max_count=max_count,
+                    **kwargs)
+            elif field.null:
+                return generators.NoneGenerator()
+            raise CreateInstanceError(
+                u'Cannot assign instances of "%s" to ManyToManyField "%s". '
+                u'Provide either "follow_m2m" or "generate_m2m" '
+                u'parameters.' % (
+                    '%s.%s' % (
+                        field.rel.to._meta.app_label,
+                        field.rel.to._meta.object_name,
+                    ),
+                    field.name,
+            ))
         if isinstance(field, fields.EmailField):
             return generators.EmailGenerator(
                 max_length=field.max_length, **kwargs)
@@ -198,7 +246,9 @@ class AutoFixture(object):
         Return a random value that can be assigned to the passed field
         instance.
         '''
-        generator = self.get_generator(field)
+        if field not in self._field_generators:
+            self._field_generators[field] = self.get_generator(field)
+        generator = self._field_generators[field]
         if generator is None:
             return self.IGNORE_FIELD
         value = generator.get_value()
@@ -209,6 +259,9 @@ class AutoFixture(object):
         if value is self.IGNORE_FIELD:
             return
         setattr(instance, field.name, value)
+
+    def process_m2m(self, instance, field):
+        return self.process_field(instance, field)
 
     def check_constrains(self, instance):
         '''
@@ -240,13 +293,17 @@ class AutoFixture(object):
             if tries == 0:
                 raise CreateInstanceError(
                     u'Cannot solve constraints for "%s", tried %d times. '
-                    u'Please check value generators or model constraints.' % (
+                    u'Please check value generators or model constraints.'
+                    u'At least the following fields are involved: %s' % (
                         '%s.%s' % (
                             self.model._meta.app_label,
                             self.model._meta.object_name),
                         self.tries,
+                        ', '.join([field.name for field in process]),
                 ))
             if commit:
                 instance.save()
+                for field in instance._meta.many_to_many:
+                    self.process_m2m(instance, field)
             object_list.append(instance)
         return object_list

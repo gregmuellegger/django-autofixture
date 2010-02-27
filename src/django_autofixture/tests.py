@@ -5,7 +5,7 @@ from datetime import date, datetime
 from django.db import models
 from django.test import TestCase
 from django_autofixture import generators
-from django_autofixture.autofixture import AutoFixture
+from django_autofixture.autofixture import AutoFixture, CreateInstanceError
 
 
 def y2k():
@@ -75,6 +75,11 @@ class RelatedModel(models.Model):
     limitedfk = models.ForeignKey(SimpleModel,
         limit_choices_to={'name__exact': 'foo'}, related_name='rel2',
         null=True, blank=True)
+
+class O2OModel(models.Model):
+    o2o = models.OneToOneField(SimpleModel)
+
+class M2MModel(models.Model):
     m2m = models.ManyToManyField(SimpleModel)
 
 
@@ -151,6 +156,46 @@ class TestRelations(TestCase):
         for obj in filler.create(100):
             self.assertEqual(obj.related, related)
             self.assertEqual(obj.limitedfk, simple)
+
+    def test_follow_fk_for_o2o(self):
+        # OneToOneField is the same as a ForeignKey with unique=True
+        filler = AutoFixture(O2OModel, follow_fk=True)
+
+        simple = SimpleModel.objects.create()
+        obj = filler.create()[0]
+        self.assertEqual(obj.o2o, simple)
+
+        self.assertRaises(CreateInstanceError, filler.create)
+
+    def test_generate_fk_for_o2o(self):
+        # OneToOneField is the same as a ForeignKey with unique=True
+        filler = AutoFixture(O2OModel, generate_fk=True)
+
+        all_o2o = set()
+        for obj in filler.create(10):
+            all_o2o.add(obj.o2o)
+
+        self.assertEqual(set(SimpleModel.objects.all()), all_o2o)
+
+    def test_follow_m2m(self):
+        related = AutoFixture(SimpleModel).create()[0]
+        self.assertEqual(SimpleModel.objects.count(), 1)
+
+        filler = AutoFixture(
+            M2MModel,
+            follow_m2m=(2, 10))
+        for obj in filler.create(10):
+            self.assertEqual(list(obj.m2m.all()), [related])
+
+    def test_generate_m2m(self):
+        filler = AutoFixture(
+            M2MModel,
+            generate_m2m=(1, 5))
+        all_m2m = set()
+        for obj in filler.create(10):
+            self.assertTrue(1 <= obj.m2m.count() <= 5)
+            all_m2m.update(obj.m2m.all())
+        self.assertEqual(SimpleModel.objects.count(), len(all_m2m))
 
 
 class TestUniqueConstraints(TestCase):
