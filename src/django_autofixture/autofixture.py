@@ -30,8 +30,8 @@ class AutoFixture(object):
         pass
 
     overwrite_defaults = False
-    follow_fks = True
-    generate_fks = False
+    follow_fk = True
+    generate_fk = False
 
     none_chance = 0.2
     tries = 1000
@@ -55,7 +55,7 @@ class AutoFixture(object):
 
     def __init__(self, model,
             field_values=None, none_chance=None, overwrite_defaults=None,
-            constraints=None, follow_fks=None, generate_fks=None):
+            constraints=None, follow_fk=None, generate_fk=None):
         '''
         Parameters:
             ``model``: 
@@ -76,10 +76,10 @@ class AutoFixture(object):
             self.none_chance = none_chance
         if overwrite_defaults is not None:
             self.overwrite_defaults = overwrite_defaults
-        if follow_fks is not None:
-            self.follow_fks = follow_fks
-        if generate_fks is not None:
-            self.generate_fks = generate_fks
+        if follow_fk is not None:
+            self.follow_fk = follow_fk
+        if generate_fk is not None:
+            self.generate_fk = generate_fk
 
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
@@ -112,17 +112,17 @@ class AutoFixture(object):
         if field.choices:
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):
-            # if generate_fks is set, follow_fks is ignored.
-            if self.generate_fks:
+            # if generate_fk is set, follow_fk is ignored.
+            if self.generate_fk:
                 return generators.InstanceGenerator(
                     AutoFixture(field.rel.to))
-            elif self.follow_fks:
+            elif self.follow_fk:
                 return generators.InstanceSelector(field.rel.to)
             elif field.null:
                 return generators.NoneGenerator()
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
-                u'"follow_fks" or "generate_fks" parameters.' % (
+                u'"follow_fk" or "generate_fk" parameters.' % (
                     field.name,
                     '%s.%s' % (
                         field.rel.to._meta.app_label,

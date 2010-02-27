@@ -121,7 +121,7 @@ class TestRelations(TestCase):
     def test_generate_foreignkeys(self):
         filler = AutoFixture(
             RelatedModel,
-            generate_fks=True)
+            generate_fk=True)
         for obj in filler.create(100):
             self.assertEqual(obj.related.__class__, BasicModel)
 
@@ -131,7 +131,7 @@ class TestRelations(TestCase):
 
         filler = AutoFixture(
             RelatedModel,
-            follow_fks=True)
+            follow_fk=True)
         for obj in filler.create(100):
             self.assertEqual(obj.related, related)
 
