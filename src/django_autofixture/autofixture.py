@@ -17,12 +17,12 @@ class AutoFixture(object):
     '''
     We don't support the following fields atm:
 
-        * Related fields (``ForeingKey`` etc.)
-        * File fields
         * ``FilePathField``
-        * ``TimeField``
-        * ``URLField``
         * ``XMLField``
+        * ``OneToOneField``
+        * ``ManyToManyField``
+        * ``FileField``
+        * ``ImageField``
 
     We plan to support any field expect the ``XMLField``. Patches are welcome.
     '''
@@ -47,6 +47,7 @@ class AutoFixture(object):
         (fields.IntegerField, generators.IntegerGenerator),
         (fields.IPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
+        (fields.TimeField, generators.TimeGenerator),
     ))
 
     default_constraints = [
@@ -130,7 +131,11 @@ class AutoFixture(object):
                     )
             ))
         if isinstance(field, fields.EmailField):
-            return generators.EmailGenerator(max_length=field.max_length, **kwargs)
+            return generators.EmailGenerator(
+                max_length=field.max_length, **kwargs)
+        if isinstance(field, fields.URLField):
+            return generators.URLGenerator(
+                max_length=field.max_length, **kwargs)
         if isinstance(field, fields.CharField):
             if field.blank:
                 min_length = 0

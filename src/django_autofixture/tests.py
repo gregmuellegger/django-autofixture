@@ -38,11 +38,13 @@ class BasicModel(models.Model):
     datefield = models.DateField()
     datetimefield = models.DateTimeField()
     defaultdatetime = models.DateTimeField(default=y2k)
+    timefield = models.TimeField()
 
     decimalfield = models.DecimalField(max_digits=10, decimal_places=4)
 
     emailfield = models.EmailField()
     ipaddressfield = models.IPAddressField()
+    urlfield = models.URLField()
 
 
 class UniqueTestModel(models.Model):

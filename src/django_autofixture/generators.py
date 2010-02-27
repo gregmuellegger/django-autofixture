@@ -45,17 +45,18 @@ class StringGenerator(Generator):
     singleline_chars = string.letters + u' '
     multiline_chars = singleline_chars + u'\n'
 
-    def __init__(self, chars=None, multiline=False, min_length=0, max_length=1000, *args, **kwargs):
+    def __init__(self, chars=None, multiline=False, min_length=1, max_length=1000, *args, **kwargs):
         assert min_length >= 0
         assert max_length >= 0
-        self.chars = chars
         self.min_length = min_length
         self.max_length = max_length
-        if self.chars is None:
+        if chars is None:
             if multiline:
                 self.chars = self.multiline_chars
             else:
                 self.chars = self.singleline_chars
+        else:
+            self.chars = chars
         super(StringGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
@@ -216,10 +217,12 @@ class DecimalGenerator(Generator):
         return value
 
 class EmailGenerator(StringGenerator):
+    chars = string.ascii_lowercase
+
     def __init__(self, chars=None, max_length=100, tlds=None, *args, **kwargs):
         assert max_length >= 6
-        if chars is None:
-            chars = string.ascii_lowercase
+        if chars is not None:
+            self.chars = chars
         self.tlds = tlds
         super(EmailGenerator, self).__init__(chars, max_length=max_length, *args, **kwargs)
 
@@ -238,6 +241,40 @@ class EmailGenerator(StringGenerator):
         return '%s@%s.%s' % (name, domain, tld)
 
 
+class URLGenerator(StringGenerator):
+    chars = string.ascii_lowercase
+    protocol = 'http'
+    tlds = ()
+
+    def __init__(self, chars=None, max_length=30, protocol=None, tlds=None,
+        *args, **kwargs):
+        if chars is not None:
+            self.chars = chars
+        if protocol is not None:
+            self.protocol = protocol
+        if tlds is not None:
+            self.tlds = tlds
+        assert max_length > (
+            len(self.protocol) + len('://') +
+            1 + len('.') +
+            max([2] + [len(tld) for tld in self.tlds if tld]))
+        super(URLGenerator, self).__init__(
+            chars=self.chars, max_length=max_length, *args, **kwargs)
+
+    def generate(self):
+        maxl = self.max_length - len(self.protocol) - 4 # len(://) + len(.)
+        if self.tlds:
+            tld = random.choice(self.tlds)
+            maxl -= len(tld)
+        else:
+            tld_max_length = 3 if maxl >= 5 else 2
+            tld = StringGenerator(self.chars,
+                min_length=2, max_length=tld_max_length).generate()
+            maxl -= len(tld)
+        domain = StringGenerator(chars=self.chars, max_length=maxl).generate()
+        return u'%s://%s.%s' % (self.protocol, domain, tld)
+
+
 class IPAddressGenerator(Generator):
     coerce_type = unicode
 
@@ -248,6 +285,15 @@ class IPAddressGenerator(Generator):
             IntegerGenerator(min_value=0, max_value=254).generate(),
             IntegerGenerator(min_value=1, max_value=254).generate(),
         ]])
+
+
+class TimeGenerator(Generator):
+    def generate(self):
+        return u'%02d:%02d:%02d' % (
+            random.randint(0,23),
+            random.randint(0,59),
+            random.randint(0,59),
+        )
 
 
 class InstanceGenerator(Generator):
