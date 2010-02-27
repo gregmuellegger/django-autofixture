@@ -5,6 +5,7 @@ develop-eggs
 dist
 downloads
 eggs
+example/db.sqlite
 parts
 src/*.egg-info
 .ropeproject

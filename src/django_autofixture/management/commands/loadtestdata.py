@@ -11,24 +11,20 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
-            default=False, help='Nominates a specific database to load '
-                'fixtures into. Defaults to the "default" database.'),
+            default=False, help=''),
         make_option('--generate-fk', action='store_true', dest='generate_fk',
-            default=False, help='Nominates a specific database to load '
-                'fixtures into. Defaults to the "default" database.'),
+            default=False, help=''),
         make_option('--no-follow-m2m', action='store_true', dest='no_follow_m2m',
-            default=False, help='Nominates a specific database to load '
-                'fixtures into. Defaults to the "default" database.'),
+            default=False, help=''),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default='1,5', help='Nominates a specific database to load '
-                'fixtures into. Defaults to the "default" database.'),
+            default='1,5', help=''),
         make_option('--generate-m2m', action='store', dest='generate_m2m',
-            default='0,0', help='Nominates a specific database to load '
-                'fixtures into. Defaults to the "default" database.'),
+            default='0,0', help=''),
     )
 
     @commit_on_success
     def handle(self, *attrs, **options):
+        # TODO(gregor@muellegger.de): Better error handling
         from django.db.models import get_model
 
         follow_fk = not options['no_follow_fk']
