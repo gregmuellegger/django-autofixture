@@ -17,7 +17,6 @@ class AutoFixture(object):
     '''
     We don't support the following fields yet:
 
-        * ``FilePathField``
         * ``XMLField``
         * ``OneToOneField``
         * ``ManyToManyField``
@@ -107,6 +106,9 @@ class AutoFixture(object):
     def add_constraint(self, constraint):
         self.constraints.append(constraint)
 
+    def add_field_value(self, name, value):
+        self.field_values[name] = value
+
     def get_generator(self, field):
         '''
         Return a value generator based on the field instance that is passed to
@@ -137,9 +139,12 @@ class AutoFixture(object):
             # if generate_fk is set, follow_fk is ignored.
             if self.generate_fk:
                 return generators.InstanceGenerator(
-                    AutoFixture(field.rel.to))
+                    AutoFixture(field.rel.to),
+                    limit_choices_to=field.rel.limit_choices_to)
             elif self.follow_fk:
-                return generators.InstanceSelector(field.rel.to)
+                return generators.InstanceSelector(
+                    field.rel.to,
+                    limit_choices_to=field.rel.limit_choices_to)
             elif field.null:
                 return generators.NoneGenerator()
             raise CreateInstanceError(
@@ -156,6 +161,10 @@ class AutoFixture(object):
                 max_length=field.max_length, **kwargs)
         if isinstance(field, fields.URLField):
             return generators.URLGenerator(
+                max_length=field.max_length, **kwargs)
+        if isinstance(field, fields.FilePathField):
+            return generators.FilePathGenerator(
+                path=field.path, match=field.match, recursive=field.recursive,
                 max_length=field.max_length, **kwargs)
         if isinstance(field, fields.CharField):
             if field.blank:

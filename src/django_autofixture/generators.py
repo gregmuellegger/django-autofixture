@@ -2,7 +2,9 @@
 from decimal import Decimal
 import datetime
 import random
+import re
 import string
+import os
 
 
 class Generator(object):
@@ -288,6 +290,8 @@ class IPAddressGenerator(Generator):
 
 
 class TimeGenerator(Generator):
+    coerce_type = unicode
+
     def generate(self):
         return u'%02d:%02d:%02d' % (
             random.randint(0,23),
@@ -296,9 +300,57 @@ class TimeGenerator(Generator):
         )
 
 
+class FilePathGenerator(Generator):
+    coerce_type = unicode
+
+    def __init__(self, path, match=None, recursive=False, max_length=None, *args, **kwargs):
+        self.path = path
+        self.match = match
+        self.recursive = recursive
+        self.max_length = max_length
+        super(FilePathGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        filenames = []
+        if self.match:
+            match_re = re.compile(self.match)
+        if self.recursive:
+            for root, dirs, files in os.walk(self.path):
+                for f in files:
+                    if self.match is None or self.match_re.search(f):
+                        f = os.path.join(root, f)
+                        filenames.append(f)
+        else:
+            try:
+                for f in os.listdir(self.path):
+                    full_file = os.path.join(self.path, f)
+                    if os.path.isfile(full_file) and \
+                        (self.match is None or match_re.search(f)):
+                        filenames.append(full_file)
+            except OSError:
+                pass
+        if self.max_length:
+            filenames = [fn for fn in filenames if len(fn) <= self.max_length]
+        return random.choice(filenames)
+
+
 class InstanceGenerator(Generator):
-    def __init__(self, autofixture, *args, **kwargs):
+    '''
+    Naive support for ``limit_choices_to``. It assignes specified value to
+    field for dict items that have one of the following form::
+
+        fieldname: value
+        fieldname__exact: value
+        fieldname__iexact: value
+    '''
+    def __init__(self, autofixture, limit_choices_to=None, *args, **kwargs):
         self.autofixture = autofixture
+        limit_choices_to = limit_choices_to or {}
+        for lookup, value in limit_choices_to.items():
+            bits = lookup.split('__')
+            if len(bits) == 1 or \
+                len(bits) == 2 and bits[1] in ('exact', 'iexact'):
+                self.autofixture.add_field_value(bits[0], StaticGenerator(value))
         super(InstanceGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
@@ -306,11 +358,16 @@ class InstanceGenerator(Generator):
 
 
 class InstanceSelector(Generator):
-    def __init__(self, queryset, min_count=None, max_count=None, fallback=None, *args, **kwargs):
+    '''
+    Select one or more instances from a queryset.
+    '''
+    def __init__(self, queryset, min_count=None, max_count=None, fallback=None,
+        limit_choices_to=None, *args, **kwargs):
         from django.db.models.query import QuerySet
         if not isinstance(queryset, QuerySet):
             queryset = queryset._default_manager.all()
-        self.queryset = queryset
+        limit_choices_to = limit_choices_to or {}
+        self.queryset = queryset.filter(**limit_choices_to)
         self.fallback = fallback
         self.min_count = min_count
         self.max_count = max_count

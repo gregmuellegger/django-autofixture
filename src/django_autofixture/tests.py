@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from decimal import Decimal
 from datetime import date, datetime
 from django.db import models
@@ -9,6 +10,9 @@ from django_autofixture.autofixture import AutoFixture
 
 def y2k():
     return datetime(2000, 1, 1)
+
+
+filepath = os.path.dirname(os.path.abspath(__file__))
 
 
 class SimpleModel(models.Model):
@@ -45,6 +49,9 @@ class BasicModel(models.Model):
     emailfield = models.EmailField()
     ipaddressfield = models.IPAddressField()
     urlfield = models.URLField()
+    rfilepathfield = models.FilePathField(path=filepath, recursive=True)
+    filepathfield = models.FilePathField(path=filepath)
+    mfilepathfield = models.FilePathField(path=filepath, match=r'^.+\.py$')
 
 
 class UniqueTestModel(models.Model):
@@ -65,6 +72,9 @@ class UniqueTogetherTestModel(models.Model):
 
 class RelatedModel(models.Model):
     related = models.ForeignKey(BasicModel, related_name='rel1')
+    limitedfk = models.ForeignKey(SimpleModel,
+        limit_choices_to={'name__exact': 'foo'}, related_name='rel2',
+        null=True, blank=True)
     m2m = models.ManyToManyField(SimpleModel)
 
 
@@ -126,16 +136,21 @@ class TestRelations(TestCase):
             generate_fk=True)
         for obj in filler.create(100):
             self.assertEqual(obj.related.__class__, BasicModel)
+            self.assertEqual(obj.limitedfk.name, 'foo')
 
     def test_follow_foreignkeys(self):
         related = AutoFixture(BasicModel).create()[0]
         self.assertEqual(BasicModel.objects.count(), 1)
+
+        simple = SimpleModel.objects.create(name='foo')
+        simple2 = SimpleModel.objects.create(name='bar')
 
         filler = AutoFixture(
             RelatedModel,
             follow_fk=True)
         for obj in filler.create(100):
             self.assertEqual(obj.related, related)
+            self.assertEqual(obj.limitedfk, simple)
 
 
 class TestUniqueConstraints(TestCase):
