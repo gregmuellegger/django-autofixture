@@ -3,11 +3,16 @@ from decimal import Decimal
 from datetime import date, datetime
 from django.db import models
 from django.test import TestCase
+from django_autofixture import generators
 from django_autofixture.autofixture import AutoFixture
 
 
 def y2k():
     return datetime(2000, 1, 1)
+
+
+class SimpleModel(models.Model):
+    name = models.CharField(max_length=50)
 
 
 class BasicModel(models.Model):
@@ -56,6 +61,10 @@ class UniqueTogetherTestModel(models.Model):
         unique_together = ('choice1', 'choice2')
 
 
+class RelatedModel(models.Model):
+    related = models.ForeignKey(BasicModel, related_name='rel1')
+    m2m = models.ManyToManyField(SimpleModel)
+
 class TestBasicModel(TestCase):
     def assertEqualsOr(self, first, second, fallback):
         if first != second and not fallback:
@@ -91,6 +100,39 @@ class TestBasicModel(TestCase):
             self.assertTrue('.' in obj.emailfield)
             self.assertTrue(obj.ipaddressfield.count('.'), 3)
             self.assertTrue(len(obj.ipaddressfield) >= 7)
+        self.assertEquals(BasicModel.objects.count(), 100)
+
+    def test_field_values(self):
+        int_value = 1
+        char_values = (u'a', u'b')
+        filler = AutoFixture(
+            BasicModel,
+            field_values={
+                'intfield': 1,
+                'chars': generators.ChoicesGenerator(values=char_values),
+            })
+        for obj in filler.create(100):
+            self.assertEqual(obj.intfield, int_value)
+            self.assertTrue(obj.chars in char_values)
+
+
+class TestRelations(TestCase):
+    def test_generate_foreignkeys(self):
+        filler = AutoFixture(
+            RelatedModel,
+            generate_fks=True)
+        for obj in filler.create(100):
+            self.assertEqual(obj.related.__class__, BasicModel)
+
+    def test_follow_foreignkeys(self):
+        related = AutoFixture(BasicModel).create()[0]
+        self.assertEqual(BasicModel.objects.count(), 1)
+
+        filler = AutoFixture(
+            RelatedModel,
+            follow_fks=True)
+        for obj in filler.create(100):
+            self.assertEqual(obj.related, related)
 
 
 class TestUniqueConstraints(TestCase):
@@ -109,3 +151,35 @@ class TestUniqueConstraints(TestCase):
             get_field_by_name('choice2')[0].choices)
         for obj in filler.create(count1 * count2):
             pass
+
+
+class TestGenerators(TestCase):
+    def test_instance_selector(self):
+        AutoFixture(SimpleModel).create(10)
+
+        result = generators.InstanceSelector(SimpleModel).generate()
+        self.assertEqual(result.__class__, SimpleModel)
+
+        for i in xrange(10):
+            result = generators.InstanceSelector(
+                SimpleModel, max_count=10).generate()
+            self.assertTrue(0 <= len(result) <= 10)
+            for obj in result:
+                self.assertEqual(obj.__class__, SimpleModel)
+        for i in xrange(10):
+            result = generators.InstanceSelector(
+                SimpleModel, min_count=5, max_count=10).generate()
+            self.assertTrue(5 <= len(result) <= 10)
+            for obj in result:
+                self.assertEqual(obj.__class__, SimpleModel)
+        for i in xrange(10):
+            result = generators.InstanceSelector(
+                SimpleModel, min_count=20, max_count=100).generate()
+            # cannot return more instances than available
+            self.assertEquals(len(result), 10)
+            for obj in result:
+                self.assertEqual(obj.__class__, SimpleModel)
+
+        # works also with queryset as argument
+        result = generators.InstanceSelector(SimpleModel.objects.all()).generate()
+        self.assertEqual(result.__class__, SimpleModel)

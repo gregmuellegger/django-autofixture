@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from django.db.models import fields
+from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
 from django_autofixture import generators
 
 
 class CreateInstanceError(Exception):
+    pass
+
+
+class InvalidConstraint(Exception):
     pass
 
 
@@ -25,7 +30,7 @@ class AutoFixture(object):
         pass
 
     overwrite_defaults = False
-    follow_fks = False
+    follow_fks = True
     generate_fks = False
 
     none_chance = 0.2
@@ -82,13 +87,40 @@ class AutoFixture(object):
             not self.overwrite_defaults:
                 return None
         kwargs = {}
+
+        if field.name in self.field_values:
+            value = self.field_values[field.name]
+            if isinstance(value, generators.Generator):
+                return value
+            elif isinstance(value, AutoFixture):
+                return generators.InstanceGenerator(autofixture=value)
+            return generators.StaticGenerator(value=value)
+
         if field.null:
             kwargs['none_chance'] = self.none_chance
         if field.choices:
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
-        elif isinstance(field, fields.EmailField):
+        if isinstance(field, related.ForeignKey):
+            # if generate_fks is set, follow_fks is ignored.
+            if self.generate_fks:
+                return generators.InstanceGenerator(
+                    AutoFixture(field.rel.to))
+            elif self.follow_fks:
+                return generators.InstanceSelector(field.rel.to)
+            elif field.null:
+                return generators.NoneGenerator()
+            raise CreateInstanceError(
+                u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
+                u'"follow_fks" or "generate_fks" parameters.' % (
+                    field.name,
+                    '%s.%s' % (
+                        field.rel.to._meta.app_label,
+                        field.rel.to._meta.object_name,
+                    )
+            ))
+        if isinstance(field, fields.EmailField):
             return generators.EmailGenerator(max_length=field.max_length, **kwargs)
-        elif isinstance(field, fields.CharField):
+        if isinstance(field, fields.CharField):
             if field.blank:
                 min_length = 0
             else:
@@ -100,7 +132,7 @@ class AutoFixture(object):
             return generator(
                 min_length=min_length,
                 max_length=field.max_length)
-        elif isinstance(field, fields.DecimalField):
+        if isinstance(field, fields.DecimalField):
             return generators.DecimalGenerator(
                 decimal_places=field.decimal_places,
                 max_digits=field.max_digits)

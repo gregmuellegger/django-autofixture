@@ -248,3 +248,35 @@ class IPAddressGenerator(Generator):
             IntegerGenerator(min_value=0, max_value=254).generate(),
             IntegerGenerator(min_value=1, max_value=254).generate(),
         ]])
+
+
+class InstanceGenerator(Generator):
+    def __init__(self, autofixture, *args, **kwargs):
+        self.autofixture = autofixture
+        super(InstanceGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        return self.autofixture.create()[0]
+
+
+class InstanceSelector(Generator):
+    def __init__(self, queryset, min_count=None, max_count=None, fallback=None, *args, **kwargs):
+        from django.db.models.query import QuerySet
+        if not isinstance(queryset, QuerySet):
+            queryset = queryset._default_manager.all()
+        self.queryset = queryset
+        self.fallback = fallback
+        self.min_count = min_count
+        self.max_count = max_count
+        super(InstanceSelector, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        if self.max_count is None:
+            try:
+                return self.queryset.order_by('?')[0]
+            except IndexError:
+                return self.fallback
+        else:
+            min_count = self.min_count or 0
+            count = random.randint(min_count, self.max_count)
+            return self.queryset.order_by('?')[:count]
