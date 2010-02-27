@@ -65,6 +65,7 @@ class RelatedModel(models.Model):
     related = models.ForeignKey(BasicModel, related_name='rel1')
     m2m = models.ManyToManyField(SimpleModel)
 
+
 class TestBasicModel(TestCase):
     def assertEqualsOr(self, first, second, fallback):
         if first != second and not fallback:

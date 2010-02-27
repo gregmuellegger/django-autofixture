@@ -2,7 +2,7 @@
 from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
-from django_autofixture import generators
+from django_autofixture import constraints, generators
 
 
 class CreateInstanceError(Exception):
@@ -49,9 +49,13 @@ class AutoFixture(object):
         (fields.TextField, generators.LoremGenerator),
     ))
 
+    default_constraints = [
+        constraints.unique_constraint,
+        constraints.unique_together_constraint]
+
     def __init__(self, model,
-            field_values=None, none_chance=None,
-            overwrite_defaults=None, follow_fks=None, generate_fks=None):
+            field_values=None, none_chance=None, overwrite_defaults=None,
+            constraints=None, follow_fks=None, generate_fks=None):
         '''
         Parameters:
             ``model``: 
@@ -67,6 +71,7 @@ class AutoFixture(object):
         '''
         self.model = model
         self.field_values = field_values or {}
+        self.constraints = constraints or []
         if none_chance is not None:
             self.none_chance = none_chance
         if overwrite_defaults is not None:
@@ -75,6 +80,12 @@ class AutoFixture(object):
             self.follow_fks = follow_fks
         if generate_fks is not None:
             self.generate_fks = generate_fks
+
+        for constraint in self.default_constraints:
+            self.add_constraint(constraint)
+
+    def add_constraint(self, constraint):
+        self.constraints.append(constraint)
 
     def get_generator(self, field):
         '''
@@ -160,29 +171,16 @@ class AutoFixture(object):
             return
         setattr(instance, field.name, value)
 
-    def is_unique(self, lookups):
-        return not bool(
-                self.model._default_manager.filter(**lookups))
-
     def check_constrains(self, instance):
         '''
         Return field names which need recalculation.
         '''
-        for field in instance._meta.fields:
-            if field.unique:
-                unique = self.is_unique(
-                    {field.name: getattr(instance, field.name)})
-                if not unique:
-                    return (field,)
-        if instance._meta.unique_together:
-            for fields in instance._meta.unique_together:
-                check = {}
-                for field_name in fields:
-                    check[field_name] = getattr(instance, field_name)
-                if not self.is_unique(check):
-                    return [instance._meta.get_field_by_name(field_name)[0]
-                        for field_name in fields]
-        return ()
+        recalc_fields = []
+        for constraint in self.constraints:
+            fields = constraint(self.model, instance)
+            if fields:
+                recalc_fields.extend(fields)
+        return recalc_fields
 
     def create(self, count=1, commit=True):
         '''
