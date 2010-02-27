@@ -82,26 +82,33 @@ class LoremGenerator(Generator):
     count = 3
     method = 'b'
 
-    def __init__(self, count=None, method=None, *args, **kwargs):
+    def __init__(self, count=None, method=None, common=None, max_length=None, *args, **kwargs):
         if count is not None:
             self.count = count
         if method is not None:
             self.method = method
+        if common is not None:
+            self.common = common
+        self.max_length = max_length
         super(LoremGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
         from django.contrib.webdesign.lorem_ipsum import paragraphs, sentence, \
             words
         if self.method == 'w':
-            return words(self.count, common=self.common)
+            lorem = words(self.count, common=self.common)
         elif self.method == 's':
-            return u' '.join([sentence()
+            lorem = u' '.join([sentence()
                 for i in xrange(self.count)])
         else:
             paras = paragraphs(self.count, common=self.common)
-        if self.method == 'p':
-            paras = ['<p>%s</p>' % p for p in paras]
-        return u'\n\n'.join(paras)
+            if self.method == 'p':
+                paras = ['<p>%s</p>' % p for p in paras]
+            lorem = u'\n\n'.join(paras)
+        if self.max_length:
+            length = random.randint(self.max_length / 3, self.max_length)
+            lorem = lorem[:max(1, length)]
+        return lorem.strip()
 
 class LoremSentenceGenerator(LoremGenerator):
     method = 's'

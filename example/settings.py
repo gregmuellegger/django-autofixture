@@ -79,6 +79,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
 
+    'example.testapp',
     'django_autofixture',
 )
 

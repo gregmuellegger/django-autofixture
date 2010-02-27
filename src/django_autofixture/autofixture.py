@@ -204,28 +204,23 @@ class AutoFixture(object):
                     ),
                     field.name,
             ))
-        if isinstance(field, fields.EmailField):
-            return generators.EmailGenerator(
-                max_length=field.max_length, **kwargs)
-        if isinstance(field, fields.URLField):
-            return generators.URLGenerator(
-                max_length=field.max_length, **kwargs)
         if isinstance(field, fields.FilePathField):
             return generators.FilePathGenerator(
                 path=field.path, match=field.match, recursive=field.recursive,
                 max_length=field.max_length, **kwargs)
         if isinstance(field, fields.CharField):
-            if field.blank:
-                min_length = 0
-            else:
-                min_length = 1
             if isinstance(field, fields.SlugField):
                 generator = generators.SlugGenerator
-            else:
+            elif isinstance(field, fields.EmailField):
+                generator = generators.EmailGenerator
+            elif isinstance(field, fields.URLField):
+                generator = generators.URLGenerator
+            elif field.max_length > 15:
+                return generators.LoremSentenceGenerator(
+                    common=False,
+                    max_length=field.max_length)
                 generator = generators.StringGenerator
-            return generator(
-                min_length=min_length,
-                max_length=field.max_length)
+            return generator(max_length=field.max_length)
         if isinstance(field, fields.DecimalField):
             return generators.DecimalGenerator(
                 decimal_places=field.decimal_places,
@@ -312,7 +307,7 @@ class AutoFixture(object):
             object_list.append(instance)
         return object_list
 
-    def iter(self, count=1, commit=False):
+    def iter(self, count=1, commit=True):
         for i in xrange(count):
             yield self.create_one(commit=commit)
 
