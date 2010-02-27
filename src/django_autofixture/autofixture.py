@@ -274,6 +274,32 @@ class AutoFixture(object):
                 recalc_fields.extend(fields)
         return recalc_fields
 
+    def create_one(self, commit=True):
+        tries = self.tries
+        instance = self.model()
+        process = instance._meta.fields
+        while process and tries > 0:
+            for field in process:
+                self.process_field(instance, field)
+            process = self.check_constrains(instance)
+            tries -= 1
+        if tries == 0:
+            raise CreateInstanceError(
+                u'Cannot solve constraints for "%s", tried %d times. '
+                u'Please check value generators or model constraints.'
+                u'At least the following fields are involved: %s' % (
+                    '%s.%s' % (
+                        self.model._meta.app_label,
+                        self.model._meta.object_name),
+                    self.tries,
+                    ', '.join([field.name for field in process]),
+            ))
+        if commit:
+            instance.save()
+            for field in instance._meta.many_to_many:
+                self.process_m2m(instance, field)
+        return instance
+
     def create(self, count=1, commit=True):
         '''
         Create and return ``count`` model instances.
@@ -282,28 +308,13 @@ class AutoFixture(object):
         '''
         object_list = []
         for i in xrange(count):
-            tries = self.tries
-            instance = self.model()
-            process = instance._meta.fields
-            while process and tries > 0:
-                for field in process:
-                    self.process_field(instance, field)
-                process = self.check_constrains(instance)
-                tries -= 1
-            if tries == 0:
-                raise CreateInstanceError(
-                    u'Cannot solve constraints for "%s", tried %d times. '
-                    u'Please check value generators or model constraints.'
-                    u'At least the following fields are involved: %s' % (
-                        '%s.%s' % (
-                            self.model._meta.app_label,
-                            self.model._meta.object_name),
-                        self.tries,
-                        ', '.join([field.name for field in process]),
-                ))
-            if commit:
-                instance.save()
-                for field in instance._meta.many_to_many:
-                    self.process_m2m(instance, field)
+            instance = self.create_one(commit=commit)
             object_list.append(instance)
         return object_list
+
+    def iter(self, count=1, commit=False):
+        for i in xrange(count):
+            yield self.create_one(commit=commit)
+
+    def __iter__(self):
+        yield self.create_one()

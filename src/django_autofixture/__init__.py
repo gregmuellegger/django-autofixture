@@ -1,0 +1,1 @@
+from django_autofixture.autofixture import AutoFixture
