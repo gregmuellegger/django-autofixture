@@ -9,10 +9,6 @@ class CreateInstanceError(Exception):
     pass
 
 
-class InvalidConstraint(Exception):
-    pass
-
-
 class AutoFixture(object):
     '''
     We don't support the following fields yet:
@@ -76,9 +72,9 @@ class AutoFixture(object):
             ``constraints``: A list of callables. The constraints are used to
                 verify if the created model instance may be used. The callable
                 gets the actual model as first and the instance as second
-                parameter. The instance is not saved yet at that moment.
-                It may return ``None`` to indicate that everything is ok or a
-                list of field names that are not passing the constraint.
+                parameter. The instance is not populated yet at this moment.
+                The callable may raise an ``InvalidConstraint`` exception to
+                indicate which fields violate the constraint.
 
             ``follow_fk``: A boolean value indicating if foreign keys should be
                 set to random, already existing, instances of the related
@@ -260,13 +256,14 @@ class AutoFixture(object):
 
     def check_constrains(self, instance):
         '''
-        Return field names which need recalculation.
+        Return fieldnames which need recalculation.
         '''
         recalc_fields = []
         for constraint in self.constraints:
-            fields = constraint(self.model, instance)
-            if fields:
-                recalc_fields.extend(fields)
+            try:
+                constraint(self.model, instance)
+            except constraints.InvalidConstraint, e:
+                recalc_fields.extend(e.fields)
         return recalc_fields
 
     def create_one(self, commit=True):
