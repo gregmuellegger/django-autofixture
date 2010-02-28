@@ -76,8 +76,10 @@ class RelatedModel(models.Model):
         limit_choices_to={'name__exact': 'foo'}, related_name='rel2',
         null=True, blank=True)
 
+
 class O2OModel(models.Model):
     o2o = models.OneToOneField(SimpleModel)
+
 
 class M2MModel(models.Model):
     m2m = models.ManyToManyField(SimpleModel)

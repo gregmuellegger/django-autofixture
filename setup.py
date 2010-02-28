@@ -28,7 +28,7 @@ long_description = UltraMagicString(file('README').read())
 
 setup(
     name = 'django-autofixture',
-    version = '0.1.0pre1',
+    version = '0.1.0',
     url = 'https://launchpad.net/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
