@@ -10,6 +10,10 @@ class Command(BaseCommand):
     args = 'app.Model:# [app.Model:# ...]'
 
     option_list = BaseCommand.option_list + (
+        make_option('-d', '--overwrite-defaults', action='store_true',
+            dest='overwrite_defaults', default=False, help=
+                u'Generate values for fields with default values. Default is '
+                u'to use default values.'),
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
             default=False, help=
                 u'Ignore ForeignKey fields while creating model instances.'),
@@ -58,6 +62,8 @@ class Command(BaseCommand):
                     error_option,
                     error_option.split('=', 1)[0]))
 
+        overwrite_defaults = options['overwrite_defaults']
+
         verbosity = int(options['verbosity'])
 
         models = []
@@ -83,17 +89,21 @@ class Command(BaseCommand):
         for model, count in models:
             fill = AutoFixture(
                 model,
+                overwrite_defaults=overwrite_defaults,
                 follow_fk=follow_fk,
                 generate_fk=generate_fk,
                 follow_m2m=follow_m2m,
                 generate_m2m=generate_m2m)
             for i, obj in enumerate(fill.iter(count)):
                 if verbosity >= 1:
+                    reprstr = unicode(obj)
+                    if len(reprstr) > 50:
+                        reprstr = u'%s ...' % reprstr[:50]
                     print('#%d %s(pk=%s): %s' % (
                         i+1,
                         '%s.%s' % (
                             model._meta.app_label,
                             model._meta.object_name),
                         unicode(obj.pk),
-                        unicode(obj),
+                        reprstr,
                     ))

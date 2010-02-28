@@ -15,4 +15,4 @@ class Post(models.Model):
     author = models.ForeignKey(Author)
 
     def __unicode__(self):
-        return self.name
+        return '%s: %s' % (self.name, self.text)
