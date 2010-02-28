@@ -9,6 +9,7 @@ import os
 
 class Generator(object):
     coerce_type = staticmethod(lambda x: x)
+    none_value = None
 
     def __init__(self, none_chance=0, coerce=None):
         self.none_chance = none_chance
@@ -23,7 +24,7 @@ class Generator(object):
 
     def get_value(self):
         if random.random() < self.none_chance:
-            return None
+            return self.none_value
         value = self.generate()
         return self.coerce(value)
 
@@ -39,7 +40,7 @@ class StaticGenerator(Generator):
 
 class NoneGenerator(Generator):
     def generate(self):
-        return None
+        return self.none_value
 
 
 class StringGenerator(Generator):
@@ -365,6 +366,8 @@ class InstanceGenerator(Generator):
 
 
 class MultipleInstanceGenerator(InstanceGenerator):
+    none_value = []
+
     def __init__(self, *args, **kwargs):
         self.min_count = kwargs.pop('min_count', 1)
         self.max_count = kwargs.pop('max_count', 10)
@@ -382,6 +385,8 @@ class InstanceSelector(Generator):
     '''
     Select one or more instances from a queryset.
     '''
+    none_value = []
+
     def __init__(self, queryset, min_count=None, max_count=None, fallback=None,
         limit_choices_to=None, *args, **kwargs):
         from django.db.models.query import QuerySet
