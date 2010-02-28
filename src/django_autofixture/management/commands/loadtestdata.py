@@ -11,36 +11,69 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
-            default=False, help=''),
+            default=False, help=
+                u'Ignore ForeignKey fields while creating model instances.'),
         make_option('--generate-fk', action='store_true', dest='generate_fk',
-            default=False, help=''),
-        make_option('--no-follow-m2m', action='store_true', dest='no_follow_m2m',
-            default=False, help=''),
+            default=False, help=
+                u'Do not use already existing instances for ForeignKey '
+                u'relations. Create new instances instead.'),
+        make_option('--no-follow-m2m', action='store_true',
+            dest='no_follow_m2m', default=False, help=
+                u'Ignore ManyToManyFields while creating model instances.'),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default='1,5', help=''),
+            default='1,5', help=
+                u'Specify minimum and maximum number of instances that are '
+                u'assigned to a m2m relation. Use two, comma separated '
+                u'numbers in the form of: min,max. Default is 1,5.'),
         make_option('--generate-m2m', action='store', dest='generate_m2m',
-            default='0,0', help=''),
+            default='0,0', help=
+                u'Specify minimum and maximum number of instances that are '
+                u'newly created and assigned to a m2m relation. Use two, '
+                u'comma separated numbers in the form of: min,max. Default is '
+                u'0,0 which means that no related models are created.'),
     )
 
     @commit_on_success
     def handle(self, *attrs, **options):
-        # TODO(gregor@muellegger.de): Better error handling
         from django.db.models import get_model
 
         follow_fk = not options['no_follow_fk']
         follow_m2m = not options['no_follow_m2m']
-        if follow_m2m:
-            follow_m2m = [int(i) for i in options['follow_m2m'].split(',')]
         generate_fk = options['generate_fk']
-        generate_m2m = [int(i) for i in options['generate_m2m'].split(',')]
+
+        error_option = None
+        try:
+            if follow_m2m:
+                follow_m2m = [int(i) for i in options['follow_m2m'].split(',')]
+        except ValueError:
+            error_option = '--follow-m2m=%s' % options['follow_m2m']
+        try:
+            generate_m2m = [int(i) for i in options['generate_m2m'].split(',')]
+        except ValueError:
+            error_option = '--generate-m2m=%s' % options['generate_m2m']
+        if error_option:
+            raise CommandError(
+                u'Invalid option %s\n'
+                u'Expected: %s=min,max (min and max must be numbers)' % (
+                    error_option,
+                    error_option.split('=', 1)[0]))
 
         verbosity = int(options['verbosity'])
 
         models = []
         for attr in attrs:
-            app_label, model_label = attr.split('.')
-            model_label, count = model_label.split(':')
-            count = int(count)
+            try:
+                app_label, model_label = attr.split('.')
+                model_label, count = model_label.split(':')
+                count = int(count)
+            except ValueError:
+                raise CommandError(
+                    u'Invalid argument: %s\n'
+                    u'Expected: app_label.ModelName:count '
+                    u'(count must be a number)' % (
+                        attr,
+                    )
+                )
             model = get_model(app_label, model_label)
             if not model:
                 raise CommandError(
