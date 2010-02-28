@@ -82,7 +82,15 @@ class O2OModel(models.Model):
 
 
 class M2MModel(models.Model):
-    m2m = models.ManyToManyField(SimpleModel)
+    m2m = models.ManyToManyField(SimpleModel, related_name='m2m_rel1')
+
+class ThroughModel(models.Model):
+    simple = models.ForeignKey('SimpleModel')
+    other = models.ForeignKey('M2MModelThrough')
+
+class M2MModelThrough(models.Model):
+    m2m = models.ManyToManyField(SimpleModel, related_name='m2m_rel2',
+        through=ThroughModel)
 
 
 class TestBasicModel(TestCase):
@@ -192,6 +200,16 @@ class TestRelations(TestCase):
     def test_generate_m2m(self):
         filler = AutoFixture(
             M2MModel,
+            generate_m2m=(1, 5))
+        all_m2m = set()
+        for obj in filler.create(10):
+            self.assertTrue(1 <= obj.m2m.count() <= 5)
+            all_m2m.update(obj.m2m.all())
+        self.assertEqual(SimpleModel.objects.count(), len(all_m2m))
+
+    def test_generate_m2m_with_intermediary_model(self):
+        filler = AutoFixture(
+            M2MModelThrough,
             generate_m2m=(1, 5))
         all_m2m = set()
         for obj in filler.create(10):

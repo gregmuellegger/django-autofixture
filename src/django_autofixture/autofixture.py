@@ -252,7 +252,39 @@ class AutoFixture(object):
         setattr(instance, field.name, value)
 
     def process_m2m(self, instance, field):
-        return self.process_field(instance, field)
+        if field.rel.through._meta.auto_created:
+            return self.process_field(instance, field)
+        # if m2m relation has intermediary model:
+        #   * only generate relation if 'generate_m2m' is given
+        #   * first generate intermediary model and assign a newly created
+        #     related model to the foreignkey
+        kwargs = {}
+        if self.generate_m2m:
+            # get fk to related model on intermediary model
+            related_fks = [fk
+                for fk in field.rel.through._meta.fields
+                if isinstance(fk, related.ForeignKey) and \
+                    fk.rel.to is field.rel.to]
+            self_fks = [fk
+                for fk in field.rel.through._meta.fields
+                if isinstance(fk, related.ForeignKey) and \
+                    fk.rel.to is self.model]
+            assert len(related_fks) == 1
+            assert len(self_fks) == 1
+            related_fk = related_fks[0]
+            self_fk = self_fks[0]
+            min_count, max_count = self.generate_m2m[0:2]
+            intermediary_model = generators.MultipleInstanceGenerator(
+                AutoFixture(
+                    field.rel.through,
+                    field_values={
+                        self_fk.name: instance,
+                        related_fk.name: generators.InstanceGenerator(
+                            AutoFixture(field.rel.to))
+                    }),
+                min_count=min_count,
+                max_count=max_count,
+                **kwargs).generate()
 
     def check_constrains(self, instance):
         '''
@@ -278,7 +310,7 @@ class AutoFixture(object):
         if tries == 0:
             raise CreateInstanceError(
                 u'Cannot solve constraints for "%s", tried %d times. '
-                u'Please check value generators or model constraints.'
+                u'Please check value generators or model constraints. '
                 u'At least the following fields are involved: %s' % (
                     '%s.%s' % (
                         self.model._meta.app_label,
