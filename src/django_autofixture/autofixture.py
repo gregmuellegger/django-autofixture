@@ -2,7 +2,7 @@
 from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
-from django_autofixture import constraints, generators
+from django_autofixture import constraints, generators, signals
 
 
 class CreateInstanceError(Exception):
@@ -290,6 +290,11 @@ class AutoFixture(object):
             instance.save()
             for field in instance._meta.many_to_many:
                 self.process_m2m(instance, field)
+        signals.instance_created.send(
+            sender=self,
+            model=self.model,
+            instance=instance,
+            commited=commit)
         return instance
 
     def create(self, count=1, commit=True):

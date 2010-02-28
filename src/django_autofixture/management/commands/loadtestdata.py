@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
-from django_autofixture import AutoFixture
+from django_autofixture import signals, AutoFixture
 from optparse import make_option
 
 
@@ -36,6 +36,18 @@ class Command(BaseCommand):
                 u'comma separated numbers in the form of: min,max. Default is '
                 u'0,0 which means that no related models are created.'),
     )
+
+    def print_instance(self, sender, model, instance, **kwargs):
+        reprstr = unicode(instance)
+        if len(reprstr) > 50:
+            reprstr = u'%s ...' % reprstr[:50]
+        print '%s(pk=%s): %s' % (
+            '%s.%s' % (
+                model._meta.app_label,
+                model._meta.object_name),
+            unicode(instance.pk),
+            reprstr,
+        )
 
     @commit_on_success
     def handle(self, *attrs, **options):
@@ -86,6 +98,10 @@ class Command(BaseCommand):
                     u'Unknown model: %s.%s' % (app_label, model_label))
             models.append((model, count))
 
+        if verbosity >= 1:
+            signals.instance_created.connect(
+                self.print_instance)
+
         for model, count in models:
             fill = AutoFixture(
                 model,
@@ -94,16 +110,5 @@ class Command(BaseCommand):
                 generate_fk=generate_fk,
                 follow_m2m=follow_m2m,
                 generate_m2m=generate_m2m)
-            for i, obj in enumerate(fill.iter(count)):
-                if verbosity >= 1:
-                    reprstr = unicode(obj)
-                    if len(reprstr) > 50:
-                        reprstr = u'%s ...' % reprstr[:50]
-                    print('#%d %s(pk=%s): %s' % (
-                        i+1,
-                        '%s.%s' % (
-                            model._meta.app_label,
-                            model._meta.object_name),
-                        unicode(obj.pk),
-                        reprstr,
-                    ))
+            for obj in fill.iter(count):
+                pass
