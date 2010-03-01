@@ -132,6 +132,7 @@ class TestBasicModel(TestCase):
             self.assertEqual(type(obj.decimalfield), Decimal)
             self.assertTrue('@' in obj.emailfield)
             self.assertTrue('.' in obj.emailfield)
+            self.assertTrue(' ' not in obj.emailfield)
             self.assertTrue(obj.ipaddressfield.count('.'), 3)
             self.assertTrue(len(obj.ipaddressfield) >= 7)
         self.assertEqual(BasicModel.objects.count(), 100)

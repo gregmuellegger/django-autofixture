@@ -234,7 +234,7 @@ class EmailGenerator(StringGenerator):
         if chars is not None:
             self.chars = chars
         self.tlds = tlds
-        super(EmailGenerator, self).__init__(chars, max_length=max_length, *args, **kwargs)
+        super(EmailGenerator, self).__init__(self.chars, max_length=max_length, *args, **kwargs)
 
     def generate(self):
         maxl = self.max_length - 2
