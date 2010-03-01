@@ -104,14 +104,48 @@ class AutoFixture(object):
             self.none_chance = none_chance
         if overwrite_defaults is not None:
             self.overwrite_defaults = overwrite_defaults
+
         if follow_fk is not None:
             self.follow_fk = follow_fk
+        if not hasattr(self.follow_fk, '__iter__'):
+            if self.follow_fk:
+                self.follow_fk = [field.name
+                    for field in model._meta.fields
+                    if isinstance(field, related.ForeignKey)]
+            else:
+                self.follow_fk = ()
+
         if generate_fk is not None:
             self.generate_fk = generate_fk
+        if not hasattr(self.generate_fk, '__iter__'):
+            if self.generate_fk:
+                self.generate_fk = [field.name
+                    for field in model._meta.fields
+                    if isinstance(field, related.ForeignKey)]
+            else:
+                self.generate_fk = ()
+
         if follow_m2m is not None:
             self.follow_m2m = follow_m2m
+        if not isinstance(self.follow_m2m, dict):
+            if self.follow_m2m:
+                min_count, max_count = self.follow_m2m
+                self.follow_m2m = {}
+                for field in model._meta.many_to_many:
+                    self.follow_m2m[field.name] = min_count, max_count
+            else:
+                self.follow_m2m = {}
+
         if generate_m2m is not None:
             self.generate_m2m = generate_m2m
+        if not isinstance(self.generate_m2m, dict):
+            if self.generate_m2m:
+                min_count, max_count = self.generate_m2m
+                self.generate_m2m = {}
+                for field in model._meta.many_to_many:
+                    self.generate_m2m[field.name] = min_count, max_count
+            else:
+                self.generate_m2m = {}
 
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
@@ -152,15 +186,15 @@ class AutoFixture(object):
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):
             # if generate_fk is set, follow_fk is ignored.
-            if self.generate_fk:
+            if field.name in self.generate_fk:
                 return generators.InstanceGenerator(
                     AutoFixture(field.rel.to),
                     limit_choices_to=field.rel.limit_choices_to)
-            elif self.follow_fk:
+            if field.name in self.follow_fk:
                 return generators.InstanceSelector(
                     field.rel.to,
                     limit_choices_to=field.rel.limit_choices_to)
-            elif field.null:
+            if field.null:
                 return generators.NoneGenerator()
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
@@ -172,24 +206,24 @@ class AutoFixture(object):
                     )
             ))
         if isinstance(field, related.ManyToManyField):
-            if self.generate_m2m:
-                min_count, max_count = self.generate_m2m[0:2]
+            if field.name in self.generate_m2m:
+                min_count, max_count = self.generate_m2m[field.name]
                 return generators.MultipleInstanceGenerator(
                     AutoFixture(field.rel.to),
                     limit_choices_to=field.rel.limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
                     **kwargs)
-            elif self.follow_m2m:
-                min_count, max_count = self.follow_m2m[0:2]
+            if field.name in self.follow_m2m:
+                min_count, max_count = self.follow_m2m[field.name]
                 return generators.InstanceSelector(
                     field.rel.to,
                     limit_choices_to=field.rel.limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
                     **kwargs)
-            elif field.null:
-                return generators.NoneGenerator()
+            if field.null:
+                return generators.StaticGenerator([])
             raise CreateInstanceError(
                 u'Cannot assign instances of "%s" to ManyToManyField "%s". '
                 u'Provide either "follow_m2m" or "generate_m2m" '
@@ -259,7 +293,7 @@ class AutoFixture(object):
         #   * first generate intermediary model and assign a newly created
         #     related model to the foreignkey
         kwargs = {}
-        if self.generate_m2m:
+        if field.name in self.generate_m2m:
             # get fk to related model on intermediary model
             related_fks = [fk
                 for fk in field.rel.through._meta.fields
@@ -273,7 +307,7 @@ class AutoFixture(object):
             assert len(self_fks) == 1
             related_fk = related_fks[0]
             self_fk = self_fks[0]
-            min_count, max_count = self.generate_m2m[0:2]
+            min_count, max_count = self.generate_m2m[field.name]
             intermediary_model = generators.MultipleInstanceGenerator(
                 AutoFixture(
                     field.rel.through,
