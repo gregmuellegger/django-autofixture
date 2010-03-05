@@ -4,16 +4,15 @@ from django.db import models
 from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.importlib import import_module
-from django_autofixture import signals, AutoFixture
+from django_autofixture import signals
 from optparse import make_option
 
 
 class Command(BaseCommand):
-    help = 'Create random model instances for testing purposes.'
+    help = (
+        u'Create random model instances for testing purposes.'
+    )
     args = 'app.Model:# [app.Model:# ...]'
-
-    # TODO(gregor@muellegger.de): change descriptions, they are already
-    # invalid
 
     option_list = BaseCommand.option_list + (
         make_option('-d', '--overwrite-defaults', action='store_true',
@@ -22,26 +21,35 @@ class Command(BaseCommand):
                 u'to use default values.'),
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
             default=False, help=
-                u'Ignore ForeignKey fields while creating model instances.'),
+                u'Ignore foreignkeys while creating model instances.'),
         make_option('--generate-fk', action='store', dest='generate_fk',
             default='', help=
                 u'Do not use already existing instances for ForeignKey '
-                u'relations. Create new instances instead.'),
+                u'relations. Create new instances instead. You can specify a '
+                u'comma sperated list of field names or ALL to indicate that '
+                u'all foreignkeys should be generated automatically.'),
         make_option('--no-follow-m2m', action='store_true',
             dest='no_follow_m2m', default=False, help=
-                u'Ignore ManyToManyFields while creating model instances.'),
+                u'Ignore many to many fields while creating model '
+                u'instances.'),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
             default='1:5', help=
                 u'Specify minimum and maximum number of instances that are '
-                u'assigned to a m2m relation. Use two, comma separated '
-                u'numbers in the form of: min,max. Default is 1,5.'),
+                u'assigned to a m2m relation. Use two, colon separated '
+                u'numbers in the form of: min,max. Default is 1,5.\n'
+                u'You can limit following of many to many relations to '
+                u'specific fields using the following format:\n'
+                u'field1:min:max,field2:min:max ...'),
         make_option('--generate-m2m', action='store', dest='generate_m2m',
             default='', help=
                 u'Specify minimum and maximum number of instances that are '
                 u'newly created and assigned to a m2m relation. Use two, '
-                u'comma separated numbers in the form of: min,max. Default is '
-                u'0,0 which means that no related models are created.'),
-        make_option('--use', action='store', dest='use',
+                u'colon separated numbers in the form of: min:max. Default is '
+                u'to not generate many to many related models automatically. '
+                u'You can select specific of many to many fields which are '
+                u'automatically generated. Use the following format:\n'
+                u'field1:min:max,field2:min:max ...'),
+        make_option('-u', '--use', action='store', dest='use',
             default='', help=
                 u'Specify a autofixture subclass that is used to create the '
                 u'test data. E.g. myapp.autofixtures.MyAutoFixture'),
