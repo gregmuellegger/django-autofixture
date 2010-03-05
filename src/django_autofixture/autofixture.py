@@ -393,6 +393,9 @@ class AutoFixture(object):
                 recalc_fields.extend(e.fields)
         return recalc_fields
 
+    def post_process_instance(self, instance):
+        return instance
+
     def create_one(self, commit=True):
         tries = self.tries
         instance = self.model()
@@ -422,7 +425,7 @@ class AutoFixture(object):
             model=self.model,
             instance=instance,
             committed=commit)
-        return instance
+        return self.post_process_instance(instance)
 
     def create(self, count=1, commit=True):
         '''
