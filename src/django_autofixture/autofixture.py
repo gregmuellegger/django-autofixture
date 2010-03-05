@@ -421,7 +421,7 @@ class AutoFixture(object):
             sender=self,
             model=self.model,
             instance=instance,
-            commited=commit)
+            committed=commit)
         return instance
 
     def create(self, count=1, commit=True):
