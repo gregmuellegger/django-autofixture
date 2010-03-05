@@ -5,7 +5,8 @@ from datetime import date, datetime
 from django.db import models
 from django.test import TestCase
 from django_autofixture import generators
-from django_autofixture.autofixture import AutoFixture, CreateInstanceError
+from django_autofixture.autofixture import AutoFixture, CreateInstanceError, \
+    Link
 
 
 def y2k():
@@ -21,6 +22,16 @@ class SimpleModel(models.Model):
 
 class OtherSimpleModel(models.Model):
     name = models.CharField(max_length=50)
+
+
+class DeepLinkModel1(models.Model):
+    related = models.ForeignKey('SimpleModel')
+    related2 = models.ForeignKey('SimpleModel',
+        related_name='deeplinkmodel1_rel2',
+        null=True, blank=True)
+
+class DeepLinkModel2(models.Model):
+    related = models.ForeignKey('DeepLinkModel1')
 
 
 class BasicModel(models.Model):
@@ -159,6 +170,25 @@ class TestRelations(TestCase):
         for obj in filler.create(100):
             self.assertEqual(obj.related.__class__, BasicModel)
             self.assertEqual(obj.limitedfk.name, 'foo')
+
+    def test_deep_generate_foreignkeys(self):
+        filler = AutoFixture(
+            DeepLinkModel2,
+            generate_fk=True)
+        for obj in filler.create(10):
+            self.assertEqual(obj.related.__class__, DeepLinkModel1)
+            self.assertEqual(obj.related.related.__class__, SimpleModel)
+            self.assertEqual(obj.related.related2.__class__, SimpleModel)
+
+    def test_deep_generate_foreignkeys2(self):
+        filler = AutoFixture(
+            DeepLinkModel2,
+            follow_fk=False,
+            generate_fk=('related', 'related__related'))
+        for obj in filler.create(10):
+            self.assertEqual(obj.related.__class__, DeepLinkModel1)
+            self.assertEqual(obj.related.related.__class__, SimpleModel)
+            self.assertEqual(obj.related.related2, None)
 
     def test_generate_only_some_foreignkeys(self):
         filler = AutoFixture(
@@ -333,3 +363,64 @@ class TestGenerators(TestCase):
         # works also with queryset as argument
         result = generators.InstanceSelector(SimpleModel.objects.all()).generate()
         self.assertEqual(result.__class__, SimpleModel)
+
+
+class TestLinkClass(TestCase):
+    def test_flat_link(self):
+        link = Link(('foo', 'bar'))
+        self.assertTrue('foo' in link)
+        self.assertTrue('bar' in link)
+        self.assertFalse('spam' in link)
+
+        self.assertEqual(link['foo'], None)
+        self.assertEqual(link['spam'], None)
+
+    def test_nested_links(self):
+        link = Link(('foo', 'foo__bar', 'spam__ALL'))
+        self.assertTrue('foo' in link)
+        self.assertFalse('spam' in link)
+        self.assertFalse('egg' in link)
+
+        foolink = link.get_deep_links('foo')
+        self.assertTrue('bar' in foolink)
+        self.assertFalse('egg' in foolink)
+
+        spamlink = link.get_deep_links('spam')
+        self.assertTrue('bar' in spamlink)
+        self.assertTrue('egg' in spamlink)
+
+    def test_links_with_value(self):
+        link = Link({'foo': 1, 'spam__egg': 2}, default=0)
+        self.assertTrue('foo' in link)
+        self.assertEqual(link['foo'], 1)
+        self.assertFalse('spam' in link)
+        self.assertEqual(link['spam'], 0)
+
+        spamlink = link.get_deep_links('spam')
+        self.assertTrue('egg' in spamlink)
+        self.assertEqual(spamlink['bar'], 0)
+        self.assertEqual(spamlink['egg'], 2)
+
+    def test_always_true_link(self):
+        link = Link(True)
+        self.assertTrue('field' in link)
+        self.assertTrue('any' in link)
+
+        link = link.get_deep_links('field')
+        self.assertTrue('field' in link)
+        self.assertTrue('any' in link)
+
+        link = Link(True)
+        self.assertTrue('field' in link)
+        self.assertTrue('any' in link)
+
+        link = link.get_deep_links('field')
+        self.assertTrue('field' in link)
+        self.assertTrue('any' in link)
+
+    def test_inherit_always_true_value(self):
+        link = Link({'ALL': 1})
+        self.assertEqual(link['foo'], 1)
+
+        sublink = link.get_deep_links('foo')
+        self.assertEqual(sublink['bar'], 1)

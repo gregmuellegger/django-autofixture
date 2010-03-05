@@ -9,6 +9,70 @@ class CreateInstanceError(Exception):
     pass
 
 
+class Data(object):
+    '''
+    Emulates behaviour of ``_value`` but can hold additional data.
+
+    I'm happy to use an already existing implementation that is out there. But
+    for now this serves very well.
+    '''
+    def __init__(self, *args, **kwargs):
+        self._value__ = args.pop(0)
+        self._list = args
+        self._dict = kwargs
+
+    def __getattr__(self, attr):
+        return getattr(self._value__, attr)
+
+
+class Link(object):
+    '''
+    Handles logic of following or generating foreignkeys and m2m relations.
+    '''
+    def __init__(self, fields=None, default=None):
+        self.fields = {}
+        self.subfields = {}
+        self.default = default
+
+        fields = fields or {}
+        if fields is True:
+            fields = {'ALL': None}
+        if not isinstance(fields, dict):
+            fields = dict([(v, None) for v in fields])
+        for field, value in fields.items():
+            try:
+                fieldname, subfield = field.split('__', 1)
+                self.subfields.setdefault(fieldname, {})[subfield] = value
+            except ValueError:
+                self.fields[field] = value
+
+    def __getitem__(self, key):
+        return self.fields.get(key,
+            self.fields.get('ALL', self.default))
+
+    def __iter__(self):
+        for field in self.fields:
+            yield field
+        for key, value in self.subfields.items():
+            yield '%s__%s' % (key, value)
+
+    def __contains__(self, value):
+        if 'ALL' in self.fields:
+            return True
+        if value in self.fields:
+            return True
+        return False
+
+    def get_deep_links(self, field):
+        if 'ALL' in self.fields:
+            fields = {'ALL': self.fields['ALL']}
+        else:
+            fields = self.subfields.get(field, {})
+            if 'ALL' in fields:
+                fields = {'ALL': fields['ALL']}
+        return Link(fields, default=self.default)
+
+
 class AutoFixture(object):
     '''
     We don't support the following fields yet:
@@ -23,10 +87,10 @@ class AutoFixture(object):
         pass
 
     overwrite_defaults = False
-    follow_fk = True
-    generate_fk = False
-    follow_m2m = (1, 5)
-    generate_m2m = False
+    follow_fk = Link(True)
+    generate_fk = Link(False)
+    follow_m2m = Link('ALL', default=(1,5))
+    generate_m2m = Link(False, default=(0,0))
 
     none_chance = 0.2
     tries = 1000
@@ -55,7 +119,7 @@ class AutoFixture(object):
             follow_m2m=None, generate_m2m=None):
         '''
         Parameters:
-            ``model``: 
+            ``model``:
 
             ``field_values``: A dictionary with field names of ``model`` as
                 keys. Values may be static values that are assigned to the
@@ -106,46 +170,28 @@ class AutoFixture(object):
             self.overwrite_defaults = overwrite_defaults
 
         if follow_fk is not None:
+            if not isinstance(follow_fk, Link):
+                follow_fk = Link(follow_fk)
             self.follow_fk = follow_fk
-        if not hasattr(self.follow_fk, '__iter__'):
-            if self.follow_fk:
-                self.follow_fk = [field.name
-                    for field in model._meta.fields
-                    if isinstance(field, related.ForeignKey)]
-            else:
-                self.follow_fk = ()
 
         if generate_fk is not None:
+            if not isinstance(generate_fk, Link):
+                generate_fk = Link(generate_fk)
             self.generate_fk = generate_fk
-        if not hasattr(self.generate_fk, '__iter__'):
-            if self.generate_fk:
-                self.generate_fk = [field.name
-                    for field in model._meta.fields
-                    if isinstance(field, related.ForeignKey)]
-            else:
-                self.generate_fk = ()
 
         if follow_m2m is not None:
+            if not isinstance(follow_m2m, dict):
+                follow_m2m = Link({'ALL': follow_m2m})
+            elif not isinstance(follow_m2m, Link):
+                follow_m2m = Link(follow_m2m)
             self.follow_m2m = follow_m2m
-        if not isinstance(self.follow_m2m, dict):
-            if self.follow_m2m:
-                min_count, max_count = self.follow_m2m
-                self.follow_m2m = {}
-                for field in model._meta.many_to_many:
-                    self.follow_m2m[field.name] = min_count, max_count
-            else:
-                self.follow_m2m = {}
 
         if generate_m2m is not None:
+            if not isinstance(generate_m2m, dict):
+                generate_m2m = Link({'ALL': generate_m2m})
+            elif not isinstance(generate_m2m, Link):
+                generate_m2m = Link(generate_m2m)
             self.generate_m2m = generate_m2m
-        if not isinstance(self.generate_m2m, dict):
-            if self.generate_m2m:
-                min_count, max_count = self.generate_m2m
-                self.generate_m2m = {}
-                for field in model._meta.many_to_many:
-                    self.generate_m2m[field.name] = min_count, max_count
-            else:
-                self.generate_m2m = {}
 
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
@@ -188,7 +234,10 @@ class AutoFixture(object):
             # if generate_fk is set, follow_fk is ignored.
             if field.name in self.generate_fk:
                 return generators.InstanceGenerator(
-                    AutoFixture(field.rel.to),
+                    AutoFixture(
+                        field.rel.to,
+                        follow_fk=self.follow_fk.get_deep_links(field.name),
+                        generate_fk=self.generate_fk.get_deep_links(field.name)),
                     limit_choices_to=field.rel.limit_choices_to)
             if field.name in self.follow_fk:
                 return generators.InstanceSelector(
@@ -242,9 +291,11 @@ class AutoFixture(object):
             if isinstance(field, fields.SlugField):
                 generator = generators.SlugGenerator
             elif isinstance(field, fields.EmailField):
-                generator = generators.EmailGenerator
+                return generators.EmailGenerator(
+                    max_length=min(field.max_length, 30))
             elif isinstance(field, fields.URLField):
-                generator = generators.URLGenerator
+                return generators.URLGenerator(
+                    max_length=min(field.max_length, 25))
             elif field.max_length > 15:
                 return generators.LoremSentenceGenerator(
                     common=False,

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.db import models
 from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
 from django_autofixture import signals, AutoFixture
@@ -37,17 +38,42 @@ class Command(BaseCommand):
                 u'0,0 which means that no related models are created.'),
     )
 
+    def format_output(self, obj):
+        output = unicode(obj)
+        if len(output) > 50:
+            output = u'%s ...' % output[:50]
+        return output
+
     def print_instance(self, sender, model, instance, **kwargs):
-        reprstr = unicode(instance)
-        if len(reprstr) > 50:
-            reprstr = u'%s ...' % reprstr[:50]
+        if self.verbosity < 1:
+            return
         print '%s(pk=%s): %s' % (
             '%s.%s' % (
                 model._meta.app_label,
                 model._meta.object_name),
             unicode(instance.pk),
-            reprstr,
+            self.format_output(instance),
         )
+        if self.verbosity < 2:
+            return
+        for field in instance._meta.fields:
+            if isinstance(field, models.ForeignKey):
+                obj = getattr(instance, field.name)
+                if isinstance(obj, models.Model):
+                    print '|   %s (pk=%s): %s' % (
+                        field.name,
+                        obj.pk,
+                        self.format_output(obj))
+        for field in instance._meta.many_to_many:
+            qs = getattr(instance, field.name).all()
+            if qs.count():
+                print '|   %s (count=%d):' % (
+                    field.name,
+                    qs.count())
+                for obj in qs:
+                    print '|   |   (pk=%s): %s' % (
+                        obj.pk,
+                        self.format_output(obj))
 
     @commit_on_success
     def handle(self, *attrs, **options):
@@ -76,7 +102,7 @@ class Command(BaseCommand):
 
         overwrite_defaults = options['overwrite_defaults']
 
-        verbosity = int(options['verbosity'])
+        self.verbosity = int(options['verbosity'])
 
         models = []
         for attr in attrs:
@@ -98,9 +124,8 @@ class Command(BaseCommand):
                     u'Unknown model: %s.%s' % (app_label, model_label))
             models.append((model, count))
 
-        if verbosity >= 1:
-            signals.instance_created.connect(
-                self.print_instance)
+        signals.instance_created.connect(
+            self.print_instance)
 
         for model, count in models:
             fill = AutoFixture(

@@ -180,9 +180,14 @@ class NullBooleanGenerator(BooleanGenerator):
 
 
 class DateTimeGenerator(Generator):
+    min_date = datetime.datetime.now() - datetime.timedelta(365 * 5)
+    max_date = datetime.datetime.now() + datetime.timedelta(365 * 1)
+
     def __init__(self, min_date=None, max_date=None, *args, **kwargs):
-        self.min_date = min_date or datetime.datetime.min
-        self.max_date = max_date or datetime.datetime.max
+        if min_date is not None:
+            self.min_date = min_date
+        if max_date is not None:
+            self.max_date = max_date
         assert self.min_date < self.max_date
         super(DateTimeGenerator, self).__init__(*args, **kwargs)
 
@@ -193,9 +198,14 @@ class DateTimeGenerator(Generator):
 
 
 class DateGenerator(Generator):
+    min_date = datetime.date.today() - datetime.timedelta(365 * 5)
+    max_date = datetime.date.today() + datetime.timedelta(365 * 1)
+
     def __init__(self, min_date=None, max_date=None, *args, **kwargs):
-        self.min_date = min_date or datetime.date.min
-        self.max_date = max_date or datetime.date.max
+        if min_date is not None:
+            self.min_date = min_date
+        if max_date is not None:
+            self.max_date = max_date
         assert self.min_date < self.max_date
         super(DateGenerator, self).__init__(*args, **kwargs)
 
@@ -205,6 +215,7 @@ class DateGenerator(Generator):
         date = self.min_date + datetime.timedelta(days=days)
         return date
         return datetime.date(date.year, date.month, date.day)
+
 
 class DecimalGenerator(Generator):
     coerce_type = Decimal
@@ -225,6 +236,7 @@ class DecimalGenerator(Generator):
             Decimal(random.randint(-maxint, maxint)) /
             10 ** self.decimal_places)
         return value
+
 
 class EmailGenerator(StringGenerator):
     chars = string.ascii_lowercase
