@@ -87,10 +87,10 @@ class AutoFixture(object):
         pass
 
     overwrite_defaults = False
-    follow_fk = Link(True)
-    generate_fk = Link(False)
-    follow_m2m = Link('ALL', default=(1,5))
-    generate_m2m = Link(False, default=(0,0))
+    follow_fk = True
+    generate_fk = False
+    follow_m2m = {'ALL': (1,5)}
+    generate_m2m = False
 
     none_chance = 0.2
     tries = 1000
@@ -173,14 +173,14 @@ class AutoFixture(object):
             self.overwrite_defaults = overwrite_defaults
 
         if follow_fk is not None:
-            if not isinstance(follow_fk, Link):
-                follow_fk = Link(follow_fk)
             self.follow_fk = follow_fk
+        if not isinstance(self.follow_fk, Link):
+            self.follow_fk = Link(self.follow_fk)
 
         if generate_fk is not None:
-            if not isinstance(generate_fk, Link):
-                generate_fk = Link(generate_fk)
             self.generate_fk = generate_fk
+        if not isinstance(self.generate_fk, Link):
+            self.generate_fk = Link(self.generate_fk)
 
         if follow_m2m is not None:
             if not isinstance(follow_m2m, dict):
@@ -188,9 +188,9 @@ class AutoFixture(object):
                     follow_m2m = Link({'ALL': follow_m2m})
                 else:
                     follow_m2m = Link(False)
-            elif not isinstance(follow_m2m, Link):
-                follow_m2m = Link(follow_m2m)
             self.follow_m2m = follow_m2m
+        if not isinstance(self.follow_m2m, Link):
+            self.follow_m2m = Link(self.follow_m2m)
 
         if generate_m2m is not None:
             if not isinstance(generate_m2m, dict):
@@ -198,14 +198,19 @@ class AutoFixture(object):
                     generate_m2m = Link({'ALL': generate_m2m})
                 else:
                     generate_m2m = Link(False)
-            elif not isinstance(generate_m2m, Link):
-                generate_m2m = Link(generate_m2m)
             self.generate_m2m = generate_m2m
+        if not isinstance(self.generate_m2m, Link):
+            self.generate_m2m = Link(self.generate_m2m)
 
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
 
         self._field_generators = {}
+
+        self.prepare_class()
+
+    def prepare_class(self):
+        pass
 
     def add_constraint(self, constraint):
         self.constraints.append(constraint)
