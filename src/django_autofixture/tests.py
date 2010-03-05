@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import django_autofixture
 from decimal import Decimal
 from datetime import date, datetime
 from django.db import models
@@ -14,6 +15,12 @@ def y2k():
 
 
 filepath = os.path.dirname(os.path.abspath(__file__))
+
+
+class SimpleAutoFixture(AutoFixture):
+    field_values = {
+        'name': generators.StaticGenerator('foo'),
+    }
 
 
 class SimpleModel(models.Model):
@@ -430,6 +437,35 @@ class TestLinkClass(TestCase):
         self.assertEqual(sublink['bar'], 1)
 
 
+class TestRegistry(TestCase):
+    def setUp(self):
+        self.original_registry = django_autofixture.REGISTRY
+
+    def tearDown(self):
+        django_autofixture.REGISTRY = self.original_registry
+
+    def test_registration(self):
+        django_autofixture.register(SimpleModel, SimpleAutoFixture)
+        self.assertTrue(SimpleModel in django_autofixture.REGISTRY)
+        self.assertEqual(django_autofixture.REGISTRY[SimpleModel], SimpleAutoFixture)
+
+    def test_create(self):
+        django_autofixture.register(SimpleModel, SimpleAutoFixture)
+        for obj in django_autofixture.create(SimpleModel, 10):
+            self.assertEqual(obj.name, 'foo')
+        obj = django_autofixture.create_one(SimpleModel)
+        self.assertEqual(obj.name, 'foo')
+
+    def test_overwrite_attributes(self):
+        django_autofixture.register(SimpleModel, SimpleAutoFixture)
+        for obj in django_autofixture.create(
+                SimpleModel, 10, field_values={'name': 'bar'}):
+            self.assertEqual(obj.name, 'bar')
+        obj = django_autofixture.create_one(
+            SimpleModel, field_values={'name': 'bar'})
+        self.assertEqual(obj.name, 'bar')
+
+
 class TestManagementCommand(TestCase):
     def setUp(self):
         from django_autofixture.management.commands.loadtestdata import Command
@@ -442,6 +478,7 @@ class TestManagementCommand(TestCase):
             'follow_m2m': '1:5',
             'generate_m2m': '',
             'verbosity': '0',
+            'use': '',
         }
 
     def test_basic(self):
@@ -523,3 +560,17 @@ class TestManagementCommand(TestCase):
             all_secondm2m.update(obj.secondm2m.all())
         self.assertEqual(all_m2m, set(SimpleModel.objects.all()))
         self.assertEqual(all_secondm2m, set(OtherSimpleModel.objects.all()))
+
+    def test_using_registry(self):
+        django_autofixture.register(SimpleModel, SimpleAutoFixture)
+        models = ('django_autofixture.SimpleModel:10',)
+        self.command.handle(*models, **self.options)
+        for obj in SimpleModel.objects.all():
+            self.assertEqual(obj.name, 'foo')
+
+    def test_use_option(self):
+        self.options['use'] = 'django_autofixture.tests.SimpleAutoFixture'
+        models = ('django_autofixture.SimpleModel:10',)
+        self.command.handle(*models, **self.options)
+        for obj in SimpleModel.objects.all():
+            self.assertEqual(obj.name, 'foo')

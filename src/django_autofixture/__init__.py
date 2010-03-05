@@ -6,8 +6,8 @@ REGISTRY = {}
 
 def register(model, autofixture, overwrite=True):
     from django.db import models
-    if not isinstance(model, models.Model):
-        model = models.get_model(model)
+    if not issubclass(model, models.Model):
+        model = models.get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
         raise ValueError(
             u'%s.%s is already registered. You can overwrite the registered '
@@ -20,8 +20,8 @@ def register(model, autofixture, overwrite=True):
 
 def create(model, count, *args, **kwargs):
     from django.db import models
-    if not isinstance(model, models.Model):
-        model = models.get_model(model)
+    if not issubclass(model, models.Model):
+        model = models.get_model(*model.split('.', 1))
     if model in REGISTRY:
         autofixture = REGISTRY[model](model, *args, **kwargs)
     else:

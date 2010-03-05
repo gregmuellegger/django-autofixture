@@ -109,6 +109,8 @@ class AutoFixture(object):
         (fields.TimeField, generators.TimeGenerator),
     ))
 
+    field_values = {}
+
     default_constraints = [
         constraints.unique_constraint,
         constraints.unique_together_constraint]
@@ -162,7 +164,8 @@ class AutoFixture(object):
                 ``follow_m2m`` will be ignored if this parameter is set.
         '''
         self.model = model
-        self.field_values = field_values or {}
+        self.field_values = self.__class__.field_values.copy()
+        self.field_values.update(field_values or {})
         self.constraints = constraints or []
         if none_chance is not None:
             self.none_chance = none_chance

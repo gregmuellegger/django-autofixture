@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import django_autofixture
 from django.db import models
 from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.importlib import import_module
 from django_autofixture import signals, AutoFixture
 from optparse import make_option
 
@@ -39,6 +41,10 @@ class Command(BaseCommand):
                 u'newly created and assigned to a m2m relation. Use two, '
                 u'comma separated numbers in the form of: min,max. Default is '
                 u'0,0 which means that no related models are created.'),
+        make_option('--use', action='store', dest='use',
+            default='', help=
+                u'Specify a autofixture subclass that is used to create the '
+                u'test data. E.g. myapp.autofixtures.MyAutoFixture'),
     )
 
     def format_output(self, obj):
@@ -85,6 +91,11 @@ class Command(BaseCommand):
         follow_fk = not options['no_follow_fk']
         follow_m2m = not options['no_follow_m2m']
         generate_fk = options['generate_fk'].split(',')
+
+        use = options['use']
+        if use:
+            use = use.split('.')
+            use = getattr(import_module('.'.join(use[:-1])), use[-1])
 
         error_option = None
         try:
@@ -144,13 +155,19 @@ class Command(BaseCommand):
         signals.instance_created.connect(
             self.print_instance)
 
+        django_autofixture.autodiscover()
+
+        kwargs = {
+            'overwrite_defaults': overwrite_defaults,
+            'follow_fk': follow_fk,
+            'generate_fk': generate_fk,
+            'follow_m2m': follow_m2m,
+            'generate_m2m': generate_m2m,
+        }
+
         for model, count in models:
-            fill = AutoFixture(
-                model,
-                overwrite_defaults=overwrite_defaults,
-                follow_fk=follow_fk,
-                generate_fk=generate_fk,
-                follow_m2m=follow_m2m,
-                generate_m2m=generate_m2m)
-            for obj in fill.iter(count):
-                pass
+            if use:
+                autofixture = use(model, **kwargs)
+                autofixture.create(count)
+            else:
+                django_autofixture.create(model, count, **kwargs)
