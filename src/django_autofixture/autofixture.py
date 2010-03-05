@@ -181,14 +181,20 @@ class AutoFixture(object):
 
         if follow_m2m is not None:
             if not isinstance(follow_m2m, dict):
-                follow_m2m = Link({'ALL': follow_m2m})
+                if follow_m2m:
+                    follow_m2m = Link({'ALL': follow_m2m})
+                else:
+                    follow_m2m = Link(False)
             elif not isinstance(follow_m2m, Link):
                 follow_m2m = Link(follow_m2m)
             self.follow_m2m = follow_m2m
 
         if generate_m2m is not None:
             if not isinstance(generate_m2m, dict):
-                generate_m2m = Link({'ALL': generate_m2m})
+                if generate_m2m:
+                    generate_m2m = Link({'ALL': generate_m2m})
+                else:
+                    generate_m2m = Link(False)
             elif not isinstance(generate_m2m, Link):
                 generate_m2m = Link(generate_m2m)
             self.generate_m2m = generate_m2m
@@ -243,7 +249,7 @@ class AutoFixture(object):
                 return generators.InstanceSelector(
                     field.rel.to,
                     limit_choices_to=field.rel.limit_choices_to)
-            if field.null:
+            if field.blank or field.null:
                 return generators.NoneGenerator()
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
@@ -258,7 +264,9 @@ class AutoFixture(object):
             if field.name in self.generate_m2m:
                 min_count, max_count = self.generate_m2m[field.name]
                 return generators.MultipleInstanceGenerator(
-                    AutoFixture(field.rel.to),
+                    AutoFixture(
+                        field.rel.to
+                    ),
                     limit_choices_to=field.rel.limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
@@ -271,12 +279,11 @@ class AutoFixture(object):
                     min_count=min_count,
                     max_count=max_count,
                     **kwargs)
-            if field.null:
+            if field.blank or field.null:
                 return generators.StaticGenerator([])
             raise CreateInstanceError(
                 u'Cannot assign instances of "%s" to ManyToManyField "%s". '
-                u'Provide either "follow_m2m" or "generate_m2m" '
-                u'parameters.' % (
+                u'Provide either "follow_m2m" or "generate_m2m" argument.' % (
                     '%s.%s' % (
                         field.rel.to._meta.app_label,
                         field.rel.to._meta.object_name,

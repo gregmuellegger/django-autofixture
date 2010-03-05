@@ -34,6 +34,10 @@ class DeepLinkModel2(models.Model):
     related = models.ForeignKey('DeepLinkModel1')
 
 
+class NullableFKModel(models.Model):
+    m2m = models.ManyToManyField('SimpleModel', null=True, blank=True)
+
+
 class BasicModel(models.Model):
     chars = models.CharField(max_length=50)
     blankchars = models.CharField(max_length=100, blank=True)
@@ -410,7 +414,7 @@ class TestLinkClass(TestCase):
         self.assertTrue('field' in link)
         self.assertTrue('any' in link)
 
-        link = Link(True)
+        link = Link(('ALL',))
         self.assertTrue('field' in link)
         self.assertTrue('any' in link)
 
@@ -424,3 +428,98 @@ class TestLinkClass(TestCase):
 
         sublink = link.get_deep_links('foo')
         self.assertEqual(sublink['bar'], 1)
+
+
+class TestManagementCommand(TestCase):
+    def setUp(self):
+        from django_autofixture.management.commands.loadtestdata import Command
+        self.command = Command()
+        self.options = {
+            'overwrite_defaults': False,
+            'no_follow_fk': False,
+            'no_follow_m2m': False,
+            'generate_fk': '',
+            'follow_m2m': '1:5',
+            'generate_m2m': '',
+            'verbosity': '0',
+        }
+
+    def test_basic(self):
+        models = ()
+        # empty attributes are allowed
+        self.command.handle(*models, **self.options)
+        self.assertEqual(SimpleModel.objects.count(), 0)
+
+        models = ('django_autofixture.SimpleModel:1',)
+        self.command.handle(*models, **self.options)
+        self.assertEqual(SimpleModel.objects.count(), 1)
+
+        models = ('django_autofixture.SimpleModel:5',)
+        self.command.handle(*models, **self.options)
+        self.assertEqual(SimpleModel.objects.count(), 6)
+
+    def test_generate_fk(self):
+        models = ('django_autofixture.DeepLinkModel2:1',)
+        self.options['generate_fk'] = 'related,related__related'
+        self.command.handle(*models, **self.options)
+        obj = DeepLinkModel2.objects.get()
+        self.assertTrue(obj.related)
+        self.assertTrue(obj.related.related)
+        self.assertEqual(obj.related.related2, obj.related.related)
+
+    def test_generate_fk_with_no_follow(self):
+        models = ('django_autofixture.DeepLinkModel2:1',)
+        self.options['generate_fk'] = 'related,related__related'
+        self.options['no_follow_fk'] = True
+        self.command.handle(*models, **self.options)
+        obj = DeepLinkModel2.objects.get()
+        self.assertTrue(obj.related)
+        self.assertTrue(obj.related.related)
+        self.assertEqual(obj.related.related2, None)
+
+    def test_generate_fk_with_ALL(self):
+        models = ('django_autofixture.DeepLinkModel2:1',)
+        self.options['generate_fk'] = 'ALL'
+        self.command.handle(*models, **self.options)
+        obj = DeepLinkModel2.objects.get()
+        self.assertTrue(obj.related)
+        self.assertTrue(obj.related.related)
+        self.assertTrue(obj.related.related2)
+        self.assertTrue(obj.related.related != obj.related.related2)
+
+    def test_no_follow_m2m(self):
+        AutoFixture(SimpleModel).create(1)
+
+        models = ('django_autofixture.NullableFKModel:1',)
+        self.options['no_follow_m2m'] = True
+        self.command.handle(*models, **self.options)
+        obj = NullableFKModel.objects.get()
+        self.assertEqual(obj.m2m.count(), 0)
+
+    def test_follow_m2m(self):
+        AutoFixture(SimpleModel).create(10)
+        AutoFixture(OtherSimpleModel).create(10)
+
+        models = ('django_autofixture.M2MModel:25',)
+        self.options['follow_m2m'] = 'm2m:3:3,secondm2m:0:10'
+        self.command.handle(*models, **self.options)
+
+        for obj in M2MModel.objects.all():
+            self.assertEqual(obj.m2m.count(), 3)
+            self.assertTrue(0 <= obj.secondm2m.count() <= 10)
+
+    def test_generate_m2m(self):
+        models = ('django_autofixture.M2MModel:10',)
+        self.options['generate_m2m'] = 'm2m:1:1,secondm2m:2:5'
+        self.command.handle(*models, **self.options)
+
+        all_m2m, all_secondm2m = set(), set()
+        for obj in M2MModel.objects.all():
+            self.assertEqual(obj.m2m.count(), 1)
+            self.assertTrue(
+                2 <= obj.secondm2m.count() <= 5 or
+                obj.secondm2m.count() == 0)
+            all_m2m.update(obj.m2m.all())
+            all_secondm2m.update(obj.secondm2m.all())
+        self.assertEqual(all_m2m, set(SimpleModel.objects.all()))
+        self.assertEqual(all_secondm2m, set(OtherSimpleModel.objects.all()))

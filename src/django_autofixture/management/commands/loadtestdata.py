@@ -10,6 +10,9 @@ class Command(BaseCommand):
     help = 'Create random model instances for testing purposes.'
     args = 'app.Model:# [app.Model:# ...]'
 
+    # TODO(gregor@muellegger.de): change descriptions, they are already
+    # invalid
+
     option_list = BaseCommand.option_list + (
         make_option('-d', '--overwrite-defaults', action='store_true',
             dest='overwrite_defaults', default=False, help=
@@ -18,20 +21,20 @@ class Command(BaseCommand):
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
             default=False, help=
                 u'Ignore ForeignKey fields while creating model instances.'),
-        make_option('--generate-fk', action='store_true', dest='generate_fk',
-            default=False, help=
+        make_option('--generate-fk', action='store', dest='generate_fk',
+            default='', help=
                 u'Do not use already existing instances for ForeignKey '
                 u'relations. Create new instances instead.'),
         make_option('--no-follow-m2m', action='store_true',
             dest='no_follow_m2m', default=False, help=
                 u'Ignore ManyToManyFields while creating model instances.'),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default='1,5', help=
+            default='1:5', help=
                 u'Specify minimum and maximum number of instances that are '
                 u'assigned to a m2m relation. Use two, comma separated '
                 u'numbers in the form of: min,max. Default is 1,5.'),
         make_option('--generate-m2m', action='store', dest='generate_m2m',
-            default='0,0', help=
+            default='', help=
                 u'Specify minimum and maximum number of instances that are '
                 u'newly created and assigned to a m2m relation. Use two, '
                 u'comma separated numbers in the form of: min,max. Default is '
@@ -81,22 +84,36 @@ class Command(BaseCommand):
 
         follow_fk = not options['no_follow_fk']
         follow_m2m = not options['no_follow_m2m']
-        generate_fk = options['generate_fk']
+        generate_fk = options['generate_fk'].split(',')
 
         error_option = None
         try:
             if follow_m2m:
-                follow_m2m = [int(i) for i in options['follow_m2m'].split(',')]
+                value = [i for i in options['follow_m2m'].split(',')]
+                if len(value) == 1 and value[0].count(':') == 1:
+                    follow_m2m = [int(i) for i in value[0].split(':')]
+                else:
+                    follow_m2m = {}
+                    for field in value:
+                        key, minval, maxval = field.split(':')
+                        follow_m2m[key] = int(minval), int(maxval)
         except ValueError:
             error_option = '--follow-m2m=%s' % options['follow_m2m']
         try:
-            generate_m2m = [int(i) for i in options['generate_m2m'].split(',')]
+            value = [v for v in options['generate_m2m'].split(',') if v]
+            if len(value) == 1 and value[0].count(':') == 1:
+                generate_m2m = [int(i) for i in value[0].split(':')]
+            else:
+                generate_m2m = {}
+                for field in value:
+                    key, minval, maxval = field.split(':')
+                    generate_m2m[key] = int(minval), int(maxval)
         except ValueError:
             error_option = '--generate-m2m=%s' % options['generate_m2m']
         if error_option:
             raise CommandError(
                 u'Invalid option %s\n'
-                u'Expected: %s=min,max (min and max must be numbers)' % (
+                u'Expected: %s=field:min:max,field2:min:max... (min and max must be numbers)' % (
                     error_option,
                     error_option.split('=', 1)[0]))
 
