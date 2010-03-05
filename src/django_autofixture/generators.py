@@ -124,8 +124,8 @@ class LoremWordGenerator(LoremGenerator):
 
 class IntegerGenerator(Generator):
     coerce_type = int
-    min_value = -2 ** 31
-    max_value = 2 ** 31 - 1
+    min_value = - 10 ** 5
+    max_value = 10 ** 5
 
     def __init__(self, min_value=None, max_value=None, *args, **kwargs):
         if min_value is not None:
@@ -241,7 +241,7 @@ class DecimalGenerator(Generator):
 class EmailGenerator(StringGenerator):
     chars = string.ascii_lowercase
 
-    def __init__(self, chars=None, max_length=100, tlds=None, *args, **kwargs):
+    def __init__(self, chars=None, max_length=30, tlds=None, *args, **kwargs):
         assert max_length >= 6
         if chars is not None:
             self.chars = chars
