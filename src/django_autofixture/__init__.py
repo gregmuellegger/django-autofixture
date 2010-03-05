@@ -1,14 +1,17 @@
 from django_autofixture.autofixture import AutoFixture
+from django_autofixture.constraints import InvalidConstraint
 
 
 REGISTRY = {}
 
 
-def register(model, autofixture, overwrite=True):
+def register(model, autofixture, overwrite=False, fail_silently=False):
     from django.db import models
     if not issubclass(model, models.Model):
         model = models.get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
+        if fail_silently:
+            return
         raise ValueError(
             u'%s.%s is already registered. You can overwrite the registered '
             u'autofixture by providing the `overwrite` argument.' % (
@@ -16,6 +19,28 @@ def register(model, autofixture, overwrite=True):
                 model._meta.object_name,
             ))
     REGISTRY[model] = autofixture
+
+
+def unregister(model_or_iterable, fail_silently=False):
+    from django.db import models
+    if isinstance(model_or_iterable, (list, tuple, set)):
+        model_or_iterable = [model_or_iterable]
+    for model in models:
+        if not issubclass(model, models.Model):
+            model = models.get_model(*model.split('.', 1))
+        try:
+            del REGISTRY[model]
+        except KeyError:
+            if fail_silently:
+                continue
+            raise ValueError(
+                u'The model %s.%s is not registered.' % (
+                    model._meta.app_label,
+                    model._meta.object_name,
+                ))
+
+
+
 
 
 def create(model, count, *args, **kwargs):

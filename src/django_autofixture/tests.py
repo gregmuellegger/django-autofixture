@@ -439,10 +439,7 @@ class TestLinkClass(TestCase):
 
 class TestRegistry(TestCase):
     def setUp(self):
-        self.original_registry = django_autofixture.REGISTRY
-
-    def tearDown(self):
-        django_autofixture.REGISTRY = self.original_registry
+        django_autofixture.REGISTRY = {}
 
     def test_registration(self):
         django_autofixture.register(SimpleModel, SimpleAutoFixture)
@@ -480,6 +477,7 @@ class TestManagementCommand(TestCase):
             'verbosity': '0',
             'use': '',
         }
+        django_autofixture.REGISTRY = {}
 
     def test_basic(self):
         models = ()
