@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import django_autofixture
+import autofixture
 import string
 from datetime import datetime
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
-from django_autofixture import AutoFixture
-from django_autofixture import generators
+from autofixture import AutoFixture
+from autofixture import generators
 
 
 class UserFixture(AutoFixture):
@@ -28,7 +28,7 @@ class UserFixture(AutoFixture):
 
     def unique_email(self, model, instance):
         if User.objects.filter(email=instance.email):
-            raise django_autofixture.InvalidConstraint(('email',))
+            raise autofixture.InvalidConstraint(('email',))
 
     def prepare_class(self):
         self.add_constraint(self.unique_email)
@@ -39,4 +39,4 @@ class UserFixture(AutoFixture):
         return instance
 
 
-django_autofixture.register(User, UserFixture, fail_silently=True)
+autofixture.register(User, UserFixture, fail_silently=True)

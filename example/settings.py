@@ -80,7 +80,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'example.testapp',
-    'django_autofixture',
+    'autofixture',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

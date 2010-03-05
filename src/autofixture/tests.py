@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import django_autofixture
+import autofixture
 from decimal import Decimal
 from datetime import date, datetime
 from django.db import models
 from django.test import TestCase
-from django_autofixture import generators
-from django_autofixture.autofixture import AutoFixture, CreateInstanceError, \
+from autofixture import generators
+from autofixture.base import AutoFixture, CreateInstanceError, \
     Link
 
 
@@ -439,37 +439,37 @@ class TestLinkClass(TestCase):
 
 class TestRegistry(TestCase):
     def setUp(self):
-        self.original_registry = django_autofixture.REGISTRY
-        django_autofixture.REGISTRY = {}
+        self.original_registry = autofixture.REGISTRY
+        autofixture.REGISTRY = {}
 
     def tearDown(self):
-        django_autofixture.REGISTRY = self.original_registry
+        autofixture.REGISTRY = self.original_registry
 
     def test_registration(self):
-        django_autofixture.register(SimpleModel, SimpleAutoFixture)
-        self.assertTrue(SimpleModel in django_autofixture.REGISTRY)
-        self.assertEqual(django_autofixture.REGISTRY[SimpleModel], SimpleAutoFixture)
+        autofixture.register(SimpleModel, SimpleAutoFixture)
+        self.assertTrue(SimpleModel in autofixture.REGISTRY)
+        self.assertEqual(autofixture.REGISTRY[SimpleModel], SimpleAutoFixture)
 
     def test_create(self):
-        django_autofixture.register(SimpleModel, SimpleAutoFixture)
-        for obj in django_autofixture.create(SimpleModel, 10):
+        autofixture.register(SimpleModel, SimpleAutoFixture)
+        for obj in autofixture.create(SimpleModel, 10):
             self.assertEqual(obj.name, 'foo')
-        obj = django_autofixture.create_one(SimpleModel)
+        obj = autofixture.create_one(SimpleModel)
         self.assertEqual(obj.name, 'foo')
 
     def test_overwrite_attributes(self):
-        django_autofixture.register(SimpleModel, SimpleAutoFixture)
-        for obj in django_autofixture.create(
+        autofixture.register(SimpleModel, SimpleAutoFixture)
+        for obj in autofixture.create(
                 SimpleModel, 10, field_values={'name': 'bar'}):
             self.assertEqual(obj.name, 'bar')
-        obj = django_autofixture.create_one(
+        obj = autofixture.create_one(
             SimpleModel, field_values={'name': 'bar'})
         self.assertEqual(obj.name, 'bar')
 
 
 class TestManagementCommand(TestCase):
     def setUp(self):
-        from django_autofixture.management.commands.loadtestdata import Command
+        from autofixture.management.commands.loadtestdata import Command
         self.command = Command()
         self.options = {
             'overwrite_defaults': False,
@@ -481,11 +481,11 @@ class TestManagementCommand(TestCase):
             'verbosity': '0',
             'use': '',
         }
-        self.original_registry = django_autofixture.REGISTRY
-        django_autofixture.REGISTRY = {}
+        self.original_registry = autofixture.REGISTRY
+        autofixture.REGISTRY = {}
 
     def tearDown(self):
-        django_autofixture.REGISTRY = self.original_registry
+        autofixture.REGISTRY = self.original_registry
 
     def test_basic(self):
         models = ()
@@ -493,16 +493,16 @@ class TestManagementCommand(TestCase):
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 0)
 
-        models = ('django_autofixture.SimpleModel:1',)
+        models = ('autofixture.SimpleModel:1',)
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 1)
 
-        models = ('django_autofixture.SimpleModel:5',)
+        models = ('autofixture.SimpleModel:5',)
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 6)
 
     def test_generate_fk(self):
-        models = ('django_autofixture.DeepLinkModel2:1',)
+        models = ('autofixture.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'related,related__related'
         self.command.handle(*models, **self.options)
         obj = DeepLinkModel2.objects.get()
@@ -511,7 +511,7 @@ class TestManagementCommand(TestCase):
         self.assertEqual(obj.related.related2, obj.related.related)
 
     def test_generate_fk_with_no_follow(self):
-        models = ('django_autofixture.DeepLinkModel2:1',)
+        models = ('autofixture.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'related,related__related'
         self.options['no_follow_fk'] = True
         self.command.handle(*models, **self.options)
@@ -521,7 +521,7 @@ class TestManagementCommand(TestCase):
         self.assertEqual(obj.related.related2, None)
 
     def test_generate_fk_with_ALL(self):
-        models = ('django_autofixture.DeepLinkModel2:1',)
+        models = ('autofixture.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'ALL'
         self.command.handle(*models, **self.options)
         obj = DeepLinkModel2.objects.get()
@@ -533,7 +533,7 @@ class TestManagementCommand(TestCase):
     def test_no_follow_m2m(self):
         AutoFixture(SimpleModel).create(1)
 
-        models = ('django_autofixture.NullableFKModel:1',)
+        models = ('autofixture.NullableFKModel:1',)
         self.options['no_follow_m2m'] = True
         self.command.handle(*models, **self.options)
         obj = NullableFKModel.objects.get()
@@ -543,7 +543,7 @@ class TestManagementCommand(TestCase):
         AutoFixture(SimpleModel).create(10)
         AutoFixture(OtherSimpleModel).create(10)
 
-        models = ('django_autofixture.M2MModel:25',)
+        models = ('autofixture.M2MModel:25',)
         self.options['follow_m2m'] = 'm2m:3:3,secondm2m:0:10'
         self.command.handle(*models, **self.options)
 
@@ -552,7 +552,7 @@ class TestManagementCommand(TestCase):
             self.assertTrue(0 <= obj.secondm2m.count() <= 10)
 
     def test_generate_m2m(self):
-        models = ('django_autofixture.M2MModel:10',)
+        models = ('autofixture.M2MModel:10',)
         self.options['generate_m2m'] = 'm2m:1:1,secondm2m:2:5'
         self.command.handle(*models, **self.options)
 
@@ -568,15 +568,15 @@ class TestManagementCommand(TestCase):
         self.assertEqual(all_secondm2m, set(OtherSimpleModel.objects.all()))
 
     def test_using_registry(self):
-        django_autofixture.register(SimpleModel, SimpleAutoFixture)
-        models = ('django_autofixture.SimpleModel:10',)
+        autofixture.register(SimpleModel, SimpleAutoFixture)
+        models = ('autofixture.SimpleModel:10',)
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')
 
     def test_use_option(self):
-        self.options['use'] = 'django_autofixture.tests.SimpleAutoFixture'
-        models = ('django_autofixture.SimpleModel:10',)
+        self.options['use'] = 'autofixture.tests.SimpleAutoFixture'
+        models = ('autofixture.SimpleModel:10',)
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')

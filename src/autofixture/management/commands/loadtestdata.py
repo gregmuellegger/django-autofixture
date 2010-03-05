@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import django_autofixture
+import autofixture
 from django.db import models
 from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.importlib import import_module
-from django_autofixture import signals
+from autofixture import signals
 from optparse import make_option
 
 
@@ -163,7 +163,7 @@ class Command(BaseCommand):
         signals.instance_created.connect(
             self.print_instance)
 
-        django_autofixture.autodiscover()
+        autofixture.autodiscover()
 
         kwargs = {
             'overwrite_defaults': overwrite_defaults,
@@ -175,7 +175,7 @@ class Command(BaseCommand):
 
         for model, count in models:
             if use:
-                autofixture = use(model, **kwargs)
-                autofixture.create(count)
+                fixture = use(model, **kwargs)
+                fixture.create(count)
             else:
-                django_autofixture.create(model, count, **kwargs)
+                autofixture.create(model, count, **kwargs)

@@ -1,5 +1,5 @@
-from django_autofixture.autofixture import AutoFixture
-from django_autofixture.constraints import InvalidConstraint
+from autofixture.base import AutoFixture
+from autofixture.constraints import InvalidConstraint
 
 
 REGISTRY = {}

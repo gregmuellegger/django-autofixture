@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.db.models import fields
 
 
 class InvalidConstraint(Exception):
