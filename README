@@ -14,7 +14,7 @@ reset app`` and so on. Your site gets more and more complex and adding test
 data gets more and more annoying.
 
 This is the usecase where autofixtures should help you to save time that can
-actually be used on hacking.
+actually be spent on hacking.
 
 
 Installation
@@ -39,15 +39,15 @@ The ``loadtestdata`` accepts the following syntax::
 
 Its nearly self explanatory. Supply names of models, prefixed with its app
 name. After that, place a colon and tell the command how many objects you want
-to create. Here is an example to create three categories and twenty entries for
-you blogging app::
+to create. Here is an example how to create three categories and twenty
+entries for you blogging app::
 
     django-admin.py loadtestdata blog.Category:3 blog.Entry:20
 
 Voila! You have ready to use testing data populated to your database. The
 model fields are filled with data by producing randomly generated values
 depending on the type of the field. E.g. text fields are filled with lorem
-ipsum dummies, date fields are populated with a random dates from the last
+ipsum dummies, date fields are populated with random dates from the last
 years etc.
 
 There are a few command line options available. Mainly to control the
@@ -118,13 +118,13 @@ More
 There is so much more to explore which might be useful for you and your
 projects:
 
-  * There are ways to register custom ``AutoFixture`` subclasses with models
-    that are automatically used when calling ``loadtestdata`` on the model.
-  * More control for related models, even with relations of related models...
-    (e.g. by using ``generate_fk=['author', 'author__user']``)
-  * Custom constraints that are used to ensure that created the models are
-    valid (e.g. ``unique`` and ``unique_together`` constraints which are
-    already handled by default)
+* There are ways to register custom ``AutoFixture`` subclasses with models
+  that are automatically used when calling ``loadtestdata`` on the model.
+* More control for related models, even with relations of related models...
+  (e.g. by using ``generate_fk=['author', 'author__user']``)
+* Custom constraints that are used to ensure that created the models are
+  valid (e.g. ``unique`` and ``unique_together`` constraints which are
+  already handled by default)
 
 I hope to explain this in the future with more details in a documentation. It
 will be written but is not finished yet. I wanted to get this project out to
