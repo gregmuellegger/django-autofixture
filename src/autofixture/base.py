@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
@@ -352,7 +353,24 @@ class AutoFixture(object):
         setattr(instance, field.name, value)
 
     def process_m2m(self, instance, field):
-        if field.rel.through._meta.auto_created:
+        # check django's version number to determine how intermediary models
+        # are checked if they are auto created or not.
+        from django import VERSION
+        auto_created_through_model = False
+        through = field.rel.through
+        if VERSION < (1,2):
+            if through:
+                if isinstance(through, basestring):
+                    bits = through.split('.')
+                    if len(bits) < 2:
+                        bits = [instance._meta.app_label] + bits
+                    through = models.get_model(*bits)
+            else:
+                auto_created_through_model = True
+        else:
+            auto_created_through_model = through._meta.auto_created
+
+        if auto_created_through_model:
             return self.process_field(instance, field)
         # if m2m relation has intermediary model:
         #   * only generate relation if 'generate_m2m' is given
@@ -362,11 +380,11 @@ class AutoFixture(object):
         if field.name in self.generate_m2m:
             # get fk to related model on intermediary model
             related_fks = [fk
-                for fk in field.rel.through._meta.fields
+                for fk in through._meta.fields
                 if isinstance(fk, related.ForeignKey) and \
                     fk.rel.to is field.rel.to]
             self_fks = [fk
-                for fk in field.rel.through._meta.fields
+                for fk in through._meta.fields
                 if isinstance(fk, related.ForeignKey) and \
                     fk.rel.to is self.model]
             assert len(related_fks) == 1
@@ -376,7 +394,7 @@ class AutoFixture(object):
             min_count, max_count = self.generate_m2m[field.name]
             intermediary_model = generators.MultipleInstanceGenerator(
                 AutoFixture(
-                    field.rel.through,
+                    through,
                     field_values={
                         self_fk.name: instance,
                         related_fk.name: generators.InstanceGenerator(
