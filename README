@@ -1,0 +1,150 @@
+==================
+django-autofixture
+==================
+
+This app aims to provide a simple way of loading masses of randomly generated
+test data into your development database. You can use a management command to
+load test data through command line.
+
+Its named *autofixture* because of the similarity of how I mainly used
+django's fixtures. Usually you add test data through the admin to see how your
+site looks with non static pages. You export data by using ``dumpdata`` to
+send it to your colleagues or to preserve it before you make a ``manage.py
+reset app`` and so on. Your site gets more and more complex and adding test
+data gets more and more annoying.
+
+This is the usecase where autofixtures should help you to save time that can
+actually be used on hacking.
+
+
+Installation
+============
+
+You must make the ``autofixture`` package available on your python path.
+Either drop it into your project directory or install it from the python
+package index with ``pip install django-autofixture``. You can also use
+``easy_install django-autofixture`` if you don't have pip available.
+
+To use the management command you must add ``'autofixture'`` to the
+``INSTALLED_APPS`` setting in your django settings file. You don't need to do
+this if you want to use the ``autofixture`` package only as library.
+
+
+Management command
+==================
+
+The ``loadtestdata`` accepts the following syntax::
+
+    django-admin.py loadtestdata [options] app.Model:# [app.Model:# ...]
+
+Its nearly self explanatory. Supply names of models, prefixed with its app
+name. After that, place a colon and tell the command how many objects you want
+to create. Here is an example to create three categories and twenty entries for
+you blogging app::
+
+    django-admin.py loadtestdata blog.Category:3 blog.Entry:20
+
+Voila! You have ready to use testing data populated to your database. The
+model fields are filled with data by producing randomly generated values
+depending on the type of the field. E.g. text fields are filled with lorem
+ipsum dummies, date fields are populated with a random dates from the last
+years etc.
+
+There are a few command line options available. Mainly to control the
+behavior of related fields. If foreingkey or many to many fields should be
+populated with existing data or if the related models are also generated on
+the fly. Please have a look at the help page of the command for more
+information::
+
+    django-admin.py help loadtestdata
+
+
+Using autofixtures as tool for unittests
+========================================
+
+It has proofed that autofixtures have a great use for unittests. It has always
+bugged me that creating complex models for testing their behaviour was
+complicated. Sometimes models have strict restrictions or many related objects
+which they depend on. One solution would be to use traditional fixtures
+dumped from your production database. But while in development when database
+schemes are changing frequently, its hard to maintain all fixtures and to know
+exactly which objects are contained in the dumps etc...
+
+Autofixtures to the rescue! It lets you automatically generate models and all
+of their dependecies on the fly. Have a look at the following examples.
+
+Lets start with the very basics. We create an ``AutoFixture`` instance for the
+``Entry`` model and tell it to create ten model instances::
+
+    from autofixture import AutoFixture
+    fixture = AutoFixture(Entry)
+    entries = fixture.create(10)
+
+Now you can play around and test your blog entries. By default dependecies of
+foreignkeys and many to many relations are solved by randomly selecting an
+already existing object of the related model. What if you don't have one yet?
+You can provide the ``generate_fk`` attribute which allows the autofixture
+instance to follow foreignkeys by generating new related models::
+
+    fixture = AutoFixture(Entry, generate_fk=True)
+
+This generates new instance for *all* foreignkey fields of ``Entry``. Its
+possible to limit this behaviour to single fields::
+
+    fixture = AutoFixture(Entry, generate_fk=['author'])
+
+This will only create new authors automatically and doesn't touch other
+tables. The same is possible with many to many fields. But you need
+additionally specify how many objects should be created for the m2m relation::
+
+    fixture = AutoFixture(Entry, generate_m2m={'categories': (1,3)})
+
+All created entry models get one to three new categories assigned.
+
+Setting custom values for fields
+--------------------------------
+
+However its often necessary to be sure that a specific field must have a
+specific value. This is easily achieved with the ``field_values`` attribute of
+``AutoFixture``::
+
+    fixture = AutoFixture(Entry,
+        field_values={'pub_date': datetime(2010, 2, 1)})
+
+
+More
+====
+
+There is so much more to explore which might be useful for you and your
+projects:
+
+  * There are ways to register custom ``AutoFixture`` subclasses with models
+    that are automatically used when calling ``loadtestdata`` on the model.
+  * More control for related models, even with relations of related models...
+    (e.g. by using ``generate_fk=['author', 'author__user']``)
+  * Custom constraints that are used to ensure that created the models are
+    valid (e.g. ``unique`` and ``unique_together`` constraints which are
+    already handled by default)
+
+I hope to explain this in the future with more details in a documentation. It
+will be written but is not finished yet. I wanted to get this project out to
+support you in development. But since its only python code you can easily
+study the source on your own and see in which ways it can be used. There are
+already some parts documented with doc strings which might also be helpful for you.
+
+
+Future development
+==================
+
+The ``autofixture`` app is nearly feature complete from the point I wanted to
+have while starting development. But there is still much room for
+improvements. One feature you can expect in the future is for example support
+for multiple databases which was introduced by django 1.2. If you have any
+ideas or interests to contribute: Feel free to contact me or just start
+hacking.
+
+Email me (gregor at muellegger dot de), contact me on twitter
+(@gregmuellegger) or branch the bazaar repository on launchpad (``bzr branch
+lp:django-autofixture``).
+
+Happy autofixturing!
