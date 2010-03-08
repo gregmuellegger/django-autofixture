@@ -7,7 +7,7 @@ REGISTRY = {}
 
 def register(model, autofixture, overwrite=False, fail_silently=False):
     from django.db import models
-    if not issubclass(model, models.Model):
+    if isinstance(model, basestring):
         model = models.get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
         if fail_silently:
@@ -26,7 +26,7 @@ def unregister(model_or_iterable, fail_silently=False):
     if isinstance(model_or_iterable, (list, tuple, set)):
         model_or_iterable = [model_or_iterable]
     for model in models:
-        if not issubclass(model, models.Model):
+        if isinstance(model, basestring):
             model = models.get_model(*model.split('.', 1))
         try:
             del REGISTRY[model]
@@ -45,7 +45,7 @@ def unregister(model_or_iterable, fail_silently=False):
 
 def create(model, count, *args, **kwargs):
     from django.db import models
-    if not issubclass(model, models.Model):
+    if isinstance(model, basestring):
         model = models.get_model(*model.split('.', 1))
     if model in REGISTRY:
         autofixture = REGISTRY[model](model, *args, **kwargs)
