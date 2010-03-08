@@ -1,11 +1,33 @@
+# -*- coding: utf-8 -*-
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
+
+__version__ = (0, 3, 0, 'pre', 1)
 
 
 REGISTRY = {}
 
 
 def register(model, autofixture, overwrite=False, fail_silently=False):
+    '''
+    Register a model with the registry.
+
+    Arguments:
+
+        *model* can be either a model class or a string that contains the model's
+        app label and class name seperated by a dot, e.g. ``"app.ModelClass"``.
+
+        *autofixture* is the :mod:`AutoFixture` subclass that shall be used to
+        generated instances of *model*.
+
+        By default :func:`register` will raise :exc:`ValueError` if the given
+        *model* is already registered. You can overwrite the registered *model* if
+        you pass ``True`` to the *overwrite* argument.
+
+        The :exc:`ValueError` that is usually raised if a model is already
+        registered can be suppressed by passing ``True`` to the *fail_silently*
+        argument.
+    '''
     from django.db import models
     if isinstance(model, basestring):
         model = models.get_model(*model.split('.', 1))
@@ -38,9 +60,6 @@ def unregister(model_or_iterable, fail_silently=False):
                     model._meta.app_label,
                     model._meta.object_name,
                 ))
-
-
-
 
 
 def create(model, count, *args, **kwargs):

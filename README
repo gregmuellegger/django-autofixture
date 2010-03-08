@@ -6,7 +6,7 @@ This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
 load test data through command line.
 
-Its named *autofixture* because of the similarity of how I mainly used
+It is named *autofixture* because of the similarity of how I mainly used
 django's fixtures. Usually you add test data through the admin to see how your
 site looks with non static pages. You export data by using ``dumpdata`` to
 send it to your colleagues or to preserve it before you make a ``manage.py

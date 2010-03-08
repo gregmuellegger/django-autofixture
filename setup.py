@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
+import sys
 from setuptools import find_packages, setup
 
 
@@ -26,9 +28,27 @@ class UltraMagicString(object):
 
 long_description = UltraMagicString(file('README').read())
 
+
+# determine package version
+
+sys.path.insert(0, os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'example'))
+sys.path.insert(0, os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'src'))
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+
+import autofixture
+version = '.'.join([str(x) for x in autofixture.__version__[:3]])
+
+if len(autofixture.__version__) > 3:
+    version += ''.join([str(x) for x in autofixture.__version__[3:]])
+
+
 setup(
     name = 'django-autofixture',
-    version = '0.2.2',
+    version = version,
     url = 'https://launchpad.net/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
