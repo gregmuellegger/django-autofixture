@@ -15,6 +15,16 @@ def devinit():
 # Documentation #
 #################
 
+def packagedocs():
+    builddocs('html')
+    try:
+        os.mkdir('dist')
+    except OSError:
+        pass
+    with cd('docs/_build/html'):
+        local('find -print | zip docs.zip -@')
+    local('mv docs/_build/html/docs.zip dist')
+
 def builddocs(output='html'):
     with cd('docs'):
         local('make %s' % output, capture=False)
@@ -22,7 +32,7 @@ def builddocs(output='html'):
 def opendocs(where='index', how='default'):
     '''
     Rebuild documentation and opens it in your browser.
-    
+
     Use the first argument to specify how it should be opened:
 
         `d` or `default`: Open in new tab or new window, using the default

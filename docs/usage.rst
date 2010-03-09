@@ -31,7 +31,7 @@ Using the :class:`AutoFixture` class
        create, create_one
 
 Subclassing :class:`AutoFixture`
-''''''''''''''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following methods may be overwritten by subclasses:
 
