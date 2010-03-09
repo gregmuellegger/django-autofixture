@@ -10,22 +10,6 @@ class CreateInstanceError(Exception):
     pass
 
 
-class Data(object):
-    '''
-    Emulates behaviour of ``_value`` but can hold additional data.
-
-    I'm happy to use an already existing implementation that is out there. But
-    for now this serves very well.
-    '''
-    def __init__(self, *args, **kwargs):
-        self._value__ = args.pop(0)
-        self._list = args
-        self._dict = kwargs
-
-    def __getattr__(self, attr):
-        return getattr(self._value__, attr)
-
-
 class Link(object):
     '''
     Handles logic of following or generating foreignkeys and m2m relations.
