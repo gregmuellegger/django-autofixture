@@ -2,8 +2,8 @@ Welcome to django-autofixture's documentation!
 ==============================================
 
 This app aims to provide a simple way of loading masses of randomly generated
-test data into your development database. You can use a management command to
-load test data through command line.
+test data into your development database. You can use a :ref:`management
+command <loadtestdata>` to load test data through command line.
 
 It is named *autofixture* because of the similarity of how I mainly used
 django's fixtures. Usually you add test data through the admin to see how your
