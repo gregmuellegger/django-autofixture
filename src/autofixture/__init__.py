@@ -44,6 +44,9 @@ def register(model, autofixture, overwrite=False, fail_silently=False):
 
 
 def unregister(model_or_iterable, fail_silently=False):
+    '''
+    Remove one or more models from the autofixture registry.
+    '''
     from django.db import models
     if isinstance(model_or_iterable, (list, tuple, set)):
         model_or_iterable = [model_or_iterable]
@@ -63,6 +66,23 @@ def unregister(model_or_iterable, fail_silently=False):
 
 
 def create(model, count, *args, **kwargs):
+    '''
+    Create *count* instances of *model* using the either an appropiate
+    autofixture that was :ref:`registry <registered>` or fall back to the
+    default:class:`AutoFixture` class. *model* can be a model class or its
+    string representation (e.g. ``"app.ModelClass"``).
+
+    All positional and keyword arguments are passed to the autofixture
+    constructor. It is demonstrated in the example below which will create ten
+    superusers::
+
+        import autofixture
+        admins = autofixture('auth.User', 10, field_values={'is_superuser': True})
+
+    .. note:: See :ref:`AutoFixture` for more information.
+
+    :func:`create` will return a list of the created objects.
+    '''
     from django.db import models
     if isinstance(model, basestring):
         model = models.get_model(*model.split('.', 1))
@@ -74,17 +94,23 @@ def create(model, count, *args, **kwargs):
 
 
 def create_one(model, *args, **kwargs):
+    '''
+    :func:`create_one` is exactly the as the :func:`create` function but a
+    shortcut if you only want to generate one model instance.
+
+    The function returns the instanciated model.
+    '''
     return create(model, 1, *args, **kwargs)[0]
 
 
 LOADING = False
 
 def autodiscover():
-    """
-    Auto-discover INSTALLED_APPS autofixtures.py and tests.py modules and fail silently when
-    not present. This forces an import on them to register any autofixture bits they
-    may want.
-    """
+    '''
+    Auto-discover INSTALLED_APPS autofixtures.py and tests.py modules and fail
+    silently when not present. This forces an import on them to register any
+    autofixture bits they may want.
+    '''
     from django.utils.importlib import import_module
 
     # Bail out if autodiscover didn't finish loading from a previous call so

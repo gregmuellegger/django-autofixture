@@ -25,4 +25,5 @@ Contents
 
     installation
     loadtestdata
+    usage
     registry
