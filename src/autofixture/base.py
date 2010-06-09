@@ -307,6 +307,7 @@ class AutoFixture(object):
                 return generators.LoremSentenceGenerator(
                     common=False,
                     max_length=field.max_length)
+            else:
                 generator = generators.StringGenerator
             return generator(max_length=field.max_length)
         if isinstance(field, fields.DecimalField):

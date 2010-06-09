@@ -47,6 +47,7 @@ class NullableFKModel(models.Model):
 
 class BasicModel(models.Model):
     chars = models.CharField(max_length=50)
+    shortchars = models.CharField(max_length=2)
     blankchars = models.CharField(max_length=100, blank=True)
     nullchars = models.CharField(max_length=100, blank=True, null=True)
     slugfield = models.SlugField()
@@ -138,6 +139,8 @@ class TestBasicModel(TestCase):
         for obj in filler.create(100):
             self.assertTrue(len(obj.chars) > 0)
             self.assertEqual(type(obj.chars), unicode)
+            self.assertTrue(len(obj.shortchars) <= 2)
+            self.assertEqual(type(obj.shortchars), unicode)
             self.assertTrue(type(obj.blankchars), unicode)
             self.assertEqualOr(type(obj.nullchars), unicode, None)
             self.assertEqual(type(obj.slugfield), unicode)
