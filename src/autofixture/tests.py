@@ -170,10 +170,12 @@ class TestBasicModel(TestCase):
             field_values={
                 'intfield': 1,
                 'chars': generators.ChoicesGenerator(values=char_values),
+                'shortchars': lambda: u'ab',
             })
         for obj in filler.create(100):
             self.assertEqual(obj.intfield, int_value)
             self.assertTrue(obj.chars in char_values)
+            self.assertEqual(obj.shortchars, u'ab')
 
 
 class TestRelations(TestCase):

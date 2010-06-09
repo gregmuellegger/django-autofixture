@@ -109,8 +109,9 @@ class AutoFixture(object):
             ``model``: A model class which is used to create the test data.
 
             ``field_values``: A dictionary with field names of ``model`` as
-            keys. Values may be static values that are assigned to the field
-            or a ``Generator`` instance that generates a value on the fly.
+            keys. Values may be static values that are assigned to the field,
+            a ``Generator`` instance that generates a value on the fly or a
+            callable which takes no arguments and returns the wanted value.
 
             ``none_chance``: The chance (between 0 and 1, 1 equals 100%) to
             assign ``None`` to nullable fields.
@@ -230,6 +231,8 @@ class AutoFixture(object):
                 return value
             elif isinstance(value, AutoFixture):
                 return generators.InstanceGenerator(autofixture=value)
+            elif callable(value):
+                return generators.CallableGenerator(value=value)
             return generators.StaticGenerator(value=value)
 
         if field.null:

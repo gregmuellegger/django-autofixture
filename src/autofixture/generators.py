@@ -38,6 +38,17 @@ class StaticGenerator(Generator):
         return self.value
 
 
+class CallableGenerator(Generator):
+    def __init__(self, value, args=None, kwargs=None, *xargs, **xkwargs):
+        self.value = value
+        self.args = args or ()
+        self.kwargs = kwargs or {}
+        super(CallableGenerator, self).__init__(*xargs, **xkwargs)
+
+    def generate(self):
+        return self.value(*self.args, **self.kwargs)
+
+
 class NoneGenerator(Generator):
     def generate(self):
         return self.none_value
