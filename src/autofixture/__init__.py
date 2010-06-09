@@ -2,8 +2,6 @@
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
 
-__version__ = (0, 2, 3)
-
 
 REGISTRY = {}
 

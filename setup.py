@@ -32,26 +32,9 @@ long_description = UltraMagicString(u'\n\n'.join((
 )))
 
 
-# determine package version
-
-sys.path.insert(0, os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'example'))
-sys.path.insert(0, os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'src'))
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-
-
-import autofixture
-version = '.'.join([str(x) for x in autofixture.__version__[:3]])
-
-if len(autofixture.__version__) > 3:
-    version += ''.join([str(x) for x in autofixture.__version__[3:]])
-
-
 setup(
     name = 'django-autofixture',
-    version = version,
+    version = '0.2.3',
     url = 'https://launchpad.net/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
