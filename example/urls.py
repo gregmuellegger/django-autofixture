@@ -10,7 +10,7 @@ admin.autodiscover()
 def handle404(request):
     return HttpResponse('404')
 def handle500(request):
-    return HttpResponse('404')
+    return HttpResponse('500')
 
 handler404 = 'example.urls.handle404'
 handler500 = 'example.urls.handle500'
