@@ -8,5 +8,4 @@ eggs
 example/db.sqlite
 parts
 src/*.egg-info
-.ropeproject
 docs/_build

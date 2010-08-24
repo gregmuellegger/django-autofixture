@@ -25,15 +25,15 @@ class UltraMagicString(object):
 
 
 long_description = UltraMagicString(u'\n\n'.join((
-    file('README').read(),
-    file('CHANGES').read(),
+    file('README.rst').read(),
+    file('CHANGES.rst').read(),
 )))
 
 
 setup(
     name = 'django-autofixture',
     version = '0.2.3',
-    url = 'https://launchpad.net/django-autofixture',
+    url = 'https://github.com/gregmuellegger/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
     long_description = long_description,

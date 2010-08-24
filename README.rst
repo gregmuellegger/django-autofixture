@@ -143,8 +143,8 @@ for multiple databases which was introduced by django 1.2. If you have any
 ideas or interests to contribute: Feel free to contact me or just start
 hacking.
 
-Email me (gregor at muellegger dot de), contact me on twitter
-(@gregmuellegger) or branch the bazaar repository on launchpad (``bzr branch
-lp:django-autofixture``).
+Email me (gregor@muellegger.de), contact me on twitter
+(@gregmuellegger) or fork the git repository on github (``git clone
+git://github.com/gregmuellegger/django-autofixture.git``).
 
 Happy autofixturing!

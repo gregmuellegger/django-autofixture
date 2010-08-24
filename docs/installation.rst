@@ -34,16 +34,16 @@ Using the development version
 -----------------------------
 
 You can ofcourse also install and use the current development version. All you
-need is to have the `Bazaar VCS <http://bazaar.canonical.com/>`_ and
-`setuptools <http://pypi.python.org/pypi/setuptools>`_ installed.
+need is to have the `git <http://git-scm.com/>`_ and `setuptools
+<http://pypi.python.org/pypi/setuptools>`_ installed.
 
-Now branch the ``trunk`` repository from `launchpad <https://launchpad.net/>`_
-and run::
+Now get the repository from `github
+<http://github.net/gregmuellegger/django-autofixture>`_ and run::
 
-    bzr branch lp:django-autofixture
+    git clone git://github.com/gregmuellegger/django-autofixture.git
 
 This will download the project into your local directory. :command:`cd` to the
-``django-autofixture`` and run::
+``django-autofixture`` directory and run::
 
     python setup.py install
 
