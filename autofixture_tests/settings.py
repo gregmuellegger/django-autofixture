@@ -1,6 +1,6 @@
 # Django settings for testsite project.
 import os
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -66,7 +66,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
 )
 
-ROOT_URLCONF = 'example.urls'
+ROOT_URLCONF = 'autofixture_tests.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
@@ -79,7 +79,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
 
-    'example.testapp',
+    'autofixture_tests.sample_app',
+    'autofixture_tests.autofixture_test',
     'autofixture',
 )
 
