@@ -7,6 +7,28 @@ import string
 import os
 
 
+# backporting os.path.relpath, only availabe in python >= 2.6
+try:
+    relpath = os.path.relpath
+except AttributeError:
+    def relpath(path, start=os.curdir):
+        """Return a relative version of a path"""
+
+        if not path:
+            raise ValueError("no path specified")
+
+        start_list = os.path.abspath(start).split(os.path.sep)
+        path_list = os.path.abspath(path).split(os.path.sep)
+
+        # Work out how much of the filepath is shared by start and path.
+        i = len(os.path.commonprefix([start_list, path_list]))
+
+        rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return curdir
+        return os.path.join(*rel_list)
+
+
 class Generator(object):
     coerce_type = staticmethod(lambda x: x)
     none_value = None
@@ -366,6 +388,24 @@ class FilePathGenerator(Generator):
         if self.max_length:
             filenames = [fn for fn in filenames if len(fn) <= self.max_length]
         return random.choice(filenames)
+
+
+class MediaFilePathGenerator(FilePathGenerator):
+    '''
+    Generates a valid filename of an existing file from a subdirectory of
+    ``settings.MEDIA_ROOT``. The returned filename is relative to
+    ``MEDIA_ROOT``.
+    '''
+    def __init__(self, path='', *args, **kwargs):
+        from django.conf import settings
+        path = os.path.join(settings.MEDIA_ROOT, path)
+        super(MediaFilePathGenerator, self).__init__(path, *args, **kwargs)
+
+    def generate(self):
+        from django.conf import settings
+        filename = super(MediaFilePathGenerator, self).generate()
+        filename = relpath(filename, settings.MEDIA_ROOT)
+        return filename
 
 
 class InstanceGenerator(Generator):
