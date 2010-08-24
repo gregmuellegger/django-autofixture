@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
 
@@ -151,7 +152,11 @@ def autodiscover():
 
         # Step 3: import the app's autofixtures file. If this has errors we want them
         # to bubble up.
-        import_module("%s.autofixtures" % app)
+        try:
+            import_module("%s.autofixtures" % app)
+        except Exception, e:
+            warnings.warn(u'Error while importing %s.autofixtures: %r' %
+                (mod.__name__, e))
 
     for app in settings.INSTALLED_APPS:
         mod = import_module(app)
@@ -165,7 +170,11 @@ def autodiscover():
         except ImportError:
             continue
 
-        import_module("%s.tests" % app)
+        try:
+            import_module("%s.tests" % app)
+        except Exception, e:
+            warnings.warn(u'Error while importing %s.tests: %r' %
+                (mod.__name__, e))
 
     # autodiscover was successful, reset loading flag.
     LOADING = False
