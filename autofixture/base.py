@@ -344,7 +344,7 @@ class AutoFixture(object):
         generator = self._field_generators[field]
         if generator is None:
             return self.IGNORE_FIELD
-        value = generator.get_value()
+        value = generator()
         return value
 
     def process_field(self, instance, field):

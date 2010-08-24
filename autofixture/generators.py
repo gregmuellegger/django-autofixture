@@ -28,6 +28,9 @@ class Generator(object):
         value = self.generate()
         return self.coerce(value)
 
+    def __call__(self):
+        return self.get_value()
+
 
 class StaticGenerator(Generator):
     def __init__(self, value, *args, **kwargs):
