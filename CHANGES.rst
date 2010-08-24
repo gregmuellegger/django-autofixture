@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2.4
+-----
+
+* Using ``Autofixture.Values`` for defining initial values in ``Autofixture``
+  subclasses.
+
 0.2.3
 -----
 
