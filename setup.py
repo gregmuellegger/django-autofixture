@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
 class UltraMagicString(object):
@@ -39,9 +39,6 @@ setup(
     long_description = long_description,
     author = UltraMagicString('Gregor Müllegger'),
     author_email = 'gregor@muellegger.de',
-    packages = find_packages('src'),
-    package_dir = {'': 'src'},
-    include_package_data = True,
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
@@ -52,6 +49,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
-    zip_safe = False,
+    packages = [
+        'autofixture',
+        'autofixture.management',
+        'autofixture.management.commands'],
     install_requires = ['setuptools'],
 )
