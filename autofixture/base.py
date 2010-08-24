@@ -71,6 +71,9 @@ class AutoFixture(object):
     class IGNORE_FIELD(object):
         pass
 
+    class Values(object):
+        pass
+
     overwrite_defaults = False
     follow_fk = True
     generate_fk = False
@@ -146,7 +149,10 @@ class AutoFixture(object):
             will be ignored if this parameter is set.
         '''
         self.model = model
-        self.field_values = self.__class__.field_values.copy()
+        self.field_values = dict((
+            (k,v) for k,v in self.Values.__dict__.items()
+            if k[:2] != '__' and k[-2:] != '__' and not k.startswith('_Values__')))
+        self.field_values.update(self.__class__.field_values.copy())
         self.field_values.update(field_values or {})
         self.constraints = constraints or []
         if none_chance is not None:
