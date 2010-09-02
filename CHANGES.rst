@@ -7,6 +7,9 @@ Changelog
 * Using ``Autofixture.Values`` for defining initial values in ``Autofixture``
   subclasses.
 
+* Making autodiscover more robust. Don't break if some module can't be
+  imported or throws any other exception.
+
 0.2.3
 -----
 
