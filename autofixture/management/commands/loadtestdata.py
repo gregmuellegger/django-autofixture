@@ -49,7 +49,7 @@ class Command(BaseCommand):
             default=False, help=
                 u'Ignore foreignkeys while creating model instances.'),
         make_option('--generate-fk', action='store', dest='generate_fk',
-            default='', help=
+            default=None, help=
                 u'Do not use already existing instances for ForeignKey '
                 u'relations. Create new instances instead. You can specify a '
                 u'comma sperated list of field names or ALL to indicate that '
@@ -124,7 +124,8 @@ class Command(BaseCommand):
 
         follow_fk = not options['no_follow_fk']
         follow_m2m = not options['no_follow_m2m']
-        generate_fk = options['generate_fk'].split(',')
+        fks = options['generate_fk']
+        generate_fk = None if fks is None else fks.split(',')
 
         use = options['use']
         if use:

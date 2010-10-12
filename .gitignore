@@ -9,3 +9,5 @@ example/db.sqlite
 parts
 src/*.egg-info
 docs/_build
+*.pyc
+*.swp
