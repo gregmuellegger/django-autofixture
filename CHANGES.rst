@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.2.5
+-----
+
+* Fixing issue with ``--generate-fk`` option in management command. Thanks
+  Mikko Hellsing for the `report and fix`_.
+
+.. _report and fix: http://github.com/gregmuellegger/django-autofixture/issues/issue/1/
+
 0.2.4
 -----
 
