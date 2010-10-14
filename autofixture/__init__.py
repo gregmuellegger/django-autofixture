@@ -76,7 +76,7 @@ def create(model, count, *args, **kwargs):
     superusers::
 
         import autofixture
-        admins = autofixture('auth.User', 10, field_values={'is_superuser': True})
+        admins = autofixture.create('auth.User', 10, field_values={'is_superuser': True})
 
     .. note:: See :ref:`AutoFixture` for more information.
 
