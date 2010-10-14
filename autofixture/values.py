@@ -26,6 +26,8 @@ class ValuesBase(IterableUserDict, object):
     def __init__(self, *parents, **values):
         self.data = self._value_attrs.copy()
         for parent in parents:
+            if parent is None:
+                continue
             if isinstance(parent, (dict, UserDict)):
                 self.data.update(parent)
             else:
