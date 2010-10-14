@@ -35,7 +35,8 @@ class Generator(object):
     empty_p = 0
 
     def __init__(self, empty_p=None, coerce=None):
-        self.empty_p = empty_p or self.empty_p
+        if empty_p is not None:
+            self.empty_p = empty_p
         if coerce:
             self.coerce_type = coerce
 
