@@ -33,8 +33,8 @@ class Generator(object):
     coerce_type = staticmethod(lambda x: x)
     empty_value = None
 
-    def __init__(self, none_p=0, coerce=None):
-        self.none_p = none_p
+    def __init__(self, empty_p=0, coerce=None):
+        self.empty_p = empty_p
         if coerce:
             self.coerce_type = coerce
 
@@ -45,7 +45,7 @@ class Generator(object):
         raise NotImplementedError
 
     def get_value(self):
-        if random.random() < self.none_p:
+        if random.random() < self.empty_p:
             return self.empty_value
         value = self.generate()
         return self.coerce(value)
