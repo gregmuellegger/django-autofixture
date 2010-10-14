@@ -5,6 +5,7 @@ from datetime import date, datetime
 from django.test import TestCase
 from autofixture import generators
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
+from autofixture.values import Values
 from autofixture_tests.autofixture_test.models import y2k
 from autofixture_tests.autofixture_test.models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
@@ -18,10 +19,19 @@ class SimpleAutoFixture(AutoFixture):
     }
 
 
-class BasicValueFixture(AutoFixture):
+class BasicValueFixtureBase(AutoFixture):
+    field_values = Values(blankchars='bar')
+
+
+class BasicValueFixture(BasicValueFixtureBase):
     class Values:
         chars = 'foo'
-        shortchars = lambda: 'a'
+        shortchars = staticmethod(lambda: 'a')
+        intfield = generators.IntegerGenerator(min_value=1, max_value=13)
+
+    field_values = {
+        'nullchars': 'spam',
+    }
 
 
 class TestBasicModel(TestCase):
@@ -387,6 +397,9 @@ class TestAutofixtureAPI(TestCase):
         for obj in autofixture.create(BasicModel, 10):
             self.assertEqual(obj.chars, 'foo')
             self.assertEqual(obj.shortchars, 'a')
+            self.assertEqual(obj.blankchars, 'bar')
+            self.assertEqual(obj.nullchars, 'spam')
+            self.assertTrue(1 <= obj.intfield <= 13)
 
 
 class TestManagementCommand(TestCase):

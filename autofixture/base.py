@@ -4,6 +4,7 @@ from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
 from autofixture import constraints, generators, signals
+from autofixture.values import Values
 
 
 class CreateInstanceError(Exception):
@@ -58,7 +59,18 @@ class Link(object):
         return Link(fields, default=self.default)
 
 
-class AutoFixture(object):
+class AutoFixtureMetaclass(type):
+    def __new__(mcs, name, bases, attrs):
+        values = Values()
+        for base in bases[::-1]:
+            values += base.field_values
+        values += Values(attrs.pop('Values', {}))
+        values += attrs.get('field_values', Values())
+        attrs['field_values'] = values
+        return super(AutoFixtureMetaclass, mcs).__new__(mcs, name, bases, attrs)
+
+
+class AutoFixtureBase(object):
     '''
     .. We don't support the following fields yet:
 
@@ -69,9 +81,6 @@ class AutoFixture(object):
         Patches are welcome.
     '''
     class IGNORE_FIELD(object):
-        pass
-
-    class Values(object):
         pass
 
     overwrite_defaults = False
@@ -97,7 +106,7 @@ class AutoFixture(object):
         (fields.TimeField, generators.TimeGenerator),
     ))
 
-    field_values = {}
+    field_values = Values()
 
     default_constraints = [
         constraints.unique_constraint,
@@ -149,11 +158,8 @@ class AutoFixture(object):
             will be ignored if this parameter is set.
         '''
         self.model = model
-        self.field_values = dict((
-            (k,v) for k,v in self.Values.__dict__.items()
-            if k[:2] != '__' and k[-2:] != '__' and not k.startswith('_Values__')))
-        self.field_values.update(self.__class__.field_values.copy())
-        self.field_values.update(field_values or {})
+        self.field_values = Values(self.__class__.field_values)
+        self.field_values += Values(field_values)
         self.constraints = constraints or []
         if none_chance is not None:
             self.none_chance = none_chance
@@ -485,3 +491,7 @@ class AutoFixture(object):
 
     def __iter__(self):
         yield self.create_one()
+
+
+class AutoFixture(AutoFixtureBase):
+    __metaclass__ = AutoFixtureMetaclass
