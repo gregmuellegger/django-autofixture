@@ -3,14 +3,6 @@ import os
 from fabric.api import abort, cd, local, env, run, settings, sudo
 
 
-#######################
-# Development helpers #
-#######################
-
-def devinit():
-    local('test -e bin/buildout || python bootstrap.py', capture=False)
-    local('bin/buildout', capture=False)
-
 #################
 # Documentation #
 #################
