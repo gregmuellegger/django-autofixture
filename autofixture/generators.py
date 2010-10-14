@@ -32,9 +32,10 @@ except AttributeError:
 class Generator(object):
     coerce_type = staticmethod(lambda x: x)
     empty_value = None
+    empty_p = 0
 
-    def __init__(self, empty_p=0, coerce=None):
-        self.empty_p = empty_p
+    def __init__(self, empty_p=None, coerce=None):
+        self.empty_p = empty_p or self.empty_p
         if coerce:
             self.coerce_type = coerce
 
