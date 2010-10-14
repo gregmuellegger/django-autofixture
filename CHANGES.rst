@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.3.0 (not released yet)
+------------------------
+
+* Adding better support for subclassing ``AutoFixture`` through merging of
+  nested ``Values`` classes.
+
 0.2.5
 -----
 
