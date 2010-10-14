@@ -42,11 +42,11 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('-d', '--overwrite-defaults', action='store_true',
-            dest='overwrite_defaults', default=False, help=
+            dest='overwrite_defaults', default=None, help=
                 u'Generate values for fields with default values. Default is '
                 u'to use default values.'),
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
-            default=False, help=
+            default=None, help=
                 u'Ignore foreignkeys while creating model instances.'),
         make_option('--generate-fk', action='store', dest='generate_fk',
             default=None, help=
@@ -55,11 +55,11 @@ class Command(BaseCommand):
                 u'comma sperated list of field names or ALL to indicate that '
                 u'all foreignkeys should be generated automatically.'),
         make_option('--no-follow-m2m', action='store_true',
-            dest='no_follow_m2m', default=False, help=
+            dest='no_follow_m2m', default=None, help=
                 u'Ignore many to many fields while creating model '
                 u'instances.'),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default='1:5', help=
+            default='', help=
                 u'Specify minimum and maximum number of instances that are '
                 u'assigned to a m2m relation. Use two, colon separated '
                 u'numbers in the form of: min,max. Default is 1,5.\n'
@@ -122,10 +122,18 @@ class Command(BaseCommand):
     def handle(self, *attrs, **options):
         from django.db.models import get_model
 
-        follow_fk = not options['no_follow_fk']
-        follow_m2m = not options['no_follow_m2m']
-        fks = options['generate_fk']
-        generate_fk = None if fks is None else fks.split(',')
+        if options['no_follow_fk'] is None:
+            follow_fk = None
+        else:
+            follow_fk = False
+        if options['no_follow_m2m'] is None:
+            follow_m2m = None
+        else:
+            follow_m2m = False
+        if options['generate_fk'] is None:
+            generate_fk = None
+        else:
+            generate_fk = options['generate_fk'].split(',')
 
         use = options['use']
         if use:
@@ -196,8 +204,8 @@ class Command(BaseCommand):
             'overwrite_defaults': overwrite_defaults,
             'follow_fk': follow_fk,
             'generate_fk': generate_fk,
-            'follow_m2m': follow_m2m,
-            'generate_m2m': generate_m2m,
+            'follow_m2m': follow_m2m or None,
+            'generate_m2m': generate_m2m or None,
         }
 
         for model, count in models:
