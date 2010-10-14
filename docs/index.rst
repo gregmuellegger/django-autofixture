@@ -26,4 +26,5 @@ Contents
     installation
     loadtestdata
     usage
-    registry
+    builtin_autofixtures
+    contribute

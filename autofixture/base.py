@@ -212,8 +212,9 @@ class AutoFixtureBase(object):
 
     def add_field_value(self, name, value):
         '''
-        Pass a static *value* that should be assigned to the field called
-        *name*. *value* may be a :ref:`Generator <Generator>` instance.
+        Pass a *value* that should be assigned to the field called *name*.
+        Thats the same as specifying it in the *field_values* argument of the
+        :meth:`constructor <autofixture.base.AutoFixture.__init__>`.
         '''
         self.field_values[name] = value
 
