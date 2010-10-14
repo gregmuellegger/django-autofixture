@@ -79,6 +79,10 @@ class Command(BaseCommand):
             default='', help=
                 u'Specify a autofixture subclass that is used to create the '
                 u'test data. E.g. myapp.autofixtures.MyAutoFixture'),
+        make_option('--database', action='store', dest='database',
+            default='default', help=
+                u'Nominates a specific database to load data into. '
+                u'Defaults to the "default" database.'),
     )
 
     def format_output(self, obj):
