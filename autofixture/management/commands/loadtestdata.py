@@ -42,11 +42,11 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('-d', '--overwrite-defaults', action='store_true',
-            dest='overwrite_defaults', default=False, help=
+            dest='overwrite_defaults', default=None, help=
                 u'Generate values for fields with default values. Default is '
                 u'to use default values.'),
         make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
-            default=False, help=
+            default=None, help=
                 u'Ignore foreignkeys while creating model instances.'),
         make_option('--generate-fk', action='store', dest='generate_fk',
             default=None, help=
@@ -55,11 +55,11 @@ class Command(BaseCommand):
                 u'comma sperated list of field names or ALL to indicate that '
                 u'all foreignkeys should be generated automatically.'),
         make_option('--no-follow-m2m', action='store_true',
-            dest='no_follow_m2m', default=False, help=
+            dest='no_follow_m2m', default=None, help=
                 u'Ignore many to many fields while creating model '
                 u'instances.'),
         make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default='1:5', help=
+            default=None, help=
                 u'Specify minimum and maximum number of instances that are '
                 u'assigned to a m2m relation. Use two, colon separated '
                 u'numbers in the form of: min,max. Default is 1,5.\n'
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 u'specific fields using the following format:\n'
                 u'field1:min:max,field2:min:max ...'),
         make_option('--generate-m2m', action='store', dest='generate_m2m',
-            default='', help=
+            default=None, help=
                 u'Specify minimum and maximum number of instances that are '
                 u'newly created and assigned to a m2m relation. Use two, '
                 u'colon separated numbers in the form of: min:max. Default is '
@@ -122,40 +122,52 @@ class Command(BaseCommand):
     def handle(self, *attrs, **options):
         from django.db.models import get_model
 
-        follow_fk = not options['no_follow_fk']
-        follow_m2m = not options['no_follow_m2m']
-        fks = options['generate_fk']
-        generate_fk = None if fks is None else fks.split(',')
-
-        use = options['use']
-        if use:
-            use = use.split('.')
-            use = getattr(import_module('.'.join(use[:-1])), use[-1])
-
         error_option = None
-        try:
-            if follow_m2m:
-                value = [i for i in options['follow_m2m'].split(',')]
+        #
+        # follow options
+        #
+        if options['no_follow_fk'] is None:
+            follow_fk = None
+        else:
+            follow_fk = False
+        if options['no_follow_m2m'] is None:
+            follow_m2m = None
+            # this is the only chance for the follow_m2m options to be parsed
+            if options['follow_m2m']:
+                try:
+                    value = options['follow_m2m'].split(',')
+                    if len(value) == 1 and value[0].count(':') == 1:
+                        follow_m2m = [int(i) for i in value[0].split(':')]
+                    else:
+                        follow_m2m = {}
+                        for field in value:
+                            key, minval, maxval = field.split(':')
+                            follow_m2m[key] = int(minval), int(maxval)
+                except ValueError:
+                    error_option = '--follow-m2m=%s' % options['follow_m2m']
+        else:
+            follow_m2m = False
+        #
+        # generation options
+        #
+        if options['generate_fk'] is None:
+            generate_fk = None
+        else:
+            generate_fk = options['generate_fk'].split(',')
+        generate_m2m = None
+        if options['generate_m2m']:
+            try:
+                value = [v for v in options['generate_m2m'].split(',') if v]
                 if len(value) == 1 and value[0].count(':') == 1:
-                    follow_m2m = [int(i) for i in value[0].split(':')]
+                    generate_m2m = [int(i) for i in value[0].split(':')]
                 else:
-                    follow_m2m = {}
+                    generate_m2m = {}
                     for field in value:
                         key, minval, maxval = field.split(':')
-                        follow_m2m[key] = int(minval), int(maxval)
-        except ValueError:
-            error_option = '--follow-m2m=%s' % options['follow_m2m']
-        try:
-            value = [v for v in options['generate_m2m'].split(',') if v]
-            if len(value) == 1 and value[0].count(':') == 1:
-                generate_m2m = [int(i) for i in value[0].split(':')]
-            else:
-                generate_m2m = {}
-                for field in value:
-                    key, minval, maxval = field.split(':')
-                    generate_m2m[key] = int(minval), int(maxval)
-        except ValueError:
-            error_option = '--generate-m2m=%s' % options['generate_m2m']
+                        generate_m2m[key] = int(minval), int(maxval)
+            except ValueError:
+                error_option = '--generate-m2m=%s' % options['generate_m2m']
+
         if error_option:
             raise CommandError(
                 u'Invalid option %s\n'
@@ -163,8 +175,12 @@ class Command(BaseCommand):
                     error_option,
                     error_option.split('=', 1)[0]))
 
-        overwrite_defaults = options['overwrite_defaults']
+        use = options['use']
+        if use:
+            use = use.split('.')
+            use = getattr(import_module('.'.join(use[:-1])), use[-1])
 
+        overwrite_defaults = options['overwrite_defaults']
         self.verbosity = int(options['verbosity'])
 
         models = []
@@ -206,3 +222,4 @@ class Command(BaseCommand):
                 fixture.create(count)
             else:
                 autofixture.create(model, count, **kwargs)
+

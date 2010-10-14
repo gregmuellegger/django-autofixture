@@ -31,10 +31,12 @@ except AttributeError:
 
 class Generator(object):
     coerce_type = staticmethod(lambda x: x)
-    none_value = None
+    empty_value = None
+    empty_p = 0
 
-    def __init__(self, none_chance=0, coerce=None):
-        self.none_chance = none_chance
+    def __init__(self, empty_p=None, coerce=None):
+        if empty_p is not None:
+            self.empty_p = empty_p
         if coerce:
             self.coerce_type = coerce
 
@@ -45,8 +47,8 @@ class Generator(object):
         raise NotImplementedError
 
     def get_value(self):
-        if random.random() < self.none_chance:
-            return self.none_value
+        if random.random() < self.empty_p:
+            return self.empty_value
         value = self.generate()
         return self.coerce(value)
 
@@ -76,7 +78,7 @@ class CallableGenerator(Generator):
 
 class NoneGenerator(Generator):
     def generate(self):
-        return self.none_value
+        return self.empty_value
 
 
 class StringGenerator(Generator):
@@ -432,7 +434,7 @@ class InstanceGenerator(Generator):
 
 
 class MultipleInstanceGenerator(InstanceGenerator):
-    none_value = []
+    empty_value = []
 
     def __init__(self, *args, **kwargs):
         self.min_count = kwargs.pop('min_count', 1)
@@ -451,7 +453,7 @@ class InstanceSelector(Generator):
     '''
     Select one or more instances from a queryset.
     '''
-    none_value = []
+    empty_value = []
 
     def __init__(self, queryset, min_count=None, max_count=None, fallback=None,
         limit_choices_to=None, *args, **kwargs):
