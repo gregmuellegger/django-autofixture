@@ -16,6 +16,7 @@ def runtests(*args):
             'autofixture_tests',
             'autofixture_test',
             'generator_test',
+            'values_tests',
             'sample_app',
         ],
         verbosity=1, interactive=True)
