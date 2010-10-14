@@ -242,7 +242,7 @@ class AutoFixture(object):
             return generators.StaticGenerator(value=value)
 
         if field.null:
-            kwargs['none_p'] = self.none_p
+            kwargs['empty_p'] = self.none_p
         if field.choices:
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):

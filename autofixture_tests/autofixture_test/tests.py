@@ -182,7 +182,7 @@ class TestRelations(TestCase):
 
         filler = AutoFixture(
             M2MModel,
-            none_chance=0,
+            none_p=0,
             follow_m2m={
                 'm2m': (2, 10),
             })
@@ -193,7 +193,7 @@ class TestRelations(TestCase):
     def test_generate_m2m(self):
         filler = AutoFixture(
             M2MModel,
-            none_chance=0,
+            none_p=0,
             generate_m2m=(1, 5))
         all_m2m = set()
         all_secondm2m = set()
@@ -208,7 +208,7 @@ class TestRelations(TestCase):
     def test_generate_only_some_m2m(self):
         filler = AutoFixture(
             M2MModel,
-            none_chance=0,
+            none_p=0,
             generate_m2m={
                 'm2m': (1, 5),
             })
@@ -394,12 +394,12 @@ class TestManagementCommand(TestCase):
         from autofixture.management.commands.loadtestdata import Command
         self.command = Command()
         self.options = {
-            'overwrite_defaults': False,
-            'no_follow_fk': False,
-            'no_follow_m2m': False,
-            'generate_fk': '',
-            'follow_m2m': '1:5',
-            'generate_m2m': '',
+            'overwrite_defaults': None,
+            'no_follow_fk': None,
+            'no_follow_m2m': None,
+            'generate_fk': None,
+            'follow_m2m': None,
+            'generate_m2m': None,
             'verbosity': '0',
             'use': '',
         }
