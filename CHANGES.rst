@@ -7,6 +7,12 @@ Changelog
 * Adding better support for subclassing ``AutoFixture`` through merging of
   nested ``Values`` classes.
 
+* Renamed attribute and argument ``none_chance`` to better matching name ``empty_p`` for generators
+  and ``none_p`` for ``AutoFixture``.
+
+* Fixed some issues with management command options. Thanks Mikko Hellsing for
+  his hard work.
+
 0.2.5
 -----
 
