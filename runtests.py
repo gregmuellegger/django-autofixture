@@ -9,9 +9,9 @@ sys.path.insert(0, parent)
 from django.test.simple import run_tests
 
 
-def runtests():
+def runtests(*args):
     failures = run_tests(
-        [
+        args or [
             'autofixture',
             'autofixture_tests',
             'autofixture_test',
@@ -22,4 +22,4 @@ def runtests():
     sys.exit(failures)
 
 if __name__ == '__main__':
-    runtests()
+    runtests(*sys.argv[1:])
