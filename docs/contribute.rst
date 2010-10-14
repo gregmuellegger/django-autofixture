@@ -1,16 +1,17 @@
 Contribute
 ==========
 
-If you want to use an isolated buildout environment while hacking on
+If you want to use an isolated environment while hacking on
 ``django-autofixture`` you can run the following commands from the project's
 root directory::
 
-    python bootstrap.py
-    bin/buildout
+    virtualenv . --no-site-packages
+    source bin/activate
+    pip install -r requirements.txt
 
 Please run now the tests that are shipped with ``autofixture`` to see if
-everything is well::
+everything is working::
 
-    bin/test
+    python runtests.py
 
 Happy hacking!
