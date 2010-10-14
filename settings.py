@@ -37,7 +37,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'autofixture_tests', 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -69,7 +69,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'autofixture_tests.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
+    os.path.join(PROJECT_ROOT, 'autofixture_tests', 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -81,6 +81,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
 
+    'autofixture_tests',
     'autofixture_tests.sample_app',
     'autofixture_tests.autofixture_test',
     'autofixture_tests.generator_test',
