@@ -47,7 +47,7 @@ def unregister(model_or_iterable, fail_silently=False):
     Remove one or more models from the autofixture registry.
     '''
     from django.db import models
-    if isinstance(model_or_iterable, (list, tuple, set)):
+    if issubclass(model_or_iterable, models.Model):
         model_or_iterable = [model_or_iterable]
     for model in models:
         if isinstance(model, basestring):
