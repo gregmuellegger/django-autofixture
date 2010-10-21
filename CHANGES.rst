@@ -13,6 +13,8 @@ Changelog
 * Fixed some issues with management command options. Thanks Mikko Hellsing for
   his hard work.
 
+* Fixed issues in unregister(). Thanks Mikko Hellsing for the report.
+
 0.2.5
 -----
 
