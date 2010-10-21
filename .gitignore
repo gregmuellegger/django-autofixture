@@ -1,13 +1,10 @@
-.installed.cfg
 bin
 build
-develop-eggs
+db.sqlite
 dist
-downloads
-eggs
-example/db.sqlite
-parts
-src/*.egg-info
+include
+lib
 docs/_build
+*.egg-info
 *.pyc
 *.swp
