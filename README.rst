@@ -112,6 +112,33 @@ specific value. This is easily achieved with the ``field_values`` attribute of
         field_values={'pub_date': datetime(2010, 2, 1)})
 
 
+Custom autofixtures
+===================
+
+To have custom autofixtures for your model, you can easily subclass
+``AutoFixture`` somewhere (e.g. in myapp/autofixtures.py) ::
+
+    from models import MyModel
+    from autofixture import generators, register, AutoFixture
+
+    class MyModelAutoFixture(AutoFixture):
+        field_values = {
+            'name': generators.StaticGenerator('this_is_my_static_name'),
+        }
+
+    register(MyModel, MyModelAutoFixture)
+
+
+Then, ``loadtestdata`` will automatically use your custom fixtures. ::
+
+    django-admin.py loadtestdata app.MyModel:10
+
+You can load all ``autofixtures.py`` files of your installed apps
+automatically like you can do with the admin autodiscover. Do so by running
+``autofixture.autodiscover()`` somewhere in the code, preferably in the
+``urls.py``.
+
+
 More
 ====
 
