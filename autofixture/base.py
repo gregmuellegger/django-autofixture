@@ -376,7 +376,7 @@ class AutoFixtureBase(object):
             else:
                 auto_created_through_model = True
         else:
-            auto_created_through_model = through._meta.auto_created
+            auto_created_through_model = through._meta.auto_created if through else False
 
         if auto_created_through_model:
             return self.process_field(instance, field)
