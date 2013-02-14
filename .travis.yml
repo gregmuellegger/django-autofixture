@@ -1,0 +1,19 @@
+language: python
+env:
+  - TOX_ENV=py25-1.4
+  - TOX_ENV=py26-1.4
+  - TOX_ENV=py26-1.5
+  - TOX_ENV=py27-1.4
+  - TOX_ENV=py27-1.5
+  - TOX_ENV=py27-trunk
+before_install:
+  - export PIP_USE_MIRRORS=true
+  - export PIP_INDEX_URL=https://simple.crate.io/
+  - export DJANGO_SETTINGS_MODULE=autofixture_tests.settings
+  - sudo pip install tox
+script:
+  - tox -e $TOX_ENV
+branches:
+  only:
+    - master
+
