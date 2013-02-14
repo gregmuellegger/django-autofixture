@@ -101,6 +101,7 @@ class AutoFixtureBase(object):
         (fields.PositiveIntegerField, generators.PositiveIntegerGenerator),
         (fields.SmallIntegerField, generators.SmallIntegerGenerator),
         (fields.IntegerField, generators.IntegerGenerator),
+        (fields.FloatField, generators.FloatGenerator),
         (fields.IPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
