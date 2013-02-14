@@ -1,19 +1,17 @@
 Changelog
 =========
 
-0.3.0 (not released yet)
-------------------------
+0.3.0
+-----
 
 * Adding better support for subclassing ``AutoFixture`` through merging of
   nested ``Values`` classes.
-
 * Renamed attribute and argument ``none_chance`` to better matching name ``empty_p`` for generators
   and ``none_p`` for ``AutoFixture``.
-
 * Fixed some issues with management command options. Thanks Mikko Hellsing for
   his hard work.
-
 * Fixed issues in unregister(). Thanks Mikko Hellsing for the report.
+* Adding support for ``FloatField``. Thanks to Jyr Gaxiola for the report.
 
 0.2.5
 -----

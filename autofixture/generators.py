@@ -190,6 +190,25 @@ class PositiveSmallIntegerGenerator(SmallIntegerGenerator):
     min_value = 0
 
 
+class FloatGenerator(IntegerGenerator):
+    coerce_type = float
+    decimal_digits = 1
+
+    def __init__(self, decimal_digits=None, *args, **kwargs):
+        if decimal_digits is not None:
+            self.decimal_digits = decimal_digits
+        super(IntegerGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        value = super(FloatGenerator, self).generate()
+        value = float(value)
+        if self.decimal_digits:
+            digits = random.randint(1, 10 ^ self.decimal_digits) - 1
+            digits = float(digits)
+            value = value + digits / (10 ^ self.decimal_digits)
+        return value
+
+
 class ChoicesGenerator(Generator):
     def __init__(self, choices=(), values=(), *args, **kwargs):
         assert len(choices) or len(values)
