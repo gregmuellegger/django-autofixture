@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'autofixture_tests.settings'
 parent = os.path.dirname(os.path.abspath(__file__))
 
 sys.path.insert(0, parent)

@@ -5,6 +5,7 @@ dist
 include
 lib
 docs/_build
+.tox/
 *.egg-info
 *.pyc
 *.swp
