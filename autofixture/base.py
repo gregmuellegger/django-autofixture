@@ -363,20 +363,9 @@ class AutoFixtureBase(object):
     def process_m2m(self, instance, field):
         # check django's version number to determine how intermediary models
         # are checked if they are auto created or not.
-        from django import VERSION
         auto_created_through_model = False
         through = field.rel.through
-        if VERSION < (1,2):
-            if through:
-                if isinstance(through, basestring):
-                    bits = through.split('.')
-                    if len(bits) < 2:
-                        bits = [instance._meta.app_label] + bits
-                    through = models.get_model(*bits)
-            else:
-                auto_created_through_model = True
-        else:
-            auto_created_through_model = through._meta.auto_created
+        auto_created_through_model = through._meta.auto_created
 
         if auto_created_through_model:
             return self.process_field(instance, field)
