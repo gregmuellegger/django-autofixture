@@ -160,18 +160,26 @@ study the source on your own and see in which ways it can be used. There are
 already some parts documented with doc strings which might also be helpful for you.
 
 
-Future development
-==================
+Contribute
+==========
 
-The ``autofixture`` app is nearly feature complete from the point I wanted to
-have while starting development. But there is still much room for
-improvements. One feature you can expect in the future is for example support
-for multiple databases which was introduced by django 1.2. If you have any
-ideas or interests to contribute: Feel free to contact me or just start
-hacking.
+You can find the latest development version on github_. Get there and fork it,
+file bugs or send me nice wishes.
 
-Email me (gregor@muellegger.de), contact me on twitter
-(@gregmuellegger) or fork the git repository on github (``git clone
-git://github.com/gregmuellegger/django-autofixture.git``).
+To start developing, make sure the test suite passes::
+    
+    virtualenv .env
+    source .env/bin/activate
+    pip install -r requirements/tests.txt
+    python setup.py test
+
+Now go, do some coding.
+
+Feel free to drop me a message about critique or feature requests. You can get
+in touch with me by mail_ or twitter_.
 
 Happy autofixturing!
+
+.. _github: http://github.com/gregmuellegger/django-sortedm2m
+.. _mail: mailto:gregor@muellegger.de
+.. _twitter: http://twitter.com/gregmuellegger
