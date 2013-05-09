@@ -234,8 +234,10 @@ class AutoFixtureBase(object):
         '''
         if isinstance(field, fields.AutoField):
             return None
-        if field.default is not fields.NOT_PROVIDED and \
-            not self.overwrite_defaults:
+        if (
+            field.default is not fields.NOT_PROVIDED and
+            not self.overwrite_defaults and
+            field.name not in self.field_values):
                 return None
         kwargs = {}
 

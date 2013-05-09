@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.3.1
+-----
+
+* ``field_values`` were not picked up if there was a default value assigned to
+  the field. Thanks to sirex for the report.
+
 0.3.0
 -----
 

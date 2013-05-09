@@ -89,6 +89,15 @@ class TestBasicModel(TestCase):
             self.assertTrue(obj.chars in char_values)
             self.assertEqual(obj.shortchars, u'ab')
 
+    def test_field_values_overwrite_defaults(self):
+        fixture = AutoFixture(
+            BasicModel,
+            field_values={
+                'defaultint': 42,
+            })
+        obj = fixture.create(1)[0]
+        self.assertEqual(obj.defaultint, 42)
+
 
 class TestRelations(TestCase):
     def test_generate_foreignkeys(self):
