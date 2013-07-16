@@ -298,26 +298,35 @@ class DecimalGenerator(Generator):
 class EmailGenerator(StringGenerator):
     chars = string.ascii_lowercase
 
-    def __init__(self, chars=None, max_length=30, tlds=None, *args, **kwargs):
+    def __init__(self, chars=None, max_length=30, tlds=None, static_domain=None, *args, **kwargs):
         assert max_length >= 6
         if chars is not None:
             self.chars = chars
         self.tlds = tlds
+        self.static_domain = static_domain
         super(EmailGenerator, self).__init__(self.chars, max_length=max_length, *args, **kwargs)
 
     def generate(self):
         maxl = self.max_length - 2
-        if self.tlds:
-            tld = random.choice(self.tlds)
-        elif maxl > 4:
-            tld = StringGenerator(self.chars, min_length=3, max_length=3).generate()
-        maxl -= len(tld)
-        assert maxl >= 2
+
+        if self.static_domain is None:
+            if self.tlds:
+                tld = random.choice(self.tlds)
+            elif maxl > 4:
+                tld = StringGenerator(self.chars, min_length=3, max_length=3).generate()
+            maxl -= len(tld)
+            assert maxl >= 2
+        else:
+            maxl -= len(self.static_domain)
 
         name = StringGenerator(self.chars, min_length=1, max_length=maxl-1).generate()
         maxl -= len(name)
-        domain = StringGenerator(self.chars, min_length=1, max_length=maxl).generate()
-        return '%s@%s.%s' % (name, domain, tld)
+
+        if self.static_domain is None:
+            domain = StringGenerator(self.chars, min_length=1, max_length=maxl).generate()
+            return '%s@%s.%s' % (name, domain, tld)
+        else:
+            return '%s@%s' % (name, self.static_domain)
 
 
 class URLGenerator(StringGenerator):
