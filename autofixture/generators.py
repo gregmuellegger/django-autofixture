@@ -237,14 +237,16 @@ class NullBooleanGenerator(BooleanGenerator):
 
 
 class DateTimeGenerator(Generator):
-    min_date = datetime.datetime.now() - datetime.timedelta(365 * 5)
-    max_date = datetime.datetime.now() + datetime.timedelta(365 * 1)
-
     def __init__(self, min_date=None, max_date=None, *args, **kwargs):
+        from django.utils import timezone
         if min_date is not None:
             self.min_date = min_date
+        else:
+            self.min_date = timezone.now() - datetime.timedelta(365 * 5)
         if max_date is not None:
             self.max_date = max_date
+        else:
+            self.max_date = timezone.now() + datetime.timedelta(365 * 1)
         assert self.min_date < self.max_date
         super(DateTimeGenerator, self).__init__(*args, **kwargs)
 
