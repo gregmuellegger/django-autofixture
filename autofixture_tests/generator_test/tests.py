@@ -1,6 +1,7 @@
 import os
 from django.conf import settings
 from django.test import TestCase
+from django.utils import timezone
 from autofixture import generators
 
 
@@ -21,3 +22,17 @@ class FilePathTests(TestCase):
             path = generate()
             self.assertTrue(path.startswith('textfiles/'))
             self.assertTrue(path.endswith('.txt'))
+
+
+class DateTimeTests(TestCase):
+    def test_is_datetime_timezone_aware(self):
+        with self.settings(USE_TZ=True):
+            generate = generators.DateTimeGenerator()
+            date_time = generate()
+            self.assertTrue(timezone.is_aware(date_time))
+
+    def test_is_datetime_timezone_not_aware(self):
+        with self.settings(USE_TZ=False):
+            generate = generators.DateTimeGenerator()
+            date_time = generate()
+            self.assertFalse(timezone.is_aware(date_time))
