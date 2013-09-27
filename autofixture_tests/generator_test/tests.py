@@ -2,6 +2,7 @@ import os
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
+from django.test.utils import override_settings
 from autofixture import generators
 
 
@@ -25,14 +26,14 @@ class FilePathTests(TestCase):
 
 
 class DateTimeTests(TestCase):
+    @override_settings(USE_TZ=True)
     def test_is_datetime_timezone_aware(self):
-        with self.settings(USE_TZ=True):
-            generate = generators.DateTimeGenerator()
-            date_time = generate()
-            self.assertTrue(timezone.is_aware(date_time))
+        generate = generators.DateTimeGenerator()
+        date_time = generate()
+        self.assertTrue(timezone.is_aware(date_time))
 
+    @override_settings(USE_TZ=False)
     def test_is_datetime_timezone_not_aware(self):
-        with self.settings(USE_TZ=False):
-            generate = generators.DateTimeGenerator()
-            date_time = generate()
-            self.assertFalse(timezone.is_aware(date_time))
+        generate = generators.DateTimeGenerator()
+        date_time = generate()
+        self.assertFalse(timezone.is_aware(date_time))
