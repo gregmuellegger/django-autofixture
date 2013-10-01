@@ -116,6 +116,22 @@ specific value. This is easily achieved with the ``field_values`` attribute of
         field_values={'pub_date': datetime(2010, 2, 1)})
 
 
+Limiting the set of models assigned to a ForeignKey field
+----------------------------------------------------------
+
+You could, for example, limit the Users assigned to a foreignkey field to only 
+non-staff Users.  Or create Entries for all Blogs not belonging to Yoko Ono.  
+Use the same construction as ForeignKey.limit_choices_to_ attribute::
+
+    from autofixture import AutoFixture, generators
+    fixture = AutoFixture(Entry,
+            field_values={
+                'blog': generators.InstanceSelector(Blog, 
+                    limit_choices_to={'name__ne':"Yoko Ono's blog"})
+                          } )
+
+    
+
 Custom autofixtures
 ===================
 
@@ -187,3 +203,4 @@ Happy autofixturing!
 .. _github: http://github.com/gregmuellegger/django-sortedm2m
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
+.. _ForeignKey.limit_choices_to: http://docs.djangoproject.com/en/dev/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
