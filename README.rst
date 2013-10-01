@@ -2,6 +2,10 @@
 django-autofixture
 ==================
 
+.. image:: https://travis-ci.org/gregmuellegger/django-autofixture.png
+   :alt: Build Status
+   :target: https://travis-ci.org/gregmuellegger/django-autofixture
+
 This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
 load test data through command line.
