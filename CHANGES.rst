@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.4.0
+-----
+
+* Python 3 support! Though we had to drop Python 2.5 support. If you cannot
+  upgrade to Python 2.6 by yet, please consider using the 0.3.x versions of
+  django-autofixture.
+  By the way: by Python 3 support, I mean, that the test suite is running
+  without any errors. I have not tested yet the library in production for
+  Python 3. So please test and submit bug reports if you encounter any.
+
 0.3.2
 -----
 

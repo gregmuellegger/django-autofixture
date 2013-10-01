@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
+import sys
 import warnings
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
 
 
-__version__ = '0.3.2'
+if sys.version_info[0] < 3:
+    string_types = basestring
+else:
+    string_types = str
+
+
+__version__ = '0.4.0'
 
 
 REGISTRY = {}
@@ -31,7 +38,7 @@ def register(model, autofixture, overwrite=False, fail_silently=False):
         argument.
     '''
     from django.db import models
-    if isinstance(model, basestring):
+    if isinstance(model, string_types):
         model = models.get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
         if fail_silently:
@@ -53,7 +60,7 @@ def unregister(model_or_iterable, fail_silently=False):
     if issubclass(model_or_iterable, models.Model):
         model_or_iterable = [model_or_iterable]
     for model in models:
-        if isinstance(model, basestring):
+        if isinstance(model, string_types):
             model = models.get_model(*model.split('.', 1))
         try:
             del REGISTRY[model]
@@ -86,7 +93,7 @@ def create(model, count, *args, **kwargs):
     :func:`create` will return a list of the created objects.
     '''
     from django.db import models
-    if isinstance(model, basestring):
+    if isinstance(model, string_types):
         model = models.get_model(*model.split('.', 1))
     if model in REGISTRY:
         autofixture = REGISTRY[model](model, *args, **kwargs)
@@ -157,7 +164,7 @@ def autodiscover():
         # to bubble up.
         try:
             import_module("%s.autofixtures" % app)
-        except Exception, e:
+        except Exception as e:
             warnings.warn(u'Error while importing %s.autofixtures: %r' %
                 (mod.__name__, e))
 
@@ -175,7 +182,7 @@ def autodiscover():
 
         try:
             import_module("%s.tests" % app)
-        except Exception, e:
+        except Exception as e:
             warnings.warn(u'Error while importing %s.tests: %r' %
                 (mod.__name__, e))
 

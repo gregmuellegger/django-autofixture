@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
 import datetime
+import os
 import random
 import re
 import string
-import os
+import sys
+from decimal import Decimal
+
+
+if sys.version_info[0] < 3:
+    str_ = unicode
+else:
+    str_ = str
 
 
 # backporting os.path.relpath, only availabe in python >= 2.6
@@ -82,8 +89,8 @@ class NoneGenerator(Generator):
 
 
 class StringGenerator(Generator):
-    coerce_type = unicode
-    singleline_chars = string.letters + u' '
+    coerce_type = str_
+    singleline_chars = string.ascii_letters + u' '
     multiline_chars = singleline_chars + u'\n'
 
     def __init__(self, chars=None, multiline=False, min_length=1, max_length=1000, *args, **kwargs):
@@ -103,7 +110,7 @@ class StringGenerator(Generator):
     def generate(self):
         length = random.randint(self.min_length, self.max_length)
         value = u''
-        for x in xrange(length):
+        for x in range(length):
             value += random.choice(self.chars)
         return value
 
@@ -116,7 +123,7 @@ class SlugGenerator(StringGenerator):
 
 
 class LoremGenerator(Generator):
-    coerce_type = unicode
+    coerce_type = str_
     common = True
     count = 3
     method = 'b'
@@ -138,7 +145,7 @@ class LoremGenerator(Generator):
             lorem = words(self.count, common=self.common)
         elif self.method == 's':
             lorem = u' '.join([sentence()
-                for i in xrange(self.count)])
+                for i in range(self.count)])
         else:
             paras = paragraphs(self.count, common=self.common)
             if self.method == 'p':
@@ -366,10 +373,10 @@ class URLGenerator(StringGenerator):
 
 
 class IPAddressGenerator(Generator):
-    coerce_type = unicode
+    coerce_type = str_
 
     def generate(self):
-        return '.'.join([unicode(part) for part in [
+        return '.'.join([str_(part) for part in [
             IntegerGenerator(min_value=1, max_value=254).generate(),
             IntegerGenerator(min_value=0, max_value=254).generate(),
             IntegerGenerator(min_value=0, max_value=254).generate(),
@@ -378,7 +385,7 @@ class IPAddressGenerator(Generator):
 
 
 class TimeGenerator(Generator):
-    coerce_type = unicode
+    coerce_type = str_
 
     def generate(self):
         return u'%02d:%02d:%02d' % (
@@ -389,7 +396,7 @@ class TimeGenerator(Generator):
 
 
 class FilePathGenerator(Generator):
-    coerce_type = unicode
+    coerce_type = str_
 
     def __init__(self, path, match=None, recursive=False, max_length=None, *args, **kwargs):
         self.path = path
@@ -473,7 +480,7 @@ class MultipleInstanceGenerator(InstanceGenerator):
 
     def generate(self):
         instances = []
-        for i in xrange(random.randint(self.min_count, self.max_count)):
+        for i in range(random.randint(self.min_count, self.max_count)):
             instances.append(
                 super(MultipleInstanceGenerator, self).generate())
         return instances

@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
+from django.utils.six import with_metaclass
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
 
@@ -412,7 +413,7 @@ class AutoFixtureBase(object):
         for constraint in self.constraints:
             try:
                 constraint(self.model, instance)
-            except constraints.InvalidConstraint, e:
+            except constraints.InvalidConstraint as e:
                 recalc_fields.extend(e.fields)
         return recalc_fields
 
@@ -473,18 +474,18 @@ class AutoFixtureBase(object):
         The method internally calls :meth:`create_one` to generate instances.
         '''
         object_list = []
-        for i in xrange(count):
+        for i in range(count):
             instance = self.create_one(commit=commit)
             object_list.append(instance)
         return object_list
 
     def iter(self, count=1, commit=True):
-        for i in xrange(count):
+        for i in range(count):
             yield self.create_one(commit=commit)
 
     def __iter__(self):
         yield self.create_one()
 
 
-class AutoFixture(AutoFixtureBase):
-    __metaclass__ = AutoFixtureMetaclass
+class AutoFixture(with_metaclass(AutoFixtureMetaclass, AutoFixtureBase)):
+    pass

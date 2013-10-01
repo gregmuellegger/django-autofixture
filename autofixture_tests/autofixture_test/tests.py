@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import autofixture
 from decimal import Decimal
 from datetime import date, datetime
@@ -11,6 +12,12 @@ from autofixture_tests.autofixture_test.models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
     RelatedModel, O2OModel, M2MModel, ThroughModel, M2MModelThrough) 
+
+
+if sys.version_info[0] < 3:
+    str_ = unicode
+else:
+    str_ = str
 
 
 class SimpleAutoFixture(AutoFixture):
@@ -50,12 +57,12 @@ class TestBasicModel(TestCase):
             overwrite_defaults=False)
         for obj in filler.create(100):
             self.assertTrue(len(obj.chars) > 0)
-            self.assertEqual(type(obj.chars), unicode)
+            self.assertEqual(type(obj.chars), str_)
             self.assertTrue(len(obj.shortchars) <= 2)
-            self.assertEqual(type(obj.shortchars), unicode)
-            self.assertTrue(type(obj.blankchars), unicode)
-            self.assertEqualOr(type(obj.nullchars), unicode, None)
-            self.assertEqual(type(obj.slugfield), unicode)
+            self.assertEqual(type(obj.shortchars), str_)
+            self.assertTrue(type(obj.blankchars), str_)
+            self.assertEqualOr(type(obj.nullchars), str_, None)
+            self.assertEqual(type(obj.slugfield), str_)
             self.assertEqual(type(obj.defaultint), int)
             self.assertEqual(obj.defaultint, 1)
             self.assertEqual(type(obj.intfield), int)
@@ -277,19 +284,19 @@ class TestGenerators(TestCase):
         result = generators.InstanceSelector(SimpleModel).generate()
         self.assertEqual(result.__class__, SimpleModel)
 
-        for i in xrange(10):
+        for i in range(10):
             result = generators.InstanceSelector(
                 SimpleModel, max_count=10).generate()
             self.assertTrue(0 <= len(result) <= 10)
             for obj in result:
                 self.assertEqual(obj.__class__, SimpleModel)
-        for i in xrange(10):
+        for i in range(10):
             result = generators.InstanceSelector(
                 SimpleModel, min_count=5, max_count=10).generate()
             self.assertTrue(5 <= len(result) <= 10)
             for obj in result:
                 self.assertEqual(obj.__class__, SimpleModel)
-        for i in xrange(10):
+        for i in range(10):
             result = generators.InstanceSelector(
                 SimpleModel, min_count=20, max_count=100).generate()
             # cannot return more instances than available

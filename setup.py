@@ -35,8 +35,8 @@ class UltraMagicString(object):
 
 
 long_description = UltraMagicString(u'\n\n'.join((
-    file('README.rst').read(),
-    file('CHANGES.rst').read(),
+    open('README.rst').read(),
+    open('CHANGES.rst').read(),
 )))
 
 
@@ -60,6 +60,7 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
     ],
     packages = [
         'autofixture',
