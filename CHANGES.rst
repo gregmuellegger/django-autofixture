@@ -4,8 +4,11 @@ Changelog
 0.3.2
 -----
 
-* `DateTimeField`s receive timezone aware datetime objects now. Thanks to
+* ``DateTimeField`` receive timezone aware datetime objects now. Thanks to
   Scott Woodall for the report and patch.
+* Adding ``static_domain`` parameter to ``EmailGenerator`` to allow the
+  production of emails that will always have the same domain. Thanks to
+  mvdwaeter for the initial patch.
 
 0.3.1
 -----
