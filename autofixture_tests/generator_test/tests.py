@@ -1,4 +1,5 @@
 import os
+from django import forms
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
@@ -37,3 +38,21 @@ class DateTimeTests(TestCase):
         generate = generators.DateTimeGenerator()
         date_time = generate()
         self.assertFalse(timezone.is_aware(date_time))
+
+
+class EmailForm(forms.Form):
+    email = forms.EmailField()
+
+
+class EmailGeneratorTests(TestCase):
+    def test_email(self):
+        generate = generators.EmailGenerator()
+        form = EmailForm({'email': generate()})
+        self.assertTrue(form.is_valid())
+
+    def test_email_with_static_domain(self):
+        generate = generators.EmailGenerator(static_domain='djangoproject.com')
+        email = generate()
+        self.assertTrue(email.endswith('djangoproject.com'))
+        email = generate()
+        self.assertTrue(email.endswith('djangoproject.com'))
