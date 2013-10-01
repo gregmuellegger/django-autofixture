@@ -32,7 +32,7 @@ long_description = UltraMagicString(u'\n\n'.join((
 
 setup(
     name = 'django-autofixture',
-    version = '0.3.1',
+    version = '0.3.2pre',
     url = 'https://github.com/gregmuellegger/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',

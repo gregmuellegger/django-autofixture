@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.3.2
+-----
+
+* `DateTimeField`s receive timezone aware datetime objects now. Thanks to
+  Scott Woodall for the report and patch.
+
 0.3.1
 -----
 
