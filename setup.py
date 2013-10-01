@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
+import os
 from setuptools import setup
+
+
+def get_version(package):
+    """
+    Return package version as listed in `__version__` in `init.py`.
+    """
+    init_py = open(os.path.join(package, '__init__.py')).read()
+    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
 
 class UltraMagicString(object):
@@ -32,7 +42,7 @@ long_description = UltraMagicString(u'\n\n'.join((
 
 setup(
     name = 'django-autofixture',
-    version = '0.3.2pre',
+    version = get_version('autofixture'),
     url = 'https://github.com/gregmuellegger/django-autofixture',
     license = 'BSD',
     description = 'Provides tools to auto generate test data.',
