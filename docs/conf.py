@@ -19,11 +19,18 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.append(os.path.abspath('.'))
 
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../example'))
-sys.path.insert(0, os.path.abspath('../src'))
+PROJECT_PATH = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+sys.path.insert(0, PROJECT_PATH)
+
+from django.conf import settings
+settings.configure(DATABASES={
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    },
+})
 
 # -- General configuration -----------------------------------------------------
 
@@ -53,8 +60,7 @@ def get_release(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    init_path = os.path.join(root_path, package, '__init__.py')
+    init_path = os.path.join(PROJECT_PATH, package, '__init__.py')
     init_py = open(init_path).read()
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
