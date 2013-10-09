@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.5.0 (not released)
---------------------
+0.5.0
+-----
 
 * Adding ``FirstNameGenerator`` and ``LastNameGenerator``. Thanks to Jonathan
   Tien for the initial patch.
