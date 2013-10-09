@@ -74,6 +74,25 @@ def unregister(model_or_iterable, fail_silently=False):
                 ))
 
 
+def get(model, *args, **kwargs):
+    '''
+    Get an autofixture instance for the passed in *model* sing the either an
+    appropiate autofixture that was :ref:`registry <registered>` or fall back
+    to the default:class:`AutoFixture` class.  *model* can be a model class or
+    its string representation (e.g.  ``"app.ModelClass"``).
+
+    All positional and keyword arguments are passed to the autofixture
+    constructor. 
+    '''
+    from django.db import models
+    if isinstance(model, string_types):
+        model = models.get_model(*model.split('.', 1))
+    if model in REGISTRY:
+        return REGISTRY[model](model, *args, **kwargs)
+    else:
+        return AutoFixture(model, *args, **kwargs)
+
+
 def create(model, count, *args, **kwargs):
     '''
     Create *count* instances of *model* using the either an appropiate

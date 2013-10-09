@@ -52,6 +52,8 @@ subclasses are then used by default if you generate test data either with the
 
 .. autofunction:: autofixture.unregister
 
+.. autofunction:: autofixture.get
+
 Subclassing :class:`AutoFixture`
 --------------------------------
 

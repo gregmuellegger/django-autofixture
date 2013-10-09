@@ -1,11 +1,13 @@
 Changelog
 =========
 
-0.5.0
------
+0.5.0 (not released)
+--------------------
 
 * Adding ``FirstNameGenerator`` and ``LastNameGenerator``. Thanks to Jonathan
   Tien for the initial patch.
+* Registered Autofixtures are used for models that are created for foreignkeys
+  and many to many relations. Thanks to Theo Spears for the report.
 
 0.4.0
 -----

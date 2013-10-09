@@ -4,6 +4,7 @@ from django.db.models import fields
 from django.db.models.fields import related
 from django.utils.datastructures import SortedDict
 from django.utils.six import with_metaclass
+import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
 
@@ -260,7 +261,7 @@ class AutoFixtureBase(object):
             # if generate_fk is set, follow_fk is ignored.
             if field.name in self.generate_fk:
                 return generators.InstanceGenerator(
-                    AutoFixture(
+                    autofixture.get(
                         field.rel.to,
                         follow_fk=self.follow_fk.get_deep_links(field.name),
                         generate_fk=self.generate_fk.get_deep_links(field.name)),
@@ -284,9 +285,7 @@ class AutoFixtureBase(object):
             if field.name in self.generate_m2m:
                 min_count, max_count = self.generate_m2m[field.name]
                 return generators.MultipleInstanceGenerator(
-                    AutoFixture(
-                        field.rel.to
-                    ),
+                    autofixture.get(field.rel.to),
                     limit_choices_to=field.rel.limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,

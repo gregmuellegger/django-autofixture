@@ -399,6 +399,32 @@ class TestRegistry(TestCase):
             SimpleModel, field_values={'name': 'bar'})
         self.assertEqual(obj.name, 'bar')
 
+    def test_registered_fixture_is_used_for_fk(self):
+        class BasicModelFixture(AutoFixture):
+            field_values={'chars': 'Hello World!'}
+
+        autofixture.register(BasicModel, BasicModelFixture)
+
+        fixture = AutoFixture(RelatedModel, generate_fk=['related'])
+        obj = fixture.create_one()
+        self.assertTrue(obj)
+        self.assertEqual(obj.related.chars, 'Hello World!')
+
+    def test_registered_fixture_is_used_for_m2m(self):
+        class SimpleModelFixture(AutoFixture):
+            field_values={'name': 'Jon Doe'}
+
+        autofixture.register(SimpleModel, SimpleModelFixture)
+
+        fixture = AutoFixture(M2MModel, generate_m2m={'m2m': (5,5)})
+        obj = fixture.create_one()
+        self.assertTrue(obj)
+
+        self.assertEqual(obj.m2m.count(), 5)
+        self.assertEqual(
+            list(obj.m2m.values_list('name', flat=True)),
+            ['Jon Doe'] * 5)
+
 
 class TestAutofixtureAPI(TestCase):
     def setUp(self):
