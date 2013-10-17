@@ -559,3 +559,20 @@ class InstanceSelector(Generator):
             min_count = self.min_count or 0
             count = random.randint(min_count, self.max_count)
             return self.queryset.order_by('?')[:count]
+
+class WeightedGenerator(Generator):
+    """ 
+    Takes a list of generator objects and integer weights, of the following form:
+    [(generator, weight), (generator, weight),...]
+    and returns a value from a generator chosen randomly by weight.
+    """
+
+    def __init__(self, choices):
+        self.choices = choices
+
+    def weighted_choice(self, choices):
+        return random.choice(sum(([v]*wt for v,wt in choices),[]))
+
+    def generate(self):
+        return self.weighted_choice(self.choices).generate()
+
