@@ -56,3 +56,39 @@ class EmailGeneratorTests(TestCase):
         self.assertTrue(email.endswith('djangoproject.com'))
         email = generate()
         self.assertTrue(email.endswith('djangoproject.com'))
+
+
+class WeightedGeneratorTests(TestCase):
+    def test_simple_weights(self):
+        results = {"Red": 0, "Blue": 0}
+        choices = [(generators.StaticGenerator("Red"), 50), 
+                   (generators.StaticGenerator("Blue"), 50)]
+        generate = generators.WeightedGenerator(choices)
+        
+        for i in xrange(1000):
+            results[generate()] += 1
+
+        MARGIN = 0.025
+
+        self.assertTrue(0.5 - MARGIN < results["Red"]/1000.0 < 0.5 + MARGIN)
+        self.assertTrue(0.5 - MARGIN < results["Blue"]/1000.0 < 0.5 + MARGIN)
+
+    def test_complex_weights(self):
+        results = {"frosh": 0, "soph": 0, "jr": 0, "sr": 0}
+        choices = [(generators.StaticGenerator("frosh"), 35), 
+                   (generators.StaticGenerator("soph"), 20),
+                   (generators.StaticGenerator("jr"), 30),
+                   (generators.StaticGenerator("sr"), 15)]
+        generate = generators.WeightedGenerator(choices)
+        
+        for i in xrange(1000):
+            results[generate()] += 1
+
+        MARGIN = 0.025
+
+        self.assertTrue(0.35 - MARGIN < results["frosh"]/1000.0 < 0.35 + MARGIN)
+        self.assertTrue(0.20 - MARGIN < results["soph"]/1000.0 < 0.20 + MARGIN)
+        self.assertTrue(0.30 - MARGIN < results["jr"]/1000.0 < 0.30 + MARGIN)
+        self.assertTrue(0.15 - MARGIN < results["sr"]/1000.0 < 0.15 + MARGIN)
+
+
