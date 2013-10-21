@@ -571,7 +571,13 @@ class WeightedGenerator(Generator):
         self.choices = choices
 
     def weighted_choice(self, choices):
-        return random.choice(sum(([v]*wt for v,wt in choices),[]))
+        total = sum(w for c, w in choices)
+        r = random.uniform(0, total)
+        upto = 0
+        for c, w in choices:
+          if upto + w > r:
+             return c
+          upto += w
 
     def generate(self):
         return self.weighted_choice(self.choices).generate()
