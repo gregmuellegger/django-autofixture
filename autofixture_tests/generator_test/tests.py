@@ -1,4 +1,5 @@
 import os
+from operator import truediv
 from django import forms
 from django.conf import settings
 from django.test import TestCase
@@ -64,14 +65,16 @@ class WeightedGeneratorTests(TestCase):
         choices = [(generators.StaticGenerator("Red"), 50), 
                    (generators.StaticGenerator("Blue"), 50)]
         generate = generators.WeightedGenerator(choices)
+
+        runs = 10000
         
-        for i in xrange(1000):
+        for i in range(runs):
             results[generate()] += 1
 
         MARGIN = 0.025
 
-        self.assertTrue(0.5 - MARGIN < results["Red"]/1000.0 < 0.5 + MARGIN)
-        self.assertTrue(0.5 - MARGIN < results["Blue"]/1000.0 < 0.5 + MARGIN)
+        self.assertTrue(0.5 - MARGIN < truediv(results["Red"], runs) < 0.5 + MARGIN)
+        self.assertTrue(0.5 - MARGIN < truediv(results["Blue"], runs) < 0.5 + MARGIN)
 
     def test_complex_weights(self):
         results = {"frosh": 0, "soph": 0, "jr": 0, "sr": 0}
@@ -80,15 +83,17 @@ class WeightedGeneratorTests(TestCase):
                    (generators.StaticGenerator("jr"), 30),
                    (generators.StaticGenerator("sr"), 15)]
         generate = generators.WeightedGenerator(choices)
+
+        runs = 10000
         
-        for i in xrange(1000):
+        for i in range(runs):
             results[generate()] += 1
 
         MARGIN = 0.025
 
-        self.assertTrue(0.35 - MARGIN < results["frosh"]/1000.0 < 0.35 + MARGIN)
-        self.assertTrue(0.20 - MARGIN < results["soph"]/1000.0 < 0.20 + MARGIN)
-        self.assertTrue(0.30 - MARGIN < results["jr"]/1000.0 < 0.30 + MARGIN)
-        self.assertTrue(0.15 - MARGIN < results["sr"]/1000.0 < 0.15 + MARGIN)
+        self.assertTrue(0.35 - MARGIN < truediv(results["frosh"], runs) < 0.35 + MARGIN, results["frosh"] / 1.0 * runs)
+        self.assertTrue(0.20 - MARGIN < truediv(results["soph"], runs) < 0.20 + MARGIN)
+        self.assertTrue(0.30 - MARGIN < truediv(results["jr"], runs) < 0.30 + MARGIN)
+        self.assertTrue(0.15 - MARGIN < truediv(results["sr"], runs) < 0.15 + MARGIN)
 
 
