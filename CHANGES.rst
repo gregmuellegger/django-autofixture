@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.0 (not released yet)
+------------------------
+
+* Adding ``generators.WeightedGenerator`` for propabilistic selection of
+  values. Thanks to Jonathan Tien for the idea and patch.
+
 0.5.0
 -----
 
