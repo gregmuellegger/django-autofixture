@@ -236,6 +236,8 @@ class AutoFixtureBase(object):
         '''
         if isinstance(field, fields.AutoField):
             return None
+        if isinstance(field, related.OneToOneField) and field.primary_key:
+            return None
         if (
             field.default is not fields.NOT_PROVIDED and
             not self.overwrite_defaults and

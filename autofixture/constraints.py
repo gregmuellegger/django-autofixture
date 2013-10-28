@@ -10,7 +10,7 @@ class InvalidConstraint(Exception):
 def unique_constraint(model, instance):
     error_fields = []
     for field in instance._meta.fields:
-        if field.unique:
+        if field.unique and not field.primary_key:
             check = {field.name: getattr(instance, field.name)}
             unique = not bool(model._default_manager.filter(**check))
             if not unique:
