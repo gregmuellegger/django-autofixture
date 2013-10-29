@@ -96,8 +96,17 @@ class RelatedModel(models.Model):
 class O2OModel(models.Model):
     o2o = models.OneToOneField(SimpleModel)
 
+
 class InheritModel(SimpleModel):
     extrafloatfield = models.FloatField()
+
+
+class InheritUniqueTogetherModel(SimpleModel):
+    extrafloatfield = models.FloatField()
+
+    class Meta:
+        unique_together = ('extrafloatfield', 'simplemodel_ptr')
+
 
 class M2MModel(models.Model):
     m2m = models.ManyToManyField(SimpleModel, related_name='m2m_rel1')

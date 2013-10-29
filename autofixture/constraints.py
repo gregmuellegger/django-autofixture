@@ -25,7 +25,8 @@ def unique_together_constraint(model, instance):
         for unique_fields in instance._meta.unique_together:
             check = {}
             for field_name in unique_fields:
-                check[field_name] = getattr(instance, field_name)
+                if not instance._meta.get_field_by_name(field_name)[0].primary_key:
+                    check[field_name] = getattr(instance, field_name)
             unique = not bool(model._default_manager.filter(**check))
             if not unique:
                 error_fields.extend(
