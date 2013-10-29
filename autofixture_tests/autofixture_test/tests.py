@@ -11,7 +11,8 @@ from autofixture_tests.autofixture_test.models import y2k
 from autofixture_tests.autofixture_test.models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
-    RelatedModel, O2OModel, M2MModel, ThroughModel, M2MModelThrough) 
+    RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
+    M2MModel, ThroughModel, M2MModelThrough)
 
 
 if sys.version_info[0] < 3:
@@ -257,6 +258,18 @@ class TestRelations(TestCase):
             self.assertTrue(1 <= obj.m2m.count() <= 5)
             all_m2m.update(obj.m2m.all())
         self.assertEqual(SimpleModel.objects.count(), len(all_m2m))
+
+
+class TestInheritModel(TestCase):
+    def test_inheritence_model(self):
+        filler = AutoFixture(InheritModel)
+        filler.create(10)
+        self.assertEqual(InheritModel.objects.count(), 10)
+
+    def test_inheritence_unique_together_model(self):
+        filler = AutoFixture(InheritUniqueTogetherModel)
+        filler.create(10)
+        self.assertEqual(InheritUniqueTogetherModel.objects.count(), 10)
 
 
 class TestUniqueConstraints(TestCase):
