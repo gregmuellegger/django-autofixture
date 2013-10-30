@@ -6,6 +6,7 @@ Changelog
 
 * Adding ``generators.WeightedGenerator`` for propabilistic selection of
   values. Thanks to Jonathan Tien for the idea and patch.
+* Supporting model inheritance. Thanks to Josh Fyne for the patch.
 
 0.5.0
 -----
