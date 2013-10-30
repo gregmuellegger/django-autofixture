@@ -11,7 +11,7 @@ else:
     string_types = str
 
 
-__version__ = '0.6.0beta'
+__version__ = '0.6.0'
 
 
 REGISTRY = {}
