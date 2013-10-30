@@ -1,5 +1,5 @@
-Gregor Müllegger <gregor@muellegger.de>
-Mikko Hellsing
+Gregor Müllegger <gregor@muellegger.de> https://github.com/gregmuellegger
+Mikko Hellsing - https://github.com/sorl
 Scott Woodall - https://github.com/scottwoodall
 aschriner - https://github.com/aschriner
 mvdwaeter - https://github.com/mvdwaeter
