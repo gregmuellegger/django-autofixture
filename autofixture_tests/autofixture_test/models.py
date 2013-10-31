@@ -108,6 +108,14 @@ class InheritUniqueTogetherModel(SimpleModel):
         unique_together = ('extrafloatfield', 'simplemodel_ptr')
 
 
+class SelfReferencingModel(models.Model):
+    parent_self = models.ForeignKey('self', blank=True, null=True)
+
+
+class SelfReferencingModelNoNull(models.Model):
+    parent_self = models.ForeignKey('self')
+
+
 class M2MModel(models.Model):
     m2m = models.ManyToManyField(SimpleModel, related_name='m2m_rel1')
     secondm2m = models.ManyToManyField(OtherSimpleModel, related_name='m2m_rel2',

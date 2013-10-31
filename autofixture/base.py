@@ -261,7 +261,8 @@ class AutoFixtureBase(object):
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):
             # if generate_fk is set, follow_fk is ignored.
-            if field.name in self.generate_fk:
+            is_self_fk = (field.rel.to().__class__ == self.model)
+            if field.name in self.generate_fk and not is_self_fk:
                 return generators.InstanceGenerator(
                     autofixture.get(
                         field.rel.to,
@@ -269,11 +270,22 @@ class AutoFixtureBase(object):
                         generate_fk=self.generate_fk.get_deep_links(field.name)),
                     limit_choices_to=field.rel.limit_choices_to)
             if field.name in self.follow_fk:
-                return generators.InstanceSelector(
+                selected = generators.InstanceSelector(
                     field.rel.to,
                     limit_choices_to=field.rel.limit_choices_to)
+                if selected.get_value() is not None:
+                    return selected
             if field.blank or field.null:
                 return generators.NoneGenerator()
+            if is_self_fk and not field.null:
+                raise CreateInstanceError(
+                    u'Cannot resolve self referencing field "%s" to "%s" without null=True' % (
+                        field.name,
+                        '%s.%s' % (
+                            field.rel.to._meta.app_label,
+                            field.rel.to._meta.object_name,
+                        )
+                ))
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
                 u'"follow_fk" or "generate_fk" parameters.' % (

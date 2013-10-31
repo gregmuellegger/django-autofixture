@@ -92,8 +92,10 @@ instance to follow foreignkeys by generating new related models::
 
     fixture = AutoFixture(Entry, generate_fk=True)
 
-This generates new instance for *all* foreignkey fields of ``Entry``. Its
-possible to limit this behaviour to single fields::
+This generates new instance for *all* foreignkey fields of ``Entry``. Unless
+the model has a foreign key reference to itself, wherein the field will be set
+to None if allowed or raise a ``CreateInstanceError`` if not. This is to prevent
+max recursion depth errors. Its possible to limit this behaviour to single fields::
 
     fixture = AutoFixture(Entry, generate_fk=['author'])
 
