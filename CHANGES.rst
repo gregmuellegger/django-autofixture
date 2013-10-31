@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.1
+-----
+
+* Fixing issue with models that have a selfreferencing ForeignKey field.
+  Thanks to Josh Fyne for the patch.
+
 0.6.0
 -----
 
