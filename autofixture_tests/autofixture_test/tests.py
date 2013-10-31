@@ -12,7 +12,8 @@ from autofixture_tests.autofixture_test.models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
     RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
-    M2MModel, ThroughModel, M2MModelThrough)
+    M2MModel, ThroughModel, M2MModelThrough, SelfReferencingModel,
+    SelfReferencingModelNoNull,)
 
 
 if sys.version_info[0] < 3:
@@ -258,6 +259,23 @@ class TestRelations(TestCase):
             self.assertTrue(1 <= obj.m2m.count() <= 5)
             all_m2m.update(obj.m2m.all())
         self.assertEqual(SimpleModel.objects.count(), len(all_m2m))
+
+    def test_generate_fk_to_self(self):
+        ''' When a model with a reference to itself is encountered, If NULL is allowed
+            don't generate a new instance of itself as a foreign key, so as not to reach
+            pythons recursion limit
+        '''
+        filler = AutoFixture(SelfReferencingModel, generate_fk=True)
+        model = filler.create_one()
+        self.assertEqual(model.parent_self, None)
+        self.assertEqual(SelfReferencingModel.objects.count(), 1)
+
+    def test_generate_fk_to_self_no_null(self):
+        ''' Throw an exception when a model is encountered which references itself but
+            does not allow NULL values to be set.
+        '''
+        filler = AutoFixture(SelfReferencingModelNoNull, generate_fk=True)
+        self.assertRaises(CreateInstanceError, filler.create_one)
 
 
 class TestInheritModel(TestCase):
