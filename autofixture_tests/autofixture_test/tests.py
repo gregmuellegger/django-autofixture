@@ -277,6 +277,16 @@ class TestRelations(TestCase):
         filler = AutoFixture(SelfReferencingModelNoNull, generate_fk=True)
         self.assertRaises(CreateInstanceError, filler.create_one)
 
+    def test_generate_fk_to_self_follow(self):
+        filler = AutoFixture(SelfReferencingModel, follow_fk=True)
+        first = filler.create_one()
+        self.assertEqual(SelfReferencingModel.objects.count(), 1)
+
+        filler = AutoFixture(SelfReferencingModel, follow_fk=True)
+        second = filler.create_one()
+        self.assertEqual(SelfReferencingModel.objects.count(), 2)
+        self.assertEqual(second.parent_self, first)
+
 
 class TestInheritModel(TestCase):
     def test_inheritence_model(self):

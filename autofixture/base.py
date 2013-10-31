@@ -269,6 +269,14 @@ class AutoFixtureBase(object):
                         follow_fk=self.follow_fk.get_deep_links(field.name),
                         generate_fk=self.generate_fk.get_deep_links(field.name)),
                     limit_choices_to=field.rel.limit_choices_to)
+            if field.name in self.follow_fk:
+                selected = generators.InstanceSelector(
+                    field.rel.to,
+                    limit_choices_to=field.rel.limit_choices_to)
+                if selected.get_value() is not None:
+                    return selected
+            if field.blank or field.null:
+                return generators.NoneGenerator()
             if is_self_fk and not field.null:
                 raise CreateInstanceError(
                     u'Cannot resolve self referencing field "%s" to "%s" without null=True' % (
@@ -278,12 +286,6 @@ class AutoFixtureBase(object):
                             field.rel.to._meta.object_name,
                         )
                 ))
-            if field.name in self.follow_fk:
-                return generators.InstanceSelector(
-                    field.rel.to,
-                    limit_choices_to=field.rel.limit_choices_to)
-            if field.blank or field.null:
-                return generators.NoneGenerator()
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
                 u'"follow_fk" or "generate_fk" parameters.' % (
