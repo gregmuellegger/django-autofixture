@@ -5,7 +5,7 @@ from datetime import datetime
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 from autofixture import AutoFixture
 from autofixture import generators
-
+from django.utils import timezone
 
 class UserFixture(AutoFixture):
     '''
@@ -32,8 +32,8 @@ class UserFixture(AutoFixture):
         # don't generate admin users
         is_staff = False
         is_superuser = False
-        date_joined = generators.DateTimeGenerator(max_date=datetime.now())
-        last_login = generators.DateTimeGenerator(max_date=datetime.now())
+        date_joined = generators.DateTimeGenerator(max_date=timezone.now())
+        last_login = generators.DateTimeGenerator(max_date=timezone.now())
 
     # don't follow permissions and groups
     follow_m2m = False
