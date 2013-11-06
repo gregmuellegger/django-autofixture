@@ -56,6 +56,9 @@ class UserFixture(AutoFixture):
         if self.username:
             self.field_values['username'] = generators.StaticGenerator(
                 self.username)
+        if self.password:
+            self.field_values['password'] = generators.StaticGenerator(
+                self.password)
 
     def unique_email(self, model, instance):
         if User.objects.filter(email=instance.email):
