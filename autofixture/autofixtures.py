@@ -2,7 +2,8 @@
 import autofixture
 import string
 from datetime import datetime
-from django.contrib.auth.models import User, UNUSABLE_PASSWORD
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from autofixture import AutoFixture
 from autofixture import generators
 
@@ -27,7 +28,7 @@ class UserFixture(AutoFixture):
             string.ascii_letters + string.digits + '_')
         first_name = generators.LoremWordGenerator(1)
         last_name = generators.LoremWordGenerator(1)
-        password = UNUSABLE_PASSWORD
+        password = lambda: make_password(None)
         is_active = True
         # don't generate admin users
         is_staff = False
