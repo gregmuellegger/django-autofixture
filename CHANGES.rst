@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.2
+-----
+
+* Supporting Django 1.6.
+
 0.6.1
 -----
 
