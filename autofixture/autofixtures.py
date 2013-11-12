@@ -28,7 +28,7 @@ class UserFixture(AutoFixture):
             string.ascii_letters + string.digits + '_')
         first_name = generators.LoremWordGenerator(1)
         last_name = generators.LoremWordGenerator(1)
-        password = lambda: make_password(None)
+        password = staticmethod(lambda: make_password(None))
         is_active = True
         # don't generate admin users
         is_staff = False
