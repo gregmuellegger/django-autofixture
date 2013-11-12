@@ -50,9 +50,6 @@ INSTALLED_APPS = (
 
     'autofixture_tests',
     'autofixture_tests.sample_app',
-    'autofixture_tests.autofixture_test',
-    'autofixture_tests.generator_test',
-    'autofixture_tests.values_tests',
     'autofixture',
 )
 

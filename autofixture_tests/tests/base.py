@@ -7,8 +7,8 @@ from django.test import TestCase
 from autofixture import generators
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
 from autofixture.values import Values
-from autofixture_tests.autofixture_test.models import y2k
-from autofixture_tests.autofixture_test.models import (
+from ..models import y2k
+from ..models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
     RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
@@ -511,16 +511,16 @@ class TestManagementCommand(TestCase):
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 0)
 
-        models = ('autofixture_test.SimpleModel:1',)
+        models = ('autofixture_tests.SimpleModel:1',)
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 1)
 
-        models = ('autofixture_test.SimpleModel:5',)
+        models = ('autofixture_tests.SimpleModel:5',)
         self.command.handle(*models, **self.options)
         self.assertEqual(SimpleModel.objects.count(), 6)
 
     def test_generate_fk(self):
-        models = ('autofixture_test.DeepLinkModel2:1',)
+        models = ('autofixture_tests.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'related,related__related'
         self.command.handle(*models, **self.options)
         obj = DeepLinkModel2.objects.get()
@@ -529,7 +529,7 @@ class TestManagementCommand(TestCase):
         self.assertEqual(obj.related.related2, obj.related.related)
 
     def test_generate_fk_with_no_follow(self):
-        models = ('autofixture_test.DeepLinkModel2:1',)
+        models = ('autofixture_tests.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'related,related__related'
         self.options['no_follow_fk'] = True
         self.command.handle(*models, **self.options)
@@ -539,7 +539,7 @@ class TestManagementCommand(TestCase):
         self.assertEqual(obj.related.related2, None)
 
     def test_generate_fk_with_ALL(self):
-        models = ('autofixture_test.DeepLinkModel2:1',)
+        models = ('autofixture_tests.DeepLinkModel2:1',)
         self.options['generate_fk'] = 'ALL'
         self.command.handle(*models, **self.options)
         obj = DeepLinkModel2.objects.get()
@@ -551,7 +551,7 @@ class TestManagementCommand(TestCase):
     def test_no_follow_m2m(self):
         AutoFixture(SimpleModel).create(1)
 
-        models = ('autofixture_test.NullableFKModel:1',)
+        models = ('autofixture_tests.NullableFKModel:1',)
         self.options['no_follow_m2m'] = True
         self.command.handle(*models, **self.options)
         obj = NullableFKModel.objects.get()
@@ -561,7 +561,7 @@ class TestManagementCommand(TestCase):
         AutoFixture(SimpleModel).create(10)
         AutoFixture(OtherSimpleModel).create(10)
 
-        models = ('autofixture_test.M2MModel:25',)
+        models = ('autofixture_tests.M2MModel:25',)
         self.options['follow_m2m'] = 'm2m:3:3,secondm2m:0:10'
         self.command.handle(*models, **self.options)
 
@@ -570,7 +570,7 @@ class TestManagementCommand(TestCase):
             self.assertTrue(0 <= obj.secondm2m.count() <= 10)
 
     def test_generate_m2m(self):
-        models = ('autofixture_test.M2MModel:10',)
+        models = ('autofixture_tests.M2MModel:10',)
         self.options['generate_m2m'] = 'm2m:1:1,secondm2m:2:5'
         self.command.handle(*models, **self.options)
 
@@ -587,14 +587,14 @@ class TestManagementCommand(TestCase):
 
     def test_using_registry(self):
         autofixture.register(SimpleModel, SimpleAutoFixture)
-        models = ('autofixture_test.SimpleModel:10',)
+        models = ('autofixture_tests.SimpleModel:10',)
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')
 
     def test_use_option(self):
-        self.options['use'] = 'autofixture_tests.autofixture_test.tests.SimpleAutoFixture'
-        models = ('autofixture_test.SimpleModel:10',)
+        self.options['use'] = 'autofixture_tests.tests.SimpleAutoFixture'
+        models = ('autofixture_tests.SimpleModel:10',)
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')
