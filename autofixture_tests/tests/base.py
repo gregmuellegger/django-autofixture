@@ -13,7 +13,7 @@ from ..models import (
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
     RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
     M2MModel, ThroughModel, M2MModelThrough, SelfReferencingModel,
-    SelfReferencingModelNoNull,)
+    SelfReferencingModelNoNull, GFKModel, GRModel)
 
 
 if sys.version_info[0] < 3:
@@ -598,3 +598,27 @@ class TestManagementCommand(TestCase):
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')
+
+
+class TestGenericRelations(TestCase):
+    def assertNotRaises(self, exc_type, func, msg=None,
+            args=None, kwargs=None):
+        args = args or []
+        kwargs = kwargs or {}
+        try:
+            func(*args, **kwargs)
+        except exc_type as exc:
+            if msg is not None and exc.message != msg:
+                return
+            self.fail('{} failed with {}'.format(func, exc))
+
+    def test_process_gr(self):
+        """Tests the bug when GenericRelation field being processed
+        by autofixture.base.AutoFixtureBase#process_m2m
+        and through table appears as None.
+        """
+        count = 10
+        fixture = AutoFixture(GRModel)
+        self.assertNotRaises(AttributeError, fixture.create,
+            msg="'NoneType' object has no attribute '_meta'", args=[count])
+        self.assertEqual(GRModel.objects.count(), count)

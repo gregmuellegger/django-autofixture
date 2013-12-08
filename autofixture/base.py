@@ -2,6 +2,7 @@
 from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
+from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.datastructures import SortedDict
 from django.utils.six import with_metaclass
 import autofixture
@@ -467,7 +468,12 @@ class AutoFixtureBase(object):
             ))
         if commit:
             instance.save()
-            for field in instance._meta.many_to_many:
+
+            #to handle particular case of GenericRelation
+            #in Django pre 1.6 it appears in .many_to_many
+            many_to_many = [f for f in instance._meta.many_to_many
+                            if not isinstance(f, GenericRelation)]
+            for field in many_to_many:
                 self.process_m2m(instance, field)
         signals.instance_created.send(
             sender=self,
