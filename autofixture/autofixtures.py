@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from autofixture import AutoFixture
 from autofixture import generators
-
+from django.utils import timezone
 
 class UserFixture(AutoFixture):
     '''
