@@ -1,7 +1,16 @@
-Gregor Müllegger <gregor@muellegger.de> https://github.com/gregmuellegger
-Mikko Hellsing - https://github.com/sorl
-Scott Woodall - https://github.com/scottwoodall
-aschriner - https://github.com/aschriner
-mvdwaeter - https://github.com/mvdwaeter
-Jonathan Tien - https://github.com/ricefield
-Josh Fyne - https://github.com/jfyne
+Authors
+=======
+
+**django-autofixture** was originally created by *Gregor Müllegger*
+(<gregor@muellegger.de> https://github.com/gregmuellegger). But there are lots
+of contributors who also volunteered by fixing bugs and enhancing features.
+Thanks to all those developers.
+
+**Contributors:**
+  * Mikko Hellsing - https://github.com/sorl
+  * Scott Woodall - https://github.com/scottwoodall
+  * aschriner - https://github.com/aschriner
+  * mvdwaeter - https://github.com/mvdwaeter
+  * Jonathan Tien - https://github.com/ricefield
+  * Josh Fyne - https://github.com/jfyne
+  * StillNewb - https://github.com/StillNewb

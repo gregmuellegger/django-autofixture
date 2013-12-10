@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.3
+-----
+
+* Fixing long stated issue with GenericRelation fields. Thanks to StillNewb
+  for the patch.
+
 0.6.2
 -----
 
