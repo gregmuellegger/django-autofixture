@@ -314,7 +314,7 @@ class FirstNameGenerator(Generator):
         'Michael', 'Mark', 'Paul', 'Peter', 'Phillip', 'Stephen', 'Tony',
         'Titus', 'Trevor', 'Timothy', 'Victor', 'Vincent', 'Winston', 'Walt']
     female = [
-        'Abbie', 'Anna', 'Alice', 'Beth', 'Carrie', 'Christina' 'Danielle',
+        'Abbie', 'Anna', 'Alice', 'Beth', 'Carrie', 'Christina', 'Danielle',
         'Emma', 'Emily', 'Esther', 'Felicia', 'Grace', 'Gloria', 'Helen',
         'Irene', 'Joanne', 'Joyce', 'Jessica', 'Kathy', 'Katie', 'Kelly',
         'Linda', 'Lydia', 'Mandy', 'Mary', 'Olivia', 'Priscilla',
