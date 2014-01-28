@@ -498,7 +498,7 @@ class AutoFixtureBase(object):
         '''
         object_list = []
         for i in range(count):
-            instance = self.create_one(commit=commit)
+            instance = self.create_one(commit=commit, **kwargs)
             object_list.append(instance)
         return object_list
 

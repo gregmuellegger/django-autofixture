@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 import sys
 import warnings
 from autofixture.base import AutoFixture
@@ -115,10 +116,19 @@ def create(model, count, *args, **kwargs):
     if isinstance(model, string_types):
         model = models.get_model(*model.split('.', 1))
     if model in REGISTRY:
-        autofixture = REGISTRY[model](model, *args, **kwargs)
+        autofixture_class = REGISTRY[model]
     else:
-        autofixture = AutoFixture(model, *args, **kwargs)
-    return autofixture.create(count)
+        autofixture_class = AutoFixture
+    # Get keyword arguments that the create_one method accepts and pass them
+    # into create_one instead of AutoFixture.__init__
+    argnames = set(inspect.getargspec(autofixture_class.create_one).args)
+    argnames -= set(['self'])
+    create_kwargs = {}
+    for argname in argnames:
+        if argname in kwargs:
+            create_kwargs[argname] = kwargs.pop(argname)
+    autofixture = autofixture_class(model, *args, **kwargs)
+    return autofixture.create(count, **create_kwargs)
 
 
 def create_one(model, *args, **kwargs):

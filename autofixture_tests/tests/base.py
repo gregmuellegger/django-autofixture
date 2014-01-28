@@ -622,3 +622,12 @@ class TestGenericRelations(TestCase):
         self.assertNotRaises(AttributeError, fixture.create,
             msg="'NoneType' object has no attribute '_meta'", args=[count])
         self.assertEqual(GRModel.objects.count(), count)
+
+
+class TestShortcuts(TestCase):
+    def test_commit_kwarg(self):
+        instances = autofixture.create(BasicModel, 3, commit=False)
+        self.assertEqual([i.pk for i in instances], [None] * 3)
+
+        instance = autofixture.create_one(BasicModel, commit=False)
+        self.assertEqual(instance.pk, None)
