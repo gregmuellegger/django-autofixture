@@ -449,6 +449,12 @@ class AutoFixtureBase(object):
         instance will not be saved and many to many relations will not be
         processed.
 
+        Subclasses that override ``create_one`` can specify arbitrary keyword
+        arguments. They will be passed through by the
+        :meth:`autofixture.base.AutoFixture.create` method and the helper
+        functions :func:`autofixture.create` and
+        :func:`autofixture.create_one`.
+
         May raise :exc:`CreateInstanceError` if constraints are not satisfied.
         '''
         tries = self.tries
@@ -486,7 +492,7 @@ class AutoFixtureBase(object):
             committed=commit)
         return self.post_process_instance(instance, commit=commit)
 
-    def create(self, count=1, commit=True):
+    def create(self, count=1, commit=True, **kwargs):
         '''
         Create and return ``count`` model instances. If *commit* is ``False``
         the instances will not be saved and many to many relations will not be
