@@ -66,12 +66,17 @@ class UserFixture(AutoFixture):
     def prepare_class(self):
         self.add_constraint(self.unique_email)
 
-    def post_process_instance(self, instance):
+    def post_process_instance(self, instance, commit):
         # make sure user's last login was not before he joined
+        changed = False
         if instance.last_login < instance.date_joined:
             instance.last_login = instance.date_joined
+            changed = True
         if self.password:
             instance.set_password(self.password)
+            changed = True
+        if changed and commit:
+            instance.save()
         return instance
 
 

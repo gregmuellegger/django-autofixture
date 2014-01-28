@@ -15,3 +15,17 @@ class UserFixtureTest(TestCase):
         user = autofixture.create_one(User)
         self.assertTrue(user.username)
         self.assertFalse(is_password_usable(user.password))
+
+    def test_password_setting(self):
+        user = autofixture.create_one(User, password='known')
+        self.assertTrue(user.username)
+        self.assertTrue(is_password_usable(user.password))
+        self.assertTrue(user.check_password('known'))
+
+        loaded_user = User.objects.get()
+        self.assertEqual(loaded_user.password, user.password)
+        self.assertTrue(loaded_user.check_password('known'))
+
+#    def test_commit(self):
+#        user = autofixture.create_one(User, commit=False)
+#        self.assertEqual(user.pk, None)
