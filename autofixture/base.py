@@ -431,11 +431,15 @@ class AutoFixtureBase(object):
                 recalc_fields.extend(e.fields)
         return recalc_fields
 
-    def post_process_instance(self, instance):
+    def post_process_instance(self, instance, commit):
         '''
-        Overwrite this method to modify the created *instance* at the last
-        possible moment. It gets the generated *instance* and must return the
-        modified instance.
+        Overwrite this method to modify the created *instance* before it gets
+        returned by the :meth:`create` or :meth:`create_one`.
+        It gets the generated *instance* and must return the modified
+        instance. The *commit* parameter indicates the *commit* value that the
+        user passed into the :meth:`create` method. It defaults to ``True``
+        and should be respected, which means if it is set to ``False``, the
+        *instance* should not be saved.
         '''
         return instance
 
@@ -480,7 +484,7 @@ class AutoFixtureBase(object):
             model=self.model,
             instance=instance,
             committed=commit)
-        return self.post_process_instance(instance)
+        return self.post_process_instance(instance, commit=commit)
 
     def create(self, count=1, commit=True):
         '''
