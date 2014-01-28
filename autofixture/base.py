@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import inspect
+import warnings
 from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
@@ -490,7 +492,15 @@ class AutoFixtureBase(object):
             model=self.model,
             instance=instance,
             committed=commit)
-        return self.post_process_instance(instance, commit=commit)
+
+        post_process_kwargs = {}
+        if 'commit' in inspect.getargspec(self.post_process_instance).args:
+            post_process_kwargs['commit'] = commit
+        else:
+            warnings.warn(
+                "Subclasses of AutoFixture need to provide a `commit` "
+                "argument for post_process_instance methods", DeprecationWarning)
+        return self.post_process_instance(instance, **post_process_kwargs)
 
     def create(self, count=1, commit=True, **kwargs):
         '''
