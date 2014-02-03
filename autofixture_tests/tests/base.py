@@ -631,3 +631,27 @@ class TestShortcuts(TestCase):
 
         instance = autofixture.create_one(BasicModel, commit=False)
         self.assertEqual(instance.pk, None)
+
+
+class TestPreProcess(TestCase):
+    def test_pre_process_instance_not_yet_saved(self):
+        self_ = self
+        class TestAutoFixture(AutoFixture):
+            def pre_process_instance(self, instance):
+                self_.assertIsNone(instance.pk)
+                return instance
+
+        TestAutoFixture(BasicModel).create_one()
+
+        self.assertEqual(BasicModel.objects.count(), 1)
+
+    def test_pre_process_has_effect(self):
+        expected_string = generators.LoremGenerator(max_length=50)()
+
+        class TestAutoFixture(AutoFixture):
+            def pre_process_instance(self, instance):
+                instance.name = expected_string
+                return instance
+
+        instance = TestAutoFixture(SimpleModel).create_one()
+        self.assertEqual(instance.name, expected_string)
