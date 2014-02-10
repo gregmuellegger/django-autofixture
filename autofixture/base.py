@@ -81,7 +81,6 @@ class AutoFixtureBase(object):
 
         * ``XMLField``
         * ``FileField``
-        * ``ImageField``
 
         Patches are welcome.
     '''
@@ -110,6 +109,7 @@ class AutoFixtureBase(object):
         (fields.IPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
+        (fields.ImageField, generators.ImageGenerator),
     ))
 
     field_values = Values()
@@ -356,6 +356,9 @@ class AutoFixtureBase(object):
                     min_value=-field.MAX_BIGINT - 1,
                     max_value=field.MAX_BIGINT,
                     **kwargs)
+        if isinstance(field, fields.ImageField):
+            return generators.ImageGenerator(
+                path=field.path, **kwargs)
         for field_class, generator in self.field_to_generator.items():
             if isinstance(field, field_class):
                 return generator(**kwargs)

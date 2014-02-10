@@ -582,3 +582,38 @@ class WeightedGenerator(Generator):
     def generate(self):
         return self.weighted_choice(self.choices).generate()
 
+class ImageGenerator(Generator):
+    '''
+    Generates a valid palceholder image and saves it to the ``settings.MEDIA_ROOT``
+    The returned filename is relative to ``MEDIA_ROOT``.
+
+    In case that filename already exists function will return hard link to the file.
+
+    '''
+    def __init__(self, path, *args, **kwargs):
+        self.path = path
+        super(ImageGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        from django.conf import settings
+        from placeholder import PlaceHolderImage
+
+        width, height = random.choice([(100,100), (200,300), (400,600)])
+
+        filename = '{0}x{1}.png'.format(width, height)
+        file_path = os.path.join(setting.MEDIA_ROOT, '_autofixture/', filename)
+
+        if os.path.isfile(file_path):
+            suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+            new_file_path = os.path.join(setting.MEDIA_ROOT, '_autofixture/', "_".join([suffix, filename]))
+
+            # this is about to work only on linux :(
+            os.link(file_path, new_file_path)
+            file_path = new_file_path
+        else:
+            PlaceHolderImage(width = width, height = height, path = file_path)
+            PlaceHolderImage.save_image()
+
+    
+
+        return relpath(file_path, settings.MEDIA_ROOT) 

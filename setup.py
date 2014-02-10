@@ -66,6 +66,6 @@ setup(
         'autofixture',
         'autofixture.management',
         'autofixture.management.commands'],
-    install_requires = ['setuptools'],
+    install_requires = ['setuptools', 'python-autofixture'],
     test_suite = 'runtests.runtests',
 )
