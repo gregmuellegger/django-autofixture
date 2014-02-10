@@ -2,7 +2,7 @@
 import inspect
 import warnings
 from django.db import models
-from django.db.models import fields
+from django.db.models import fields, ImageField
 from django.db.models.fields import related
 from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.datastructures import SortedDict
@@ -10,6 +10,7 @@ from django.utils.six import with_metaclass
 import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
+
 
 
 class CreateInstanceError(Exception):
@@ -109,7 +110,7 @@ class AutoFixtureBase(object):
         (fields.IPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
-        (fields.ImageField, generators.ImageGenerator),
+        (ImageField, generators.ImageGenerator),
     ))
 
     field_values = Values()
@@ -356,7 +357,7 @@ class AutoFixtureBase(object):
                     min_value=-field.MAX_BIGINT - 1,
                     max_value=field.MAX_BIGINT,
                     **kwargs)
-        if isinstance(field, fields.ImageField):
+        if isinstance(field, ImageField):
             return generators.ImageGenerator(
                 path=field.path, **kwargs)
         for field_class, generator in self.field_to_generator.items():
