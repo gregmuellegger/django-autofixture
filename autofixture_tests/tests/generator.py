@@ -97,3 +97,9 @@ class WeightedGeneratorTests(TestCase):
         self.assertTrue(0.15 - MARGIN < truediv(results["sr"], runs) < 0.15 + MARGIN)
 
 
+class ImageTests(TestCase):
+    def test_image_generator(self):
+        generate = generators.ImageGenerator()
+        media_file = generate()
+        file_path = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path))

@@ -358,8 +358,7 @@ class AutoFixtureBase(object):
                     max_value=field.MAX_BIGINT,
                     **kwargs)
         if isinstance(field, ImageField):
-            return generators.ImageGenerator(
-                path=field.path, **kwargs)
+            return generators.ImageGenerator(**kwargs)
         for field_class, generator in self.field_to_generator.items():
             if isinstance(field, field_class):
                 return generator(**kwargs)
