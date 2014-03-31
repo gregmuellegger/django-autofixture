@@ -6,18 +6,15 @@ parent = os.path.dirname(os.path.abspath(__file__))
 
 sys.path.insert(0, parent)
 
-from django.test.simple import DjangoTestSuiteRunner
-
 
 def runtests(*args):
-    test_runner = DjangoTestSuiteRunner(interactive=False)
-    failures = test_runner.run_tests(
-        args or [
-            'autofixture',
-            'autofixture_tests',
-        ],
-        verbosity=1, interactive=True)
-    sys.exit(failures)
+    from django.core.management import execute_from_command_line
+    args = args or [
+        'autofixture',
+        'autofixture_tests',
+    ]
+    execute_from_command_line([sys.argv[0], 'test'] + args)
+
 
 if __name__ == '__main__':
     runtests(*sys.argv[1:])
