@@ -15,8 +15,6 @@ env:
   - TOX_ENV=pypy-1.6
   - TOX_ENV=pypy-trunk
 before_install:
-  - export PIP_USE_MIRRORS=true
-  - export PIP_INDEX_URL=https://simple.crate.io/
   - export DJANGO_SETTINGS_MODULE=autofixture_tests.settings
   - sudo pip install tox
 script:
