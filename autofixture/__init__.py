@@ -60,7 +60,7 @@ def unregister(model_or_iterable, fail_silently=False):
     from django.db import models
     if issubclass(model_or_iterable, models.Model):
         model_or_iterable = [model_or_iterable]
-    for model in models:
+    for model in model_or_iterable:
         if isinstance(model, string_types):
             model = models.get_model(*model.split('.', 1))
         try:
@@ -83,7 +83,7 @@ def get(model, *args, **kwargs):
     its string representation (e.g.  ``"app.ModelClass"``).
 
     All positional and keyword arguments are passed to the autofixture
-    constructor. 
+    constructor.
     '''
     from django.db import models
     if isinstance(model, string_types):

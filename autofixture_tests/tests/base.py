@@ -424,6 +424,14 @@ class TestRegistry(TestCase):
         self.assertTrue(SimpleModel in autofixture.REGISTRY)
         self.assertEqual(autofixture.REGISTRY[SimpleModel], SimpleAutoFixture)
 
+    def test_unregister(self):
+        autofixture.register(SimpleModel, SimpleAutoFixture)
+        self.assertTrue(SimpleModel in autofixture.REGISTRY)
+        self.assertEqual(autofixture.REGISTRY[SimpleModel], SimpleAutoFixture)
+
+        autofixture.unregister(SimpleModel)
+        self.assertFalse(SimpleModel in autofixture.REGISTRY)
+
     def test_create(self):
         autofixture.register(SimpleModel, SimpleAutoFixture)
         for obj in autofixture.create(SimpleModel, 10):
