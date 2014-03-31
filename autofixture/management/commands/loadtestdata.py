@@ -25,6 +25,7 @@ information::
 
     django-admin.py help loadtestdata
 '''
+from django.utils.encoding import smart_text
 import autofixture
 from django.db import models
 from django.db.transaction import commit_on_success
@@ -82,7 +83,7 @@ class Command(BaseCommand):
     )
 
     def format_output(self, obj):
-        output = unicode(obj)
+        output = smart_text(obj)
         if len(output) > 50:
             output = u'{0} ...'.format(output[:50])
         return output
@@ -94,7 +95,7 @@ class Command(BaseCommand):
             '.'.join((
                 model._meta.app_label,
                 model._meta.object_name)),
-            unicode(instance.pk),
+            smart_text(instance.pk),
             self.format_output(instance),
         ))
         if self.verbosity < 2:

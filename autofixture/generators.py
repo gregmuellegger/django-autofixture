@@ -152,7 +152,7 @@ class LoremGenerator(Generator):
                 paras = ['<p>%s</p>' % p for p in paras]
             lorem = u'\n\n'.join(paras)
         if self.max_length:
-            length = random.randint(self.max_length / 10, self.max_length)
+            length = random.randint(round(self.max_length / 10), self.max_length)
             lorem = lorem[:max(1, length)]
         return lorem.strip()
 
