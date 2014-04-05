@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+import inspect
+import warnings
 from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
+from django.contrib.contenttypes.generic import GenericRelation
 from django.utils.datastructures import SortedDict
+from django.utils.six import with_metaclass
+import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
 
@@ -234,6 +239,8 @@ class AutoFixtureBase(object):
         '''
         if isinstance(field, fields.AutoField):
             return None
+        if isinstance(field, related.OneToOneField) and field.primary_key:
+            return None
         if (
             field.default is not fields.NOT_PROVIDED and
             not self.overwrite_defaults and
@@ -257,19 +264,31 @@ class AutoFixtureBase(object):
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):
             # if generate_fk is set, follow_fk is ignored.
-            if field.name in self.generate_fk:
+            is_self_fk = (field.rel.to().__class__ == self.model)
+            if field.name in self.generate_fk and not is_self_fk:
                 return generators.InstanceGenerator(
-                    AutoFixture(
+                    autofixture.get(
                         field.rel.to,
                         follow_fk=self.follow_fk.get_deep_links(field.name),
                         generate_fk=self.generate_fk.get_deep_links(field.name)),
                     limit_choices_to=field.rel.limit_choices_to)
             if field.name in self.follow_fk:
-                return generators.InstanceSelector(
+                selected = generators.InstanceSelector(
                     field.rel.to,
                     limit_choices_to=field.rel.limit_choices_to)
+                if selected.get_value() is not None:
+                    return selected
             if field.blank or field.null:
                 return generators.NoneGenerator()
+            if is_self_fk and not field.null:
+                raise CreateInstanceError(
+                    u'Cannot resolve self referencing field "%s" to "%s" without null=True' % (
+                        field.name,
+                        '%s.%s' % (
+                            field.rel.to._meta.app_label,
+                            field.rel.to._meta.object_name,
+                        )
+                ))
             raise CreateInstanceError(
                 u'Cannot resolve ForeignKey "%s" to "%s". Provide either '
                 u'"follow_fk" or "generate_fk" parameters.' % (
@@ -283,9 +302,7 @@ class AutoFixtureBase(object):
             if field.name in self.generate_m2m:
                 min_count, max_count = self.generate_m2m[field.name]
                 return generators.MultipleInstanceGenerator(
-                    AutoFixture(
-                        field.rel.to
-                    ),
+                    autofixture.get(field.rel.to),
                     limit_choices_to=field.rel.limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
@@ -412,15 +429,19 @@ class AutoFixtureBase(object):
         for constraint in self.constraints:
             try:
                 constraint(self.model, instance)
-            except constraints.InvalidConstraint, e:
+            except constraints.InvalidConstraint as e:
                 recalc_fields.extend(e.fields)
         return recalc_fields
 
-    def post_process_instance(self, instance):
+    def post_process_instance(self, instance, commit):
         '''
-        Overwrite this method to modify the created *instance* at the last
-        possible moment. It gets the generated *instance* and must return the
-        modified instance.
+        Overwrite this method to modify the created *instance* before it gets
+        returned by the :meth:`create` or :meth:`create_one`.
+        It gets the generated *instance* and must return the modified
+        instance. The *commit* parameter indicates the *commit* value that the
+        user passed into the :meth:`create` method. It defaults to ``True``
+        and should be respected, which means if it is set to ``False``, the
+        *instance* should not be saved.
         '''
         return instance
 
@@ -429,6 +450,12 @@ class AutoFixtureBase(object):
         Create and return one model instance. If *commit* is ``False`` the
         instance will not be saved and many to many relations will not be
         processed.
+
+        Subclasses that override ``create_one`` can specify arbitrary keyword
+        arguments. They will be passed through by the
+        :meth:`autofixture.base.AutoFixture.create` method and the helper
+        functions :func:`autofixture.create` and
+        :func:`autofixture.create_one`.
 
         May raise :exc:`CreateInstanceError` if constraints are not satisfied.
         '''
@@ -453,16 +480,29 @@ class AutoFixtureBase(object):
             ))
         if commit:
             instance.save()
-            for field in instance._meta.many_to_many:
+
+            #to handle particular case of GenericRelation
+            #in Django pre 1.6 it appears in .many_to_many
+            many_to_many = [f for f in instance._meta.many_to_many
+                            if not isinstance(f, GenericRelation)]
+            for field in many_to_many:
                 self.process_m2m(instance, field)
         signals.instance_created.send(
             sender=self,
             model=self.model,
             instance=instance,
             committed=commit)
-        return self.post_process_instance(instance)
 
-    def create(self, count=1, commit=True):
+        post_process_kwargs = {}
+        if 'commit' in inspect.getargspec(self.post_process_instance).args:
+            post_process_kwargs['commit'] = commit
+        else:
+            warnings.warn(
+                "Subclasses of AutoFixture need to provide a `commit` "
+                "argument for post_process_instance methods", DeprecationWarning)
+        return self.post_process_instance(instance, **post_process_kwargs)
+
+    def create(self, count=1, commit=True, **kwargs):
         '''
         Create and return ``count`` model instances. If *commit* is ``False``
         the instances will not be saved and many to many relations will not be
@@ -473,18 +513,18 @@ class AutoFixtureBase(object):
         The method internally calls :meth:`create_one` to generate instances.
         '''
         object_list = []
-        for i in xrange(count):
-            instance = self.create_one(commit=commit)
+        for i in range(count):
+            instance = self.create_one(commit=commit, **kwargs)
             object_list.append(instance)
         return object_list
 
     def iter(self, count=1, commit=True):
-        for i in xrange(count):
+        for i in range(count):
             yield self.create_one(commit=commit)
 
     def __iter__(self):
         yield self.create_one()
 
 
-class AutoFixture(AutoFixtureBase):
-    __metaclass__ = AutoFixtureMetaclass
+class AutoFixture(with_metaclass(AutoFixtureMetaclass, AutoFixtureBase)):
+    pass

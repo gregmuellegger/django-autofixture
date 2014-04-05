@@ -1,4 +1,4 @@
-from UserDict import UserDict, IterableUserDict
+from django.utils.six import with_metaclass
 
 
 class ValuesMetaclass(type):
@@ -22,19 +22,19 @@ class ValuesMetaclass(type):
         return super(ValuesMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
 
-class ValuesBase(IterableUserDict, object):
+class ValuesBase(dict):
     def __init__(self, *parents, **values):
-        self.data = self._value_attrs.copy()
+        self.update(self._value_attrs)
         for parent in parents:
             if parent is None:
                 continue
-            if isinstance(parent, (dict, UserDict)):
-                self.data.update(parent)
+            if isinstance(parent, dict):
+                self.update(parent)
             else:
                 for attr in dir(parent):
                     if not attr.startswith('__'):
-                        self.data[attr] = getattr(parent, attr)
-        self.data.update(**values)
+                        self[attr] = getattr(parent, attr)
+        self.update(**values)
 
     def __add__(self, other):
         return self.__class__(self, other)
@@ -43,9 +43,9 @@ class ValuesBase(IterableUserDict, object):
         return self.__class__(other, self)
 
     def __iadd__(self, other):
-        self.data.update(other)
+        self.update(other)
         return self
 
 
-class Values(ValuesBase):
-    __metaclass__ = ValuesMetaclass
+class Values(with_metaclass(ValuesMetaclass, ValuesBase)):
+    pass

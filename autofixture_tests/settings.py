@@ -14,6 +14,9 @@ DATABASES = {
 
 SITE_ID = 1
 
+# Set in order to catch timezone aware vs unaware comparisons
+USE_TZ = True
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -50,9 +53,6 @@ INSTALLED_APPS = (
 
     'autofixture_tests',
     'autofixture_tests.sample_app',
-    'autofixture_tests.autofixture_test',
-    'autofixture_tests.generator_test',
-    'autofixture_tests.values_tests',
     'autofixture',
 )
 

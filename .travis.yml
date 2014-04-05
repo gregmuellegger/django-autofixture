@@ -1,18 +1,24 @@
 language: python
 env:
-  - TOX_ENV=py25-1.4
   - TOX_ENV=py26-1.4
   - TOX_ENV=py26-1.5
+  - TOX_ENV=py26-1.6
   - TOX_ENV=py27-1.4
   - TOX_ENV=py27-1.5
+  - TOX_ENV=py27-1.6
   - TOX_ENV=py27-trunk
+  - TOX_ENV=py33-1.5
+  - TOX_ENV=py33-1.6
+  - TOX_ENV=py33-trunk
+  - TOX_ENV=pypy-1.4
+  - TOX_ENV=pypy-1.5
+  - TOX_ENV=pypy-1.6
+  - TOX_ENV=pypy-trunk
 before_install:
-  - export PIP_USE_MIRRORS=true
-  - export PIP_INDEX_URL=https://simple.crate.io/
   - export DJANGO_SETTINGS_MODULE=autofixture_tests.settings
   - sudo pip install tox
 script:
-  - tox -e $TOX_ENV
+  - tox -e $TOX_ENV -v
 branches:
   only:
     - master

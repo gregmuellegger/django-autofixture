@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
+import inspect
+import sys
 import warnings
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
+
+
+if sys.version_info[0] < 3:
+    string_types = basestring
+else:
+    string_types = str
+
+
+__version__ = '0.6.3'
 
 
 REGISTRY = {}
@@ -28,7 +39,7 @@ def register(model, autofixture, overwrite=False, fail_silently=False):
         argument.
     '''
     from django.db import models
-    if isinstance(model, basestring):
+    if isinstance(model, string_types):
         model = models.get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
         if fail_silently:
@@ -49,8 +60,8 @@ def unregister(model_or_iterable, fail_silently=False):
     from django.db import models
     if issubclass(model_or_iterable, models.Model):
         model_or_iterable = [model_or_iterable]
-    for model in models:
-        if isinstance(model, basestring):
+    for model in model_or_iterable:
+        if isinstance(model, string_types):
             model = models.get_model(*model.split('.', 1))
         try:
             del REGISTRY[model]
@@ -62,6 +73,25 @@ def unregister(model_or_iterable, fail_silently=False):
                     model._meta.app_label,
                     model._meta.object_name,
                 ))
+
+
+def get(model, *args, **kwargs):
+    '''
+    Get an autofixture instance for the passed in *model* sing the either an
+    appropiate autofixture that was :ref:`registry <registered>` or fall back
+    to the default:class:`AutoFixture` class.  *model* can be a model class or
+    its string representation (e.g.  ``"app.ModelClass"``).
+
+    All positional and keyword arguments are passed to the autofixture
+    constructor.
+    '''
+    from django.db import models
+    if isinstance(model, string_types):
+        model = models.get_model(*model.split('.', 1))
+    if model in REGISTRY:
+        return REGISTRY[model](model, *args, **kwargs)
+    else:
+        return AutoFixture(model, *args, **kwargs)
 
 
 def create(model, count, *args, **kwargs):
@@ -83,13 +113,22 @@ def create(model, count, *args, **kwargs):
     :func:`create` will return a list of the created objects.
     '''
     from django.db import models
-    if isinstance(model, basestring):
+    if isinstance(model, string_types):
         model = models.get_model(*model.split('.', 1))
     if model in REGISTRY:
-        autofixture = REGISTRY[model](model, *args, **kwargs)
+        autofixture_class = REGISTRY[model]
     else:
-        autofixture = AutoFixture(model, *args, **kwargs)
-    return autofixture.create(count)
+        autofixture_class = AutoFixture
+    # Get keyword arguments that the create_one method accepts and pass them
+    # into create_one instead of AutoFixture.__init__
+    argnames = set(inspect.getargspec(autofixture_class.create_one).args)
+    argnames -= set(['self'])
+    create_kwargs = {}
+    for argname in argnames:
+        if argname in kwargs:
+            create_kwargs[argname] = kwargs.pop(argname)
+    autofixture = autofixture_class(model, *args, **kwargs)
+    return autofixture.create(count, **create_kwargs)
 
 
 def create_one(model, *args, **kwargs):
@@ -154,7 +193,7 @@ def autodiscover():
         # to bubble up.
         try:
             import_module("%s.autofixtures" % app)
-        except Exception, e:
+        except Exception as e:
             warnings.warn(u'Error while importing %s.autofixtures: %r' %
                 (mod.__name__, e))
 
@@ -172,7 +211,7 @@ def autodiscover():
 
         try:
             import_module("%s.tests" % app)
-        except Exception, e:
+        except Exception as e:
             warnings.warn(u'Error while importing %s.tests: %r' %
                 (mod.__name__, e))
 

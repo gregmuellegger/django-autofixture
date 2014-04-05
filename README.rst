@@ -2,6 +2,10 @@
 django-autofixture
 ==================
 
+.. image:: https://travis-ci.org/gregmuellegger/django-autofixture.png
+   :alt: Build Status
+   :target: https://travis-ci.org/gregmuellegger/django-autofixture
+
 This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
 load test data through command line.
@@ -88,8 +92,10 @@ instance to follow foreignkeys by generating new related models::
 
     fixture = AutoFixture(Entry, generate_fk=True)
 
-This generates new instance for *all* foreignkey fields of ``Entry``. Its
-possible to limit this behaviour to single fields::
+This generates new instance for *all* foreignkey fields of ``Entry``. Unless
+the model has a foreign key reference to itself, wherein the field will be set
+to None if allowed or raise a ``CreateInstanceError`` if not. This is to prevent
+max recursion depth errors. Its possible to limit this behaviour to single fields::
 
     fixture = AutoFixture(Entry, generate_fk=['author'])
 

@@ -1,6 +1,57 @@
 Changelog
 =========
 
+0.6.3
+-----
+
+* Fixing long stated issue with GenericRelation fields. Thanks to StillNewb
+  for the patch.
+
+0.6.2
+-----
+
+* Supporting Django 1.6.
+
+0.6.1
+-----
+
+* Fixing issue with models that have a selfreferencing ForeignKey field.
+  Thanks to Josh Fyne for the patch.
+
+0.6.0
+-----
+
+* Adding ``generators.WeightedGenerator`` for propabilistic selection of
+  values. Thanks to Jonathan Tien for the idea and patch.
+* Supporting model inheritance. Thanks to Josh Fyne for the patch.
+
+0.5.0
+-----
+
+* Adding ``FirstNameGenerator`` and ``LastNameGenerator``. Thanks to Jonathan
+  Tien for the initial patch.
+* Registered Autofixtures are used for models that are created for foreignkeys
+  and many to many relations. Thanks to Theo Spears for the report.
+
+0.4.0
+-----
+
+* Python 3 support! Though we had to drop Python 2.5 support. If you cannot
+  upgrade to Python 2.6 by yet, please consider using the 0.3.x versions of
+  django-autofixture.
+  By the way: by Python 3 support, I mean, that the test suite is running
+  without any errors. I have not tested yet the library in production for
+  Python 3. So please test and submit bug reports if you encounter any.
+
+0.3.2
+-----
+
+* ``DateTimeField`` receive timezone aware datetime objects now. Thanks to
+  Scott Woodall for the report and patch.
+* Adding ``static_domain`` parameter to ``EmailGenerator`` to allow the
+  production of emails that will always have the same domain. Thanks to
+  mvdwaeter for the initial patch.
+
 0.3.1
 -----
 

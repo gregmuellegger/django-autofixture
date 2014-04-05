@@ -2,7 +2,9 @@
 import autofixture
 import string
 from datetime import datetime
-from django.contrib.auth.models import User, UNUSABLE_PASSWORD
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
+from django.utils import timezone
 from autofixture import AutoFixture
 from autofixture import generators
 
@@ -27,13 +29,13 @@ class UserFixture(AutoFixture):
             string.ascii_letters + string.digits + '_')
         first_name = generators.LoremWordGenerator(1)
         last_name = generators.LoremWordGenerator(1)
-        password = UNUSABLE_PASSWORD
+        password = staticmethod(lambda: make_password(None))
         is_active = True
         # don't generate admin users
         is_staff = False
         is_superuser = False
-        date_joined = generators.DateTimeGenerator(max_date=datetime.now())
-        last_login = generators.DateTimeGenerator(max_date=datetime.now())
+        date_joined = generators.DateTimeGenerator(max_date=timezone.now())
+        last_login = generators.DateTimeGenerator(max_date=timezone.now())
 
     # don't follow permissions and groups
     follow_m2m = False
@@ -64,12 +66,17 @@ class UserFixture(AutoFixture):
     def prepare_class(self):
         self.add_constraint(self.unique_email)
 
-    def post_process_instance(self, instance):
+    def post_process_instance(self, instance, commit):
         # make sure user's last login was not before he joined
+        changed = False
         if instance.last_login < instance.date_joined:
             instance.last_login = instance.date_joined
+            changed = True
         if self.password:
             instance.set_password(self.password)
+            changed = True
+        if changed and commit:
+            instance.save()
         return instance
 
 
