@@ -582,3 +582,48 @@ class WeightedGenerator(Generator):
     def generate(self):
         return self.weighted_choice(self.choices).generate()
 
+
+class GenericFKSelector(Generator):
+    """
+    Should return an instance of some object.
+    """
+    def __init__(self, generate_genericfk=False, limit_ct_to=None, limit_ids_to=None):
+        self.generate_genericfk = generate_genericfk
+        self.limit_ct_to = limit_ct_to or {}
+        self.limit_ids_to = limit_ids_to
+        
+    def get_ct(self):
+        """
+        Get content type object
+        """
+        from django.contrib.contenttypes.models import ContentType
+        queryset = ContentType.objects.filter(**self.limit_ct_to)
+        if not queryset:
+            raise Exception("Found no contenttypes for filter params %s" %self.limit_ct_to )
+        #get any old ct, we'll generate objects later
+        if self.generate_genericfk:
+            return InstanceSelector(queryset=queryset).generate()
+        else: # find a contenttype with some existing objects
+            for ct in queryset:
+                if ct.get_all_objects_for_this_type().count() > 0:
+                    return ct
+            raise Exception("Found no contenttypes for filter params %s that have already existing objects" %self.limit_ct_to )
+        
+    def get_object(self, content_type):
+        # if option 'generate_genericfk'
+        queryset = content_type.get_all_objects_for_this_type()
+        if self.generate_genericfk:
+            return InstanceGenerator(autofixture=AutoFixture(
+                                            content_type.model_class()),
+                         limit_choices_to=self.limit_ids_to).generate()
+        else:    
+            return InstanceSelector(queryset=queryset,
+                         limit_choices_to=self.limit_ids_to).generate()
+        
+    def generate(self):
+        ct = self.get_ct()
+        return self.get_object(ct)
+#     
+#     
+# 
+# class GenericFKGenerator(Generator):
