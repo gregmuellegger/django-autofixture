@@ -36,6 +36,10 @@ except AttributeError:
         return os.path.join(*rel_list)
 
 
+class GeneratorError(Exception):
+    pass
+
+
 class Generator(object):
     coerce_type = staticmethod(lambda x: x)
     empty_value = None
@@ -587,7 +591,8 @@ class GenericFKSelector(Generator):
     """
     Should return an instance of some object.
     """
-    def __init__(self, generate_genericfk=False, limit_ct_to=None, limit_ids_to=None):
+    def __init__(self, generate_genericfk=False, limit_ct_to=None,
+                                                limit_ids_to=None):
         self.generate_genericfk = generate_genericfk
         self.limit_ct_to = limit_ct_to or {}
         self.limit_ids_to = limit_ids_to
@@ -599,15 +604,18 @@ class GenericFKSelector(Generator):
         from django.contrib.contenttypes.models import ContentType
         queryset = ContentType.objects.filter(**self.limit_ct_to)
         if not queryset:
-            raise Exception("Found no contenttypes for filter params %s" %self.limit_ct_to )
+            raise GeneratorError(
+                "Found no contenttypes for filter params %s" %self.limit_ct_to)
         #get any old ct, we'll generate objects later
         if self.generate_genericfk:
             return InstanceSelector(queryset=queryset).generate()
         else: # find a contenttype with some existing objects
-            for ct in queryset:
+            for ct in queryset.order_by("?"):
                 if ct.get_all_objects_for_this_type().count() > 0:
                     return ct
-            raise Exception("Found no contenttypes for filter params %s that have already existing objects" %self.limit_ct_to )
+            raise GeneratorError(
+                """Found no contenttypes for filter params %s
+                that have already existing objects""" %self.limit_ct_to )
         
     def get_object(self, content_type):
         # if option 'generate_genericfk'
@@ -623,7 +631,3 @@ class GenericFKSelector(Generator):
     def generate(self):
         ct = self.get_ct()
         return self.get_object(ct)
-#     
-#     
-# 
-# class GenericFKGenerator(Generator):

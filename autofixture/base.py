@@ -236,6 +236,10 @@ class AutoFixtureBase(object):
         self.constraints.append(constraint)
 
     def _normalize_genericfk_field(self, field):
+        """
+        Add some attributes to the GenericFK field so that it behaves more 
+        like "regular" fields and the usual checks don't fail. 
+        """
         field.default = fields.NOT_PROVIDED
         fk_field_name = field.fk_field
         field.null = self.model._meta.get_field_by_name(fk_field_name)[0].null
@@ -371,7 +375,6 @@ class AutoFixtureBase(object):
                     max_value=field.MAX_BIGINT,
                     **kwargs)
         if isinstance(field, GenericForeignKey):
-            print "AFSSA %s %s" % (self.field_values, self.model)
             return generators.GenericFKSelector(generate_genericfk=self.generate_genericfk)
         for field_class, generator in self.field_to_generator.items():
             if isinstance(field, field_class):
@@ -491,17 +494,6 @@ class AutoFixtureBase(object):
         while process and tries > 0:
             for field in process:
                 self.process_field(instance, field)
-            
-#             #ugly, duplicate
-#             for field in generic_fields:
-#                 if isinstance(field, GenericForeignKey):
-#                     import pdb;pdb.set_trace()
-#                     process.remove(field)
-#                     ct_field = instance._meta.get_field(field.ct_field)
-#                     fk_field = instance._meta.get_field(field.fk_field)
-#                     process.append(ct_field)
-#                     process.append(fk_field)
-#             import pdb;pdb.set_trace()
             process = self.check_constrains(instance)
             tries -= 1
         if tries == 0:
