@@ -240,11 +240,12 @@ class AutoFixtureBase(object):
         Add some attributes to the GenericFK field so that it behaves more 
         like "regular" fields and the usual checks don't fail. 
         """
-        field.default = fields.NOT_PROVIDED
+        field_copy = copy.copy(field)
+        field_copy.default = fields.NOT_PROVIDED
         fk_field_name = field.fk_field
-        field.null = self.model._meta.get_field_by_name(fk_field_name)[0].null
-        field.choices = []
-        return field
+        field_copy.null = self.model._meta.get_field_by_name(fk_field_name)[0].null
+        field_copy.choices = []
+        return field_copy
 
     def get_generator(self, field):
         '''
