@@ -445,6 +445,13 @@ class AutoFixtureBase(object):
         '''
         return instance
 
+    def pre_process_instance(self, instance):
+        '''
+        Same as :meth:`post_process_instance`, but it is being called before
+        saving an *instance*.
+        '''
+        return instance
+
     def create_one(self, commit=True):
         '''
         Create and return one model instance. If *commit* is ``False`` the
@@ -478,6 +485,9 @@ class AutoFixtureBase(object):
                     self.tries,
                     ', '.join([field.name for field in process]),
             ))
+
+        instance = self.pre_process_instance(instance)
+
         if commit:
             instance.save()
 
