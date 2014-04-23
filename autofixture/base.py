@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import inspect
 import warnings
+import copy
 from django.db import models
 from django.db.models import fields
 from django.db.models.fields import related
-from django.contrib.contenttypes.generic import GenericRelation
+from django.contrib.contenttypes.generic import GenericRelation, GenericForeignKey
 from django.utils.datastructures import SortedDict
 from django.utils.six import with_metaclass
 import autofixture
@@ -93,6 +94,7 @@ class AutoFixtureBase(object):
     generate_fk = False
     follow_m2m = {'ALL': (1,5)}
     generate_m2m = False
+    generate_genericfk = False
 
     none_p = 0.2
     tries = 1000
@@ -110,6 +112,7 @@ class AutoFixtureBase(object):
         (fields.IPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
+        (GenericForeignKey, generators.GenericFKSelector)
     ))
 
     field_values = Values()
@@ -121,7 +124,7 @@ class AutoFixtureBase(object):
     def __init__(self, model,
             field_values=None, none_p=None, overwrite_defaults=None,
             constraints=None, follow_fk=None, generate_fk=None,
-            follow_m2m=None, generate_m2m=None):
+            follow_m2m=None, generate_m2m=None, generate_genericfk=None):
         '''
         Parameters:
             ``model``: A model class which is used to create the test data.
@@ -201,7 +204,9 @@ class AutoFixtureBase(object):
             self.generate_m2m = generate_m2m
         if not isinstance(self.generate_m2m, Link):
             self.generate_m2m = Link(self.generate_m2m)
-
+        if generate_genericfk is not None:
+            self.generate_genericfk = generate_genericfk
+        
         for constraint in self.default_constraints:
             self.add_constraint(constraint)
 
@@ -230,6 +235,18 @@ class AutoFixtureBase(object):
         '''
         self.constraints.append(constraint)
 
+    def _normalize_genericfk_field(self, field):
+        """
+        Add some attributes to the GenericFK field so that it behaves more 
+        like "regular" fields and the usual checks don't fail. 
+        """
+        field_copy = copy.copy(field)
+        field_copy.default = fields.NOT_PROVIDED
+        fk_field_name = field.fk_field
+        field_copy.null = self.model._meta.get_field_by_name(fk_field_name)[0].null
+        field_copy.choices = []
+        return field_copy
+
     def get_generator(self, field):
         '''
         Return a value generator based on the field instance that is passed to
@@ -237,6 +254,9 @@ class AutoFixtureBase(object):
         specified field will be ignored (e.g. if no matching generator was
         found).
         '''
+        if isinstance(field, GenericForeignKey):
+            field = self._normalize_genericfk_field(field)
+        
         if isinstance(field, fields.AutoField):
             return None
         if isinstance(field, related.OneToOneField) and field.primary_key:
@@ -247,7 +267,6 @@ class AutoFixtureBase(object):
             field.name not in self.field_values):
                 return None
         kwargs = {}
-
         if field.name in self.field_values:
             value = self.field_values[field.name]
             if isinstance(value, generators.Generator):
@@ -356,6 +375,8 @@ class AutoFixtureBase(object):
                     min_value=-field.MAX_BIGINT - 1,
                     max_value=field.MAX_BIGINT,
                     **kwargs)
+        if isinstance(field, GenericForeignKey):
+            return generators.GenericFKSelector(generate_genericfk=self.generate_genericfk)
         for field_class, generator in self.field_to_generator.items():
             if isinstance(field, field_class):
                 return generator(**kwargs)
@@ -468,7 +489,16 @@ class AutoFixtureBase(object):
         '''
         tries = self.tries
         instance = self.model()
-        process = instance._meta.fields
+        process = copy.copy(instance._meta.fields)
+        
+        #remove genericfk field components, add virtualfield instead
+        generic_fields = instance._meta.virtual_fields
+        for field in generic_fields:
+            if isinstance(field, GenericForeignKey):
+                process.append(field)
+                ct_field = instance._meta.get_field(field.ct_field)
+                fk_field = instance._meta.get_field(field.fk_field)
+                process = [f for f in process if not f in [ct_field, fk_field]]
         while process and tries > 0:
             for field in process:
                 self.process_field(instance, field)
