@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.7.0
+-----
+
+* Adding ``AutoFixture.pre_process_instance`` method.
+* Allow arbitrary keyword arguments for ``AutoFixture.create`` method.
+* Fixing ``autofixture.unregister`` function.
+* Fixing ``UserFixture.post_process_instance``.
+
 0.6.3
 -----
 

@@ -14,3 +14,4 @@ Thanks to all those developers.
   * Jonathan Tien - https://github.com/ricefield
   * Josh Fyne - https://github.com/jfyne
   * StillNewb - https://github.com/StillNewb
+  * Stella Lie - https://github.com/stellalie
