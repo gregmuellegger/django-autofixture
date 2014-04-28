@@ -1,18 +1,16 @@
-# Django settings for testsite project.
 import os
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+import warnings
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+
+warnings.simplefilter('always')
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_ROOT, 'db.sqlite'),
     }
 }
-
-SITE_ID = 1
 
 # Set in order to catch timezone aware vs unaware comparisons
 USE_TZ = True
@@ -20,6 +18,7 @@ USE_TZ = True
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -36,13 +35,9 @@ MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '<REPLACE:SECRET_KEY>'
+SECRET_KEY = '0'
 
 ROOT_URLCONF = 'autofixture_tests.urls'
-
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -51,12 +46,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
 
-    'autofixture_tests',
-    'autofixture_tests.sample_app',
     'autofixture',
+    'autofixture_tests',
+    'autofixture_tests.tests',
+    'autofixture_tests.sample_app',
 )
 
-try:
-    from local_settings import *
-except ImportError:
-    pass
+
+import django
+if django.VERSION < (1, 6):
+    TEST_RUNNER = 'discover_runner.DiscoverRunner'

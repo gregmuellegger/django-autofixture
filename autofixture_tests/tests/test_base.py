@@ -601,7 +601,7 @@ class TestManagementCommand(TestCase):
             self.assertEqual(obj.name, 'foo')
 
     def test_use_option(self):
-        self.options['use'] = 'autofixture_tests.tests.SimpleAutoFixture'
+        self.options['use'] = 'autofixture_tests.tests.test_base.SimpleAutoFixture'
         models = ('autofixture_tests.SimpleModel:10',)
         self.command.handle(*models, **self.options)
         for obj in SimpleModel.objects.all():

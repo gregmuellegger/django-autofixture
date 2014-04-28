@@ -7,7 +7,7 @@ root directory::
 
     virtualenv . --no-site-packages
     source bin/activate
-    pip install -r requirements.txt
+    pip install -r requirements/tests.txt
 
 Please run now the tests that are shipped with ``autofixture`` to see if
 everything is working::
