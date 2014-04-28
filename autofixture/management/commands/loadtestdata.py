@@ -28,11 +28,16 @@ information::
 from django.utils.encoding import smart_text
 import autofixture
 from django.db import models
-from django.db.transaction import commit_on_success
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.importlib import import_module
 from autofixture import signals
 from optparse import make_option
+
+try:
+    from django.db.transaction import atomic
+# For django 1.5 and earlier
+except ImportError:
+    from django.db.transaction import commit_on_success as atomic
 
 
 class Command(BaseCommand):
@@ -119,7 +124,7 @@ class Command(BaseCommand):
                         obj.pk,
                         self.format_output(obj)))
 
-    @commit_on_success
+    @atomic
     def handle(self, *attrs, **options):
         from django.db.models import get_model
 
