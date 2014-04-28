@@ -1,3 +1,4 @@
 argparse
 coverage
 django-discover-runner
+python-placeholder

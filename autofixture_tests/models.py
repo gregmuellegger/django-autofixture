@@ -49,6 +49,7 @@ class BasicModel(models.Model):
     sintfield = models.SmallIntegerField()
     psintfield = models.PositiveSmallIntegerField()
 
+
     STRING_CHOICES = (
         ('a', 'A'),
         ('b', 'B'),
@@ -69,7 +70,7 @@ class BasicModel(models.Model):
     rfilepathfield = models.FilePathField(path=filepath, recursive=True)
     filepathfield = models.FilePathField(path=filepath)
     mfilepathfield = models.FilePathField(path=filepath, match=r'^.+\.py$')
-
+    imgfield = models.ImageField(upload_to='_autofixtures')
 
 class UniqueTestModel(models.Model):
     CHOICES = [(i,i) for i in range(10)]
