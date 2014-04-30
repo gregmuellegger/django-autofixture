@@ -78,7 +78,7 @@ def unregister(model_or_iterable, fail_silently=False):
 def get(model, *args, **kwargs):
     '''
     Get an autofixture instance for the passed in *model* sing the either an
-    appropiate autofixture that was :ref:`registry <registered>` or fall back
+    appropiate autofixture that was :ref:`registry <registry>` or fall back
     to the default:class:`AutoFixture` class.  *model* can be a model class or
     its string representation (e.g.  ``"app.ModelClass"``).
 
@@ -97,7 +97,7 @@ def get(model, *args, **kwargs):
 def create(model, count, *args, **kwargs):
     '''
     Create *count* instances of *model* using the either an appropiate
-    autofixture that was :ref:`registry <registered>` or fall back to the
+    autofixture that was :ref:`registry <registry>` or fall back to the
     default:class:`AutoFixture` class. *model* can be a model class or its
     string representation (e.g. ``"app.ModelClass"``).
 

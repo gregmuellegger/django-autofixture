@@ -38,9 +38,8 @@ The :class:`~autofixture.base.AutoFixture` registry
 Since :class:`~autofixture.base.AutoFixture` is designed to fit for almost all
 models, its very generic and doesn't know anything about the actual logic and
 meanings of relations or the purpose of your model fields. This makes it
-sometimes a bit difficult to provide the correct :ref:`field_values <field
-values>` in all places where you want ``autofixture`` to instanciate your
-models.
+sometimes a bit difficult to provide the correct ``field_values`` in all
+places where you want ``autofixture`` to instanciate your models.
 
 So there is a registry to register custom
 :class:`~autofixture.base.AutoFixture` subclasses with specific models. These
