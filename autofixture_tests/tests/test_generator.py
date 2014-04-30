@@ -5,6 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django.test.utils import override_settings
+import shutil
 from autofixture import generators
 
 
@@ -97,3 +98,14 @@ class WeightedGeneratorTests(TestCase):
         self.assertTrue(0.15 - MARGIN < truediv(results["sr"], runs) < 0.15 + MARGIN)
 
 
+class ImageTests(TestCase):
+    def test_image_generator(self):
+        generate = generators.ImageGenerator()
+        media_file = generate()
+        file_path = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path))
+
+    def tearDown(self):
+        img_folder = os.path.join(settings.MEDIA_ROOT, '_autofixture/')
+        if os.path.exists(img_folder):
+            shutil.rmtree(img_folder)
