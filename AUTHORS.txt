@@ -15,3 +15,4 @@ Thanks to all those developers.
   * Josh Fyne - https://github.com/jfyne
   * StillNewb - https://github.com/StillNewb
   * Stella Lie - https://github.com/stellalie
+  * Visgean Skeloru - https://github.com/Visgean

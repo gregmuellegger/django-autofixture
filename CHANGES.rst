@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.8.0
+-----
+
+* Adding support for django's ``ImageField``. Thanks to Visgean Skeloru for
+  the patch.
+
 0.7.0
 -----
 
