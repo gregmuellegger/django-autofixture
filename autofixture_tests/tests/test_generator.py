@@ -1,11 +1,14 @@
 import os
+import shutil
 from operator import truediv
+
 from django import forms
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django.test.utils import override_settings
-import shutil
+from PIL import Image
+
 from autofixture import generators
 
 
@@ -63,12 +66,12 @@ class EmailGeneratorTests(TestCase):
 class WeightedGeneratorTests(TestCase):
     def test_simple_weights(self):
         results = {"Red": 0, "Blue": 0}
-        choices = [(generators.StaticGenerator("Red"), 50), 
+        choices = [(generators.StaticGenerator("Red"), 50),
                    (generators.StaticGenerator("Blue"), 50)]
         generate = generators.WeightedGenerator(choices)
 
         runs = 10000
-        
+
         for i in range(runs):
             results[generate()] += 1
 
@@ -79,14 +82,14 @@ class WeightedGeneratorTests(TestCase):
 
     def test_complex_weights(self):
         results = {"frosh": 0, "soph": 0, "jr": 0, "sr": 0}
-        choices = [(generators.StaticGenerator("frosh"), 35), 
+        choices = [(generators.StaticGenerator("frosh"), 35),
                    (generators.StaticGenerator("soph"), 20),
                    (generators.StaticGenerator("jr"), 30),
                    (generators.StaticGenerator("sr"), 15)]
         generate = generators.WeightedGenerator(choices)
 
         runs = 10000
-        
+
         for i in range(runs):
             results[generate()] += 1
 
@@ -98,14 +101,51 @@ class WeightedGeneratorTests(TestCase):
         self.assertTrue(0.15 - MARGIN < truediv(results["sr"], runs) < 0.15 + MARGIN)
 
 
-class ImageTests(TestCase):
+class ImageGeneratorTests(TestCase):
+    def setUp(self):
+        self.cleanup_dirs = ['_autofixture']
+
+    def tearDown(self):
+        for path in self.cleanup_dirs:
+            img_folder = os.path.join(settings.MEDIA_ROOT, path)
+            if os.path.exists(img_folder):
+                shutil.rmtree(img_folder)
+
     def test_image_generator(self):
         generate = generators.ImageGenerator()
         media_file = generate()
+
         file_path = os.path.join(settings.MEDIA_ROOT, media_file)
         self.assertTrue(os.path.exists(file_path))
 
-    def tearDown(self):
-        img_folder = os.path.join(settings.MEDIA_ROOT, '_autofixture/')
-        if os.path.exists(img_folder):
-            shutil.rmtree(img_folder)
+        image = Image.open(file_path)
+        self.assertTrue(image.size in generators.ImageGenerator.default_sizes)
+
+    def test_width_height(self):
+        media_file = generators.ImageGenerator(125, 225).generate()
+        file_path = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path))
+
+        image = Image.open(file_path)
+        self.assertTrue(image.size, (125, 225))
+
+    def test_filenames_dont_clash(self):
+        media_file = generators.ImageGenerator(100, 100).generate()
+        file_path1 = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path1))
+
+        media_file = generators.ImageGenerator(100, 100).generate()
+        file_path2 = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path2))
+
+        self.assertNotEqual(file_path1, file_path2)
+
+    def test_path(self):
+        self.cleanup_dirs.append('mycustompath/withdirs')
+
+        media_file = generators.ImageGenerator(path='mycustompath/withdirs').generate()
+        file_path = os.path.join(settings.MEDIA_ROOT, media_file)
+        self.assertTrue(os.path.exists(file_path))
+
+        self.assertTrue(media_file.startswith('mycustompath/withdirs/'))
+        self.assertTrue('_autofixture' not in media_file)

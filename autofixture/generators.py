@@ -335,7 +335,7 @@ class FirstNameGenerator(Generator):
 
 class LastNameGenerator(Generator):
     """ Generates a last name """
-    
+
     surname = [
         'Smith', 'Walker', 'Conroy', 'Stevens', 'Jones', 'Armstrong',
         'Johnson', 'White', 'Stone', 'Strong', 'Olson', 'Lee', 'Forrest',
@@ -561,7 +561,7 @@ class InstanceSelector(Generator):
             return self.queryset.order_by('?')[:count]
 
 class WeightedGenerator(Generator):
-    """ 
+    """
     Takes a list of generator objects and integer weights, of the following form:
     [(generator, weight), (generator, weight),...]
     and returns a value from a generator chosen randomly by weight.
@@ -586,29 +586,46 @@ class ImageGenerator(Generator):
     '''
     Generates a valid palceholder image and saves it to the ``settings.MEDIA_ROOT``
     The returned filename is relative to ``MEDIA_ROOT``.
-
-    In case that filename already exists function will return hard link to the file.
-
     '''
+
+    default_sizes = (
+        (100,100),
+        (200,300),
+        (400,600),
+    )
+
+    filename = '{width}x{height}-{suffix}.png'
+
+    def __init__(self, width=None, height=None, sizes=None, path='_autofixture', *args, **kwargs):
+        self.width = width
+        self.height = height
+        self.sizes = list(sizes or self.default_sizes)
+        if self.width and self.height:
+            self.sizes.append((width, height))
+        self.path = path
+        super(ImageGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
         import uuid
         from django.conf import settings
         from placeholder import PlaceHolderImage
 
-        width, height = random.choice([(100,100), (200,300), (400,600)])
-        filename = '{0}x{1}.png'.format(width, height)
-        file_path = os.path.join(settings.MEDIA_ROOT, '_autofixture/', filename)
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, '_autofixture/')):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, '_autofixture/')) # ensure that _autofixture folder exists
+        width, height = random.choice(self.sizes)
 
-        if os.path.isfile(file_path):
-            suffix = str(uuid.uuid4())
-            new_file_path = os.path.join(settings.MEDIA_ROOT, '_autofixture/', "_".join([suffix, filename]))
-            os.link(file_path, new_file_path)  # this is about to work only on linux :(
-            file_path = new_file_path
-        else:
-            img = PlaceHolderImage(width = width, height = height, path = file_path)
-            img.save_image()
-            
-        return relpath(file_path, settings.MEDIA_ROOT) 
+        # Ensure that _autofixture folder exists.
+        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.path)):
+            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.path))
+
+        i = 0
+        filename = self.filename.format(width=width, height=height, suffix=i)
+        filepath = os.path.join(settings.MEDIA_ROOT, self.path, filename)
+
+        while os.path.exists(filepath):
+            i += 1
+            filename = self.filename.format(width=width, height=height, suffix=i)
+            filepath = os.path.join(settings.MEDIA_ROOT, self.path, filename)
+
+        img = PlaceHolderImage(width=width, height=height, path=filepath)
+        img.save_image()
+
+        return relpath(filepath, settings.MEDIA_ROOT)
