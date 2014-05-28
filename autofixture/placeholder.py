@@ -6,7 +6,6 @@ from PIL import ImageDraw
 from PIL import ImageColor
 from PIL import ImageFont
 from PIL import ImageOps
-from django.core.files.base import ContentFile
 
 get_color = lambda name: ImageColor.getrgb(name)
 
@@ -14,6 +13,8 @@ get_color = lambda name: ImageColor.getrgb(name)
 def get_placeholder_image(width, height, name=None, fg_color=get_color('black'),
         bg_color=get_color('grey'), text=None, font=u'Verdana.ttf',
         fontsize=42, encoding=u'unic', mode='RGBA', fmt=u'PNG'):
+    """Little spin-off from https://github.com/Visgean/python-placeholder
+    that not saves an image and instead returns it."""
     size = (width, height)
     text = text if text else '{0}x{1}'.format(width, height)
 
