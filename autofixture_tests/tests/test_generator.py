@@ -1,3 +1,7 @@
+from cStringIO import StringIO
+from autofixture_tests.models import ImageModel, dummy_storage
+from django.core.files import File
+from django.core.files.storage import Storage
 import os
 import shutil
 from operator import truediv
@@ -9,7 +13,7 @@ from django.utils import timezone
 from django.test.utils import override_settings
 from PIL import Image
 
-from autofixture import generators
+from autofixture import generators, AutoFixture
 
 
 class FilePathTests(TestCase):
@@ -149,3 +153,9 @@ class ImageGeneratorTests(TestCase):
 
         self.assertTrue(media_file.startswith('mycustompath/withdirs/'))
         self.assertTrue('_autofixture' not in media_file)
+
+    def test_storage(self):
+        """Storage is handled properly if defined on a field"""
+        o = AutoFixture(ImageModel).create_one()
+
+        self.assertTrue(dummy_storage.exists(o.imgfield.name))

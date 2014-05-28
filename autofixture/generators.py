@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import datetime
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 import os
 import random
 import re
 import string
 import sys
 from decimal import Decimal
+from .placeholder import get_placeholder_image
 
 
 if sys.version_info[0] < 3:
@@ -594,38 +597,35 @@ class ImageGenerator(Generator):
         (400,600),
     )
 
-    filename = '{width}x{height}-{suffix}.png'
-
-    def __init__(self, width=None, height=None, sizes=None, path='_autofixture', *args, **kwargs):
+    def __init__(self, width=None, height=None, sizes=None,
+                 path='_autofixture', storage=None, *args, **kwargs):
         self.width = width
         self.height = height
         self.sizes = list(sizes or self.default_sizes)
         if self.width and self.height:
             self.sizes.append((width, height))
         self.path = path
+        self.storage = storage or default_storage
         super(ImageGenerator, self).__init__(*args, **kwargs)
 
-    def generate(self):
-        import uuid
-        from django.conf import settings
-        from placeholder import PlaceHolderImage
+    def generate_file_path(self, width, height, suffix=None):
+        suffix = suffix if suffix is not None else ''
+        filename ='{width}x{height}{suffix}.png'.format(
+            width=width, height=height, suffix=suffix)
+        return os.path.join(self.path, filename)
 
+    def generate(self):
         width, height = random.choice(self.sizes)
 
         # Ensure that _autofixture folder exists.
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.path)):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.path))
-
         i = 0
-        filename = self.filename.format(width=width, height=height, suffix=i)
-        filepath = os.path.join(settings.MEDIA_ROOT, self.path, filename)
+        path = self.generate_file_path(width, height)
 
-        while os.path.exists(filepath):
+        while self.storage.exists(path):
             i += 1
-            filename = self.filename.format(width=width, height=height, suffix=i)
-            filepath = os.path.join(settings.MEDIA_ROOT, self.path, filename)
+            path = self.generate_file_path(width, height, '_{}'.format(i))
 
-        img = PlaceHolderImage(width=width, height=height, path=filepath)
-        img.save_image()
-
-        return relpath(filepath, settings.MEDIA_ROOT)
+        return self.storage.save(
+            path,
+            ContentFile(get_placeholder_image(width, height))
+        )

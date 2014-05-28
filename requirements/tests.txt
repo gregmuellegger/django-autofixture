@@ -1,5 +1,5 @@
 argparse
 coverage
 django-discover-runner
-python-placeholder
 Pillow
+dj-inmemorystorage==1.0.3
