@@ -623,7 +623,7 @@ class ImageGenerator(Generator):
 
         while self.storage.exists(path):
             i += 1
-            path = self.generate_file_path(width, height, '_{}'.format(i))
+            path = self.generate_file_path(width, height, '_{0}'.format(i))
 
         return self.storage.save(
             path,
