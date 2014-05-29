@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import cStringIO as StringIO
+import io
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageColor
@@ -41,7 +41,7 @@ def get_placeholder_image(width, height, name=None, fg_color=get_color('black'),
     txt_img = ImageOps.fit(text_img, size, method=Image.BICUBIC, centering=(0.5, 0.5))
 
     result_img.paste(txt_img)
-    file_obj = StringIO.StringIO()
+    file_obj = io.BytesIO()
     txt_img.save(file_obj, fmt)
 
     return file_obj.getvalue()

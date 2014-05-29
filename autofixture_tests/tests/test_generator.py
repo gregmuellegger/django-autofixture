@@ -1,4 +1,3 @@
-from cStringIO import StringIO
 from autofixture_tests.models import ImageModel, dummy_storage
 from django.core.files import File
 from django.core.files.storage import Storage
