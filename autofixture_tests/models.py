@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from inmemorystorage import InMemoryStorage
+from django.core.files.storage import FileSystemStorage
 import os
 from datetime import datetime
 from django.db import models
@@ -141,10 +141,11 @@ class GRModel(models.Model):
     gr = generic.GenericRelation('GFKModel')
 
 
-class DummyStorage(InMemoryStorage):
+class DummyStorage(FileSystemStorage):
     pass
 
 dummy_storage = DummyStorage()
 
 class ImageModel(models.Model):
-    imgfield = models.ImageField(upload_to='_autofixtures', storage=dummy_storage)
+    imgfield = models.ImageField(upload_to='_autofixtures',
+                                 storage=dummy_storage)

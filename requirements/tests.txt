@@ -2,4 +2,3 @@ argparse
 coverage
 django-discover-runner
 Pillow
-dj-inmemorystorage==1.0.3
