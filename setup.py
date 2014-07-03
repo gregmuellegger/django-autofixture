@@ -66,6 +66,6 @@ setup(
         'autofixture',
         'autofixture.management',
         'autofixture.management.commands'],
-    install_requires = ['setuptools', 'Pillow'],
+    install_requires = ['setuptools'],
     test_suite = 'runtests.runtests',
 )
