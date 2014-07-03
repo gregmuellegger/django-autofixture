@@ -8,7 +8,6 @@ import re
 import string
 import sys
 from decimal import Decimal
-from .placeholder import get_placeholder_image
 
 
 if sys.version_info[0] < 3:
@@ -615,6 +614,8 @@ class ImageGenerator(Generator):
         return os.path.join(self.path, filename)
 
     def generate(self):
+        from .placeholder import get_placeholder_image
+
         width, height = random.choice(self.sizes)
 
         # Ensure that _autofixture folder exists.
