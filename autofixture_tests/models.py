@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.files.storage import FileSystemStorage
 import os
 from datetime import datetime
 from django.db import models
@@ -138,3 +139,13 @@ class GFKModel(models.Model):
 
 class GRModel(models.Model):
     gr = generic.GenericRelation('GFKModel')
+
+
+class DummyStorage(FileSystemStorage):
+    pass
+
+dummy_storage = DummyStorage()
+
+class ImageModel(models.Model):
+    imgfield = models.ImageField(upload_to='_autofixtures',
+                                 storage=dummy_storage)
