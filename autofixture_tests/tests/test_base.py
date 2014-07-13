@@ -4,10 +4,10 @@ import autofixture
 from decimal import Decimal
 from datetime import date, datetime
 from django.test import TestCase
-from autofixture import generators
+from autofixture import generators, constraints
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
 from autofixture.values import Values
-from ..models import y2k
+from ..models import y2k, UniqueNullFieldModel, UniqueTogetherNullFieldModel
 from ..models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
@@ -316,6 +316,45 @@ class TestUniqueConstraints(TestCase):
             get_field_by_name('choice2')[0].choices)
         for obj in filler.create(count1 * count2):
             pass
+
+    def test_unique_constraint_null(self):
+        fixture = AutoFixture(
+            UniqueNullFieldModel,
+            field_values={
+                'name': generators.NoneGenerator()
+            }
+        )
+        self.assertIn(constraints.unique_constraint, fixture.constraints)
+        fixture.create_one()
+        fixture.create_one()
+
+    def test_unique_together_constraint_nulls(self):
+        fixture = AutoFixture(
+            UniqueTogetherNullFieldModel,
+            field_values={
+                'field_one': generators.NoneGenerator(),
+                'field_two': generators.NoneGenerator()
+            }
+        )
+        self.assertIn(constraints.unique_together_constraint,
+                      fixture.constraints)
+        fixture.create_one()
+        fixture.create_one()
+
+    def test_unique_together_constraint_one_field_null(self):
+
+        fixture = AutoFixture(
+            UniqueTogetherNullFieldModel,
+            field_values={
+                'field_one': generators.NoneGenerator(),
+                'field_two': generators.StaticGenerator('test_string')
+            }
+        )
+        self.assertIn(constraints.unique_together_constraint,
+                      fixture.constraints)
+        with self.assertRaises(CreateInstanceError):
+            fixture.create_one()
+            fixture.create_one()
 
 
 class TestGenerators(TestCase):
@@ -663,3 +702,4 @@ class TestPreProcess(TestCase):
 
         instance = TestAutoFixture(SimpleModel).create_one()
         self.assertEqual(instance.name, expected_string)
+
