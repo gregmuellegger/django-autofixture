@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 
 class InvalidConstraint(Exception):
     def __init__(self, fields, *args, **kwargs):
@@ -30,7 +31,7 @@ def unique_together_constraint(model, instance):
         for field_name in unique_fields:
             if not instance._meta.get_field_by_name(field_name)[0].primary_key:
                 check[field_name] = getattr(instance, field_name)
-        if all([e is None for e in check.itervalues()]):
+        if all([e is None for e in six.itervalues(check)]):
             return
         unique = model._default_manager.filter(**check).count() == 0
         if not unique:
