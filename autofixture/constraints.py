@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ObjectDoesNotExist
-
 
 class InvalidConstraint(Exception):
     def __init__(self, fields, *args, **kwargs):
