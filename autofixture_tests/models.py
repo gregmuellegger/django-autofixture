@@ -19,6 +19,17 @@ class SimpleModel(models.Model):
 class OtherSimpleModel(models.Model):
     name = models.CharField(max_length=50)
 
+class UniqueNullFieldModel(models.Model):
+    name = models.CharField(max_length=15, null=True, blank=True, unique=True)
+
+
+class UniqueTogetherNullFieldModel(models.Model):
+    field_one = models.CharField(max_length=15, null=True, blank=True)
+    field_two = models.CharField(max_length=15, null=True, blank=True)
+
+    class Meta:
+        unique_together = ['field_one', 'field_two']
+
 
 class DeepLinkModel1(models.Model):
     related = models.ForeignKey('SimpleModel')

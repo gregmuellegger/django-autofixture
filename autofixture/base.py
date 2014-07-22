@@ -424,7 +424,7 @@ class AutoFixtureBase(object):
                 max_count=max_count,
                 **kwargs).generate()
 
-    def check_constrains(self, instance):
+    def check_constraints(self, instance):
         '''
         Return fieldnames which need recalculation.
         '''
@@ -475,7 +475,7 @@ class AutoFixtureBase(object):
         while process and tries > 0:
             for field in process:
                 self.process_field(instance, field)
-            process = self.check_constrains(instance)
+            process = self.check_constraints(instance)
             tries -= 1
         if tries == 0:
             raise CreateInstanceError(
