@@ -1,21 +1,18 @@
 from autofixture_tests.models import ImageModel, dummy_storage
-from django.core.files import File
-from django.core.files.storage import Storage
 import os
-import shutil
 from operator import truediv
 
 from django import forms
 from django.conf import settings
-from django.test import TestCase
 from django.utils import timezone
 from django.test.utils import override_settings
 from PIL import Image
 
 from autofixture import generators, AutoFixture
+from . import FileSystemCleanupTestCase
 
 
-class FilePathTests(TestCase):
+class FilePathTests(FileSystemCleanupTestCase):
     def test_media_path_generator(self):
         generate = generators.MediaFilePathGenerator(recursive=True)
         for i in range(10):
@@ -34,7 +31,7 @@ class FilePathTests(TestCase):
             self.assertTrue(path.endswith('.txt'))
 
 
-class DateTimeTests(TestCase):
+class DateTimeTests(FileSystemCleanupTestCase):
     @override_settings(USE_TZ=True)
     def test_is_datetime_timezone_aware(self):
         generate = generators.DateTimeGenerator()
@@ -52,7 +49,7 @@ class EmailForm(forms.Form):
     email = forms.EmailField()
 
 
-class EmailGeneratorTests(TestCase):
+class EmailGeneratorTests(FileSystemCleanupTestCase):
     def test_email(self):
         generate = generators.EmailGenerator()
         form = EmailForm({'email': generate()})
@@ -66,7 +63,7 @@ class EmailGeneratorTests(TestCase):
         self.assertTrue(email.endswith('djangoproject.com'))
 
 
-class WeightedGeneratorTests(TestCase):
+class WeightedGeneratorTests(FileSystemCleanupTestCase):
     def test_simple_weights(self):
         results = {"Red": 0, "Blue": 0}
         choices = [(generators.StaticGenerator("Red"), 50),
@@ -104,16 +101,7 @@ class WeightedGeneratorTests(TestCase):
         self.assertTrue(0.15 - MARGIN < truediv(results["sr"], runs) < 0.15 + MARGIN)
 
 
-class ImageGeneratorTests(TestCase):
-    def setUp(self):
-        self.cleanup_dirs = ['_autofixture']
-
-    def tearDown(self):
-        for path in self.cleanup_dirs:
-            img_folder = os.path.join(settings.MEDIA_ROOT, path)
-            if os.path.exists(img_folder):
-                shutil.rmtree(img_folder)
-
+class ImageGeneratorTests(FileSystemCleanupTestCase):
     def test_image_generator(self):
         generate = generators.ImageGenerator()
         media_file = generate()

@@ -3,10 +3,10 @@ import sys
 import autofixture
 from decimal import Decimal
 from datetime import date, datetime
-from django.test import TestCase
 from autofixture import generators, constraints
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
 from autofixture.values import Values
+from . import FileSystemCleanupTestCase
 from ..models import y2k, UniqueNullFieldModel, UniqueTogetherNullFieldModel
 from ..models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
@@ -43,7 +43,7 @@ class BasicValueFixture(BasicValueFixtureBase):
     }
 
 
-class TestBasicModel(TestCase):
+class TestBasicModel(FileSystemCleanupTestCase):
     def assertEqualOr(self, first, second, fallback):
         if first != second and not fallback:
             self.fail()
@@ -108,7 +108,7 @@ class TestBasicModel(TestCase):
         self.assertEqual(obj.defaultint, 42)
 
 
-class TestRelations(TestCase):
+class TestRelations(FileSystemCleanupTestCase):
     def test_generate_foreignkeys(self):
         filler = AutoFixture(
             RelatedModel,
@@ -288,7 +288,7 @@ class TestRelations(TestCase):
         self.assertEqual(second.parent_self, first)
 
 
-class TestInheritModel(TestCase):
+class TestInheritModel(FileSystemCleanupTestCase):
     def test_inheritence_model(self):
         filler = AutoFixture(InheritModel)
         filler.create(10)
@@ -300,7 +300,7 @@ class TestInheritModel(TestCase):
         self.assertEqual(InheritUniqueTogetherModel.objects.count(), 10)
 
 
-class TestUniqueConstraints(TestCase):
+class TestUniqueConstraints(FileSystemCleanupTestCase):
     def test_unique_field(self):
         filler = AutoFixture(UniqueTestModel)
         count = len(filler.model._meta.
@@ -357,7 +357,7 @@ class TestUniqueConstraints(TestCase):
             fixture.create_one()
 
 
-class TestGenerators(TestCase):
+class TestGenerators(FileSystemCleanupTestCase):
     def test_instance_selector(self):
         AutoFixture(SimpleModel).create(10)
 
@@ -389,7 +389,7 @@ class TestGenerators(TestCase):
         self.assertEqual(result.__class__, SimpleModel)
 
 
-class TestLinkClass(TestCase):
+class TestLinkClass(FileSystemCleanupTestCase):
     def test_flat_link(self):
         link = Link(('foo', 'bar'))
         self.assertTrue('foo' in link)
@@ -450,7 +450,7 @@ class TestLinkClass(TestCase):
         self.assertEqual(sublink['bar'], 1)
 
 
-class TestRegistry(TestCase):
+class TestRegistry(FileSystemCleanupTestCase):
     def setUp(self):
         self.original_registry = autofixture.REGISTRY
         autofixture.REGISTRY = {}
@@ -514,7 +514,7 @@ class TestRegistry(TestCase):
             ['Jon Doe'] * 5)
 
 
-class TestAutofixtureAPI(TestCase):
+class TestAutofixtureAPI(FileSystemCleanupTestCase):
     def setUp(self):
         self.original_registry = autofixture.REGISTRY
         autofixture.REGISTRY = {}
@@ -532,7 +532,7 @@ class TestAutofixtureAPI(TestCase):
             self.assertTrue(1 <= obj.intfield <= 13)
 
 
-class TestManagementCommand(TestCase):
+class TestManagementCommand(FileSystemCleanupTestCase):
     def setUp(self):
         from autofixture.management.commands.loadtestdata import Command
         self.command = Command()
@@ -647,7 +647,7 @@ class TestManagementCommand(TestCase):
             self.assertEqual(obj.name, 'foo')
 
 
-class TestGenericRelations(TestCase):
+class TestGenericRelations(FileSystemCleanupTestCase):
     def assertNotRaises(self, exc_type, func, msg=None,
             args=None, kwargs=None):
         args = args or []
@@ -671,7 +671,7 @@ class TestGenericRelations(TestCase):
         self.assertEqual(GRModel.objects.count(), count)
 
 
-class TestShortcuts(TestCase):
+class TestShortcuts(FileSystemCleanupTestCase):
     def test_commit_kwarg(self):
         instances = autofixture.create(BasicModel, 3, commit=False)
         self.assertEqual([i.pk for i in instances], [None] * 3)
@@ -680,7 +680,7 @@ class TestShortcuts(TestCase):
         self.assertEqual(instance.pk, None)
 
 
-class TestPreProcess(TestCase):
+class TestPreProcess(FileSystemCleanupTestCase):
     def test_pre_process_instance_not_yet_saved(self):
         self_ = self
         class TestAutoFixture(AutoFixture):
