@@ -2,6 +2,11 @@
 import datetime
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+try:
+    from django.utils import lorem_ipsum
+except ImportError:
+    # Support Django < 1.8
+    from django.contrib.webdesign import lorem_ipsum
 import os
 import random
 import re
@@ -141,28 +146,31 @@ class LoremGenerator(Generator):
         super(LoremGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
-        from django.contrib.webdesign.lorem_ipsum import paragraphs, sentence, \
-            words
         if self.method == 'w':
-            lorem = words(self.count, common=self.common)
+            lorem = lorem_ipsum.words(self.count, common=self.common)
         elif self.method == 's':
-            lorem = u' '.join([sentence()
+            lorem = u' '.join([
+                lorem_ipsum.sentence()
                 for i in range(self.count)])
         else:
-            paras = paragraphs(self.count, common=self.common)
+            paras = lorem_ipsum.paragraphs(self.count, common=self.common)
             if self.method == 'p':
                 paras = ['<p>%s</p>' % p for p in paras]
             lorem = u'\n\n'.join(paras)
         if self.max_length:
-            length = random.randint(round(self.max_length / 10), self.max_length)
+            length = random.randint(round(self.max_length / 10),
+                                    self.max_length)
             lorem = lorem[:max(1, length)]
         return lorem.strip()
+
 
 class LoremSentenceGenerator(LoremGenerator):
     method = 's'
 
+
 class LoremHTMLGenerator(LoremGenerator):
     method = 'p'
+
 
 class LoremWordGenerator(LoremGenerator):
     count = 7
