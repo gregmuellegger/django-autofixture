@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import six
 
+
 class InvalidConstraint(Exception):
     def __init__(self, fields, *args, **kwargs):
         self.fields = fields
@@ -10,9 +11,10 @@ class InvalidConstraint(Exception):
 def unique_constraint(model, instance):
     error_fields = []
     for field in instance._meta.fields:
-        if (field.unique and
-            not field.primary_key and
-            getattr(instance, field.name) is not None):
+        if (
+                field.unique and
+                not field.primary_key and
+                getattr(instance, field.name) is not None):
             check = {field.name: getattr(instance, field.name)}
 
             unique = model._default_manager.filter(**check).count() == 0
