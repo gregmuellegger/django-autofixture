@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.9.0
+-----
+
+* Make ``ImageGenerator`` consider the given file storage. Thanks to Andrew
+  Pashkin for the patch.
+* Fixing check for unique constraint during data generation if the field
+  allows to be nullable. Thanks for Andrew Pashkin for the report and fix.
+
 0.8.0
 -----
 
