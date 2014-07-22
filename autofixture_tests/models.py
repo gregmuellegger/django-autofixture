@@ -6,7 +6,9 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
+
 filepath = os.path.dirname(os.path.abspath(__file__))
+
 
 def y2k():
     return datetime(2000, 1, 1)
@@ -18,6 +20,7 @@ class SimpleModel(models.Model):
 
 class OtherSimpleModel(models.Model):
     name = models.CharField(max_length=50)
+
 
 class UniqueNullFieldModel(models.Model):
     name = models.CharField(max_length=15, null=True, blank=True, unique=True)
@@ -34,8 +37,10 @@ class UniqueTogetherNullFieldModel(models.Model):
 class DeepLinkModel1(models.Model):
     related = models.ForeignKey('SimpleModel')
     related2 = models.ForeignKey('SimpleModel',
-        related_name='deeplinkmodel1_rel2',
-        null=True, blank=True)
+                                 related_name='deeplinkmodel1_rel2',
+                                 null=True,
+                                 blank=True)
+
 
 class DeepLinkModel2(models.Model):
     related = models.ForeignKey('DeepLinkModel1')
@@ -61,7 +66,6 @@ class BasicModel(models.Model):
     sintfield = models.SmallIntegerField()
     psintfield = models.PositiveSmallIntegerField()
 
-
     STRING_CHOICES = (
         ('a', 'A'),
         ('b', 'B'),
@@ -84,14 +88,15 @@ class BasicModel(models.Model):
     mfilepathfield = models.FilePathField(path=filepath, match=r'^.+\.py$')
     imgfield = models.ImageField(upload_to='_autofixtures')
 
+
 class UniqueTestModel(models.Model):
-    CHOICES = [(i,i) for i in range(10)]
+    CHOICES = [(i, i) for i in range(10)]
 
     choice1 = models.PositiveIntegerField(choices=CHOICES, unique=True)
 
 
 class UniqueTogetherTestModel(models.Model):
-    CHOICES = [(i,i) for i in range(10)]
+    CHOICES = [(i, i) for i in range(10)]
 
     choice1 = models.PositiveIntegerField(choices=CHOICES)
     choice2 = models.PositiveIntegerField(choices=CHOICES)
@@ -103,8 +108,10 @@ class UniqueTogetherTestModel(models.Model):
 class RelatedModel(models.Model):
     related = models.ForeignKey(BasicModel, related_name='rel1')
     limitedfk = models.ForeignKey(SimpleModel,
-        limit_choices_to={'name__exact': 'foo'}, related_name='rel2',
-        null=True, blank=True)
+                                  limit_choices_to={'name__exact': 'foo'},
+                                  related_name='rel2',
+                                  null=True,
+                                  blank=True)
 
 
 class O2OModel(models.Model):
@@ -132,21 +139,25 @@ class SelfReferencingModelNoNull(models.Model):
 
 class M2MModel(models.Model):
     m2m = models.ManyToManyField(SimpleModel, related_name='m2m_rel1')
-    secondm2m = models.ManyToManyField(OtherSimpleModel, related_name='m2m_rel2',
-        null=True, blank=True)
+    secondm2m = models.ManyToManyField(
+        OtherSimpleModel, related_name='m2m_rel2', null=True, blank=True)
+
 
 class ThroughModel(models.Model):
     simple = models.ForeignKey('SimpleModel')
     other = models.ForeignKey('M2MModelThrough')
 
+
 class M2MModelThrough(models.Model):
-    m2m = models.ManyToManyField(SimpleModel, related_name='m2mthrough_rel1',
-        through=ThroughModel)
+    m2m = models.ManyToManyField(
+        SimpleModel, related_name='m2mthrough_rel1', through=ThroughModel)
+
 
 class GFKModel(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
 
 class GRModel(models.Model):
     gr = generic.GenericRelation('GFKModel')
@@ -155,7 +166,9 @@ class GRModel(models.Model):
 class DummyStorage(FileSystemStorage):
     pass
 
+
 dummy_storage = DummyStorage()
+
 
 class ImageModel(models.Model):
     imgfield = models.ImageField(upload_to='_autofixtures',
