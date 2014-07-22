@@ -424,6 +424,11 @@ class AutoFixtureBase(object):
                 max_count=max_count,
                 **kwargs).generate()
 
+    def check_constrains(self, *args, **kwargs):
+        raise TypeError(
+            'This method was renamed recently, since it contains a typo. '
+            'Please use the check_constraints method from now on.')
+
     def check_constraints(self, instance):
         '''
         Return fieldnames which need recalculation.
