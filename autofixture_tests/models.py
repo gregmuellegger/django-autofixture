@@ -5,13 +5,14 @@ from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.utils.timezone import utc
 
 
 filepath = os.path.dirname(os.path.abspath(__file__))
 
 
 def y2k():
-    return datetime(2000, 1, 1)
+    return datetime(2000, 1, 1).replace(tzinfo=utc)
 
 
 class SimpleModel(models.Model):
