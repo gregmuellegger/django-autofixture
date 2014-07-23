@@ -1,9 +1,13 @@
 Changelog
 =========
 
-0.9.0
+0.9.1
 -----
 
+* Fixed unique constraint for models that have multiple unique_togethers set.
+
+0.9
+---
 * Make ``ImageGenerator`` consider the given file storage. Thanks to Andrew
   Pashkin for the patch.
 * Fixing check for unique constraint during data generation if the field
