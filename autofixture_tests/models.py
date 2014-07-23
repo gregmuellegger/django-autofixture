@@ -35,6 +35,21 @@ class UniqueTogetherNullFieldModel(models.Model):
         unique_together = ['field_one', 'field_two']
 
 
+class MultipleUniqueTogetherNullFieldModel(models.Model):
+    field_one = models.CharField(max_length=15, null=True, blank=True)
+    field_two = models.CharField(max_length=15, null=True, blank=True)
+
+    field_three = models.CharField(max_length=15, null=True, blank=True)
+    field_four = models.CharField(max_length=15, null=True, blank=True)
+    field_five = models.CharField(max_length=15, null=True, blank=True)
+
+    class Meta:
+        unique_together = (
+            ['field_one', 'field_two'],
+            ['field_three', 'field_four', 'field_five'],
+        )
+
+
 class DeepLinkModel1(models.Model):
     related = models.ForeignKey('SimpleModel')
     related2 = models.ForeignKey('SimpleModel',

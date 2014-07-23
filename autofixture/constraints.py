@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.utils.six import itervalues
 
 
 class InvalidConstraint(Exception):
@@ -33,8 +32,8 @@ def unique_together_constraint(model, instance):
         for field_name in unique_fields:
             if not instance._meta.get_field_by_name(field_name)[0].primary_key:
                 check[field_name] = getattr(instance, field_name)
-        if all([e is None for e in itervalues(check)]):
-            return
+        if all(e is None for e in check.values()):
+            continue
         unique = model._default_manager.filter(**check).count() == 0
         if not unique:
             error_fields.extend(

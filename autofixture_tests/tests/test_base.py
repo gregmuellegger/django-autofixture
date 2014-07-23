@@ -7,13 +7,15 @@ from autofixture import generators, constraints
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
 from autofixture.values import Values
 from . import FileSystemCleanupTestCase
-from ..models import y2k, UniqueNullFieldModel, UniqueTogetherNullFieldModel
+from ..models import y2k
 from ..models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
     RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
     M2MModel, ThroughModel, M2MModelThrough, SelfReferencingModel,
-    SelfReferencingModelNoNull, GFKModel, GRModel)
+    UniqueNullFieldModel, UniqueTogetherNullFieldModel,
+    MultipleUniqueTogetherNullFieldModel, SelfReferencingModelNoNull, GFKModel,
+    GRModel)
 
 
 if sys.version_info[0] < 3:
@@ -342,12 +344,61 @@ class TestUniqueConstraints(FileSystemCleanupTestCase):
         fixture.create_one()
 
     def test_unique_together_constraint_one_field_null(self):
-
         fixture = AutoFixture(
             UniqueTogetherNullFieldModel,
             field_values={
                 'field_one': generators.NoneGenerator(),
                 'field_two': generators.StaticGenerator('test_string')
+            }
+        )
+        self.assertIn(constraints.unique_together_constraint,
+                      fixture.constraints)
+        with self.assertRaises(CreateInstanceError):
+            fixture.create_one()
+            fixture.create_one()
+
+    def test_multiple_unique_together_constraint_nulls(self):
+        fixture = AutoFixture(
+            MultipleUniqueTogetherNullFieldModel,
+            field_values={
+                'field_one': generators.NoneGenerator(),
+                'field_two': generators.NoneGenerator(),
+                'field_three': generators.NoneGenerator(),
+                'field_four': generators.NoneGenerator(),
+                'field_five': generators.NoneGenerator(),
+            }
+        )
+        self.assertIn(constraints.unique_together_constraint,
+                      fixture.constraints)
+        fixture.create_one()
+        fixture.create_one()
+
+    def test_multiple_unique_together_constraint_one_field_null(self):
+        fixture = AutoFixture(
+            MultipleUniqueTogetherNullFieldModel,
+            field_values={
+                'field_one': generators.NoneGenerator(),
+                'field_two': generators.NoneGenerator(),
+                'field_three': generators.NoneGenerator(),
+                'field_four': generators.NoneGenerator(),
+                'field_five': generators.StaticGenerator('test_string'),
+            }
+        )
+        self.assertIn(constraints.unique_together_constraint,
+                      fixture.constraints)
+        with self.assertRaises(CreateInstanceError):
+            fixture.create_one()
+            fixture.create_one()
+
+    def test_multiple_unique_together_constraint_one_field_null_first_unique_together_tuple(self):
+        fixture = AutoFixture(
+            MultipleUniqueTogetherNullFieldModel,
+            field_values={
+                'field_one': generators.NoneGenerator(),
+                'field_two': generators.StaticGenerator('test_string'),
+                'field_three': generators.NoneGenerator(),
+                'field_four': generators.NoneGenerator(),
+                'field_five': generators.NoneGenerator(),
             }
         )
         self.assertIn(constraints.unique_together_constraint,
