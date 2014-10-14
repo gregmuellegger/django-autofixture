@@ -202,7 +202,7 @@ in touch with me by mail_ or twitter_.
 
 Happy autofixturing!
 
-.. _github: http://github.com/gregmuellegger/django-sortedm2m
+.. _github: https://github.com/gregmuellegger/django-autofixture
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
 .. _ForeignKey.limit_choices_to: http://docs.djangoproject.com/en/dev/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
