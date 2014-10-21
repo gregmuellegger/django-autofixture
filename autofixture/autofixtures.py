@@ -26,7 +26,7 @@ class UserFixture(AutoFixture):
     '''
     class Values(object):
         username = generators.StringGenerator(chars=
-            string.ascii_letters + string.digits + '_')
+            string.ascii_letters + string.digits + '_', max_length=8)
         first_name = generators.LoremWordGenerator(1)
         last_name = generators.LoremWordGenerator(1)
         password = staticmethod(lambda: make_password(None))
