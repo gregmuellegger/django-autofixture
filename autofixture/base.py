@@ -122,7 +122,7 @@ class AutoFixtureBase(object):
     def __init__(self, model,
             field_values=None, none_p=None, overwrite_defaults=None,
             constraints=None, follow_fk=None, generate_fk=None,
-            follow_m2m=None, generate_m2m=None):
+            follow_m2m=None, generate_m2m=None, using='default'):
         '''
         Parameters:
             ``model``: A model class which is used to create the test data.
@@ -163,6 +163,8 @@ class AutoFixtureBase(object):
             ``ManyToManyField``. Default is ``False`` which disables the
             generation of new related instances. The value of ``follow_m2m``
             will be ignored if this parameter is set.
+
+            ``using``: Using database parameter to pass to the save operation.
         '''
         self.model = model
         self.field_values = Values(self.__class__.field_values)
@@ -207,6 +209,8 @@ class AutoFixtureBase(object):
             self.add_constraint(constraint)
 
         self._field_generators = {}
+
+        self._using = using
 
         self.prepare_class()
 
@@ -460,7 +464,7 @@ class AutoFixtureBase(object):
         '''
         return instance
 
-    def create_one(self, commit=True):
+    def create_one(self, commit=True, using=False):
         '''
         Create and return one model instance. If *commit* is ``False`` the
         instance will not be saved and many to many relations will not be
@@ -497,7 +501,7 @@ class AutoFixtureBase(object):
         instance = self.pre_process_instance(instance)
 
         if commit:
-            instance.save()
+            instance.save(using=self._using if not using else using)
 
             #to handle particular case of GenericRelation
             #in Django pre 1.6 it appears in .many_to_many
