@@ -422,11 +422,10 @@ class AutoFixtureBase(object):
                     field_values={
                         self_fk.name: instance,
                         related_fk.name: generators.InstanceGenerator(
-                            AutoFixture(field.rel.to))
-                    }),
+                            AutoFixture(field.rel.to, using=using))
+                    }, using=using),
                 min_count=min_count,
                 max_count=max_count,
-                using=using,
                 **kwargs).generate()
 
     def check_constrains(self, *args, **kwargs):
