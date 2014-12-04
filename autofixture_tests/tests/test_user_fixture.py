@@ -14,6 +14,7 @@ class UserFixtureTest(TestCase):
     def test_basic(self):
         user = autofixture.create_one(User)
         self.assertTrue(user.username)
+        self.assertTrue(len(user.username) <= 30)
         self.assertFalse(is_password_usable(user.password))
 
     def test_password_setting(self):

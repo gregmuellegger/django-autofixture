@@ -25,8 +25,9 @@ class UserFixture(AutoFixture):
       assured that ``date_joined`` will be lower than ``last_login``.
     '''
     class Values(object):
-        username = generators.StringGenerator(chars=
-            string.ascii_letters + string.digits + '_')
+        username = generators.StringGenerator(
+            max_length=30,
+            chars=string.ascii_letters + string.digits + '_')
         first_name = generators.LoremWordGenerator(1)
         last_name = generators.LoremWordGenerator(1)
         password = staticmethod(lambda: make_password(None))
