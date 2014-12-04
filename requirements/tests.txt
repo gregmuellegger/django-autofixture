@@ -1,3 +1,4 @@
+Django
 argparse
 coverage
 django-discover-runner
