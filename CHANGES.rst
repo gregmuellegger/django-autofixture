@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.9.2
+-----
+
+* Fixed ``UserFixture`` that generated usernames with more than 30 characters.
+
 0.9.1
 -----
 

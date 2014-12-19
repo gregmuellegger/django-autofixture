@@ -39,14 +39,14 @@ Management command
 
 The ``loadtestdata`` accepts the following syntax::
 
-    django-admin.py loadtestdata [options] app.Model:# [app.Model:# ...]
+    python manage.py loadtestdata [options] app.Model:# [app.Model:# ...]
 
 Its nearly self explanatory. Supply names of models, prefixed with its app
 name. After that, place a colon and tell the command how many objects you want
 to create. Here is an example how to create three categories and twenty
 entries for you blogging app::
 
-    django-admin.py loadtestdata blog.Category:3 blog.Entry:20
+    python manage.py loadtestdata blog.Category:3 blog.Entry:20
 
 Voila! You have ready to use testing data populated to your database. The
 model fields are filled with data by producing randomly generated values
@@ -60,7 +60,7 @@ populated with existing data or if the related models are also generated on
 the fly. Please have a look at the help page of the command for more
 information::
 
-    django-admin.py help loadtestdata
+    python manage.py help loadtestdata
 
 
 Using autofixtures as tool for unittests
@@ -153,7 +153,7 @@ To have custom autofixtures for your model, you can easily subclass
 
 Then, ``loadtestdata`` will automatically use your custom fixtures. ::
 
-    django-admin.py loadtestdata app.MyModel:10
+    python manage.py loadtestdata app.MyModel:10
 
 You can load all ``autofixtures.py`` files of your installed apps
 automatically like you can do with the admin autodiscover. Do so by running
