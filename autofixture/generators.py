@@ -214,7 +214,7 @@ class FloatGenerator(IntegerGenerator):
     def __init__(self, decimal_digits=None, *args, **kwargs):
         if decimal_digits is not None:
             self.decimal_digits = decimal_digits
-        super(IntegerGenerator, self).__init__(*args, **kwargs)
+        super(FloatGenerator, self).__init__(*args, **kwargs)
 
     def generate(self):
         value = super(FloatGenerator, self).generate()
