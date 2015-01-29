@@ -13,6 +13,8 @@ DATABASES = {
     }
 }
 
+SITE_ID = 1
+
 # Set in order to catch timezone aware vs unaware comparisons
 USE_TZ = True
 

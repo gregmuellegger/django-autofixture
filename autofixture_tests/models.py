@@ -4,8 +4,10 @@ import os
 from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.utils.timezone import utc
+
+from autofixture.compat import GenericForeignKey
+from autofixture.compat import GenericRelation
 
 
 filepath = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +46,7 @@ class MultipleUniqueTogetherNullFieldModel(models.Model):
     field_five = models.CharField(max_length=15, null=True, blank=True)
 
     class Meta:
+        verbose_name = 'Multi unique_together null field'
         unique_together = (
             ['field_one', 'field_two'],
             ['field_three', 'field_four', 'field_five'],
@@ -172,11 +175,11 @@ class M2MModelThrough(models.Model):
 class GFKModel(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
 
 class GRModel(models.Model):
-    gr = generic.GenericRelation('GFKModel')
+    gr = GenericRelation('GFKModel')
 
 
 class DummyStorage(FileSystemStorage):

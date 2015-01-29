@@ -38,9 +38,10 @@ def register(model, autofixture, overwrite=False, fail_silently=False):
         registered can be suppressed by passing ``True`` to the *fail_silently*
         argument.
     '''
-    from django.db import models
+    from .compat import get_model
+
     if isinstance(model, string_types):
-        model = models.get_model(*model.split('.', 1))
+        model = get_model(*model.split('.', 1))
     if not overwrite and model in REGISTRY:
         if fail_silently:
             return
@@ -58,11 +59,13 @@ def unregister(model_or_iterable, fail_silently=False):
     Remove one or more models from the autofixture registry.
     '''
     from django.db import models
+    from .compat import get_model
+
     if issubclass(model_or_iterable, models.Model):
         model_or_iterable = [model_or_iterable]
     for model in model_or_iterable:
         if isinstance(model, string_types):
-            model = models.get_model(*model.split('.', 1))
+            model = get_model(*model.split('.', 1))
         try:
             del REGISTRY[model]
         except KeyError:
@@ -85,9 +88,10 @@ def get(model, *args, **kwargs):
     All positional and keyword arguments are passed to the autofixture
     constructor.
     '''
-    from django.db import models
+    from .compat import get_model
+
     if isinstance(model, string_types):
-        model = models.get_model(*model.split('.', 1))
+        model = get_model(*model.split('.', 1))
     if model in REGISTRY:
         return REGISTRY[model](model, *args, **kwargs)
     else:
@@ -112,9 +116,10 @@ def create(model, count, *args, **kwargs):
 
     :func:`create` will return a list of the created objects.
     '''
-    from django.db import models
+    from .compat import get_model
+
     if isinstance(model, string_types):
-        model = models.get_model(*model.split('.', 1))
+        model = get_model(*model.split('.', 1))
     if model in REGISTRY:
         autofixture_class = REGISTRY[model]
     else:
@@ -149,7 +154,7 @@ def autodiscover():
     silently when not present. This forces an import on them to register any
     autofixture bits they may want.
     '''
-    from django.utils.importlib import import_module
+    from .compat import importlib
 
     # Bail out if autodiscover didn't finish loading from a previous call so
     # that we avoid running autodiscover again when the URLconf is loaded by
@@ -174,7 +179,7 @@ def autodiscover():
         # should) bubble up, but a missing __path__ (which is legal, but weird)
         # fails silently -- apps that do weird things with __path__ might
         # need to roll their own autofixture registration.
-        mod = import_module(app)
+        mod = importlib.import_module(app)
         try:
             app_path = mod.__path__
         except AttributeError:
@@ -192,13 +197,13 @@ def autodiscover():
         # Step 3: import the app's autofixtures file. If this has errors we want them
         # to bubble up.
         try:
-            import_module("%s.autofixtures" % app)
+            importlib.import_module("%s.autofixtures" % app)
         except Exception as e:
             warnings.warn(u'Error while importing %s.autofixtures: %r' %
                 (mod.__name__, e))
 
     for app in settings.INSTALLED_APPS:
-        mod = import_module(app)
+        mod = importlib.import_module(app)
         try:
             app_path = mod.__path__
         except AttributeError:
@@ -210,7 +215,7 @@ def autodiscover():
             continue
 
         try:
-            import_module("%s.tests" % app)
+            importlib.import_module("%s.tests" % app)
         except Exception as e:
             warnings.warn(u'Error while importing %s.tests: %r' %
                 (mod.__name__, e))

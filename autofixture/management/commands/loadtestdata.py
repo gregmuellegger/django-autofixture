@@ -26,18 +26,15 @@ information::
     django-admin.py help loadtestdata
 '''
 from django.utils.encoding import smart_text
-import autofixture
 from django.db import models
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.importlib import import_module
-from autofixture import signals
 from optparse import make_option
 
-try:
-    from django.db.transaction import atomic
-# For django 1.5 and earlier
-except ImportError:
-    from django.db.transaction import commit_on_success as atomic
+import autofixture
+from autofixture import signals
+from ...compat import atomic
+from ...compat import importlib
+from ...compat import get_model
 
 
 class Command(BaseCommand):
@@ -126,8 +123,6 @@ class Command(BaseCommand):
 
     @atomic
     def handle(self, *attrs, **options):
-        from django.db.models import get_model
-
         error_option = None
         #
         # follow options
@@ -184,7 +179,7 @@ class Command(BaseCommand):
         use = options['use']
         if use:
             use = use.split('.')
-            use = getattr(import_module('.'.join(use[:-1])), use[-1])
+            use = getattr(importlib.import_module('.'.join(use[:-1])), use[-1])
 
         overwrite_defaults = options['overwrite_defaults']
         self.verbosity = int(options['verbosity'])

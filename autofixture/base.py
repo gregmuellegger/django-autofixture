@@ -4,12 +4,13 @@ import warnings
 from django.db import models
 from django.db.models import fields, ImageField
 from django.db.models.fields import related
-from django.contrib.contenttypes.generic import GenericRelation
-from django.utils.datastructures import SortedDict
 from django.utils.six import with_metaclass
+
 import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
+from .compat import GenericRelation
+from .compat import OrderedDict
 
 
 
@@ -97,7 +98,7 @@ class AutoFixtureBase(object):
     none_p = 0.2
     tries = 1000
 
-    field_to_generator = SortedDict((
+    field_to_generator = OrderedDict((
         (fields.BooleanField, generators.BooleanGenerator),
         (fields.NullBooleanField, generators.NullBooleanGenerator),
         (fields.DateTimeField, generators.DateTimeGenerator),
