@@ -179,7 +179,10 @@ def autodiscover():
         # should) bubble up, but a missing __path__ (which is legal, but weird)
         # fails silently -- apps that do weird things with __path__ might
         # need to roll their own autofixture registration.
-        mod = importlib.import_module(app)
+        try:
+            mod = importlib.import_module(app)
+        except ImportError:
+            mod, _, _ = app.rpartition('.')
         try:
             app_path = mod.__path__
         except AttributeError:
@@ -203,7 +206,10 @@ def autodiscover():
                 (mod.__name__, e))
 
     for app in settings.INSTALLED_APPS:
-        mod = importlib.import_module(app)
+        try:
+            mod = importlib.import_module(app)
+        except ImportError:
+            mod, _, _ = app.rpartition('.')
         try:
             app_path = mod.__path__
         except AttributeError:
