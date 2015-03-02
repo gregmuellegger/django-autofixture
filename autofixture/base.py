@@ -232,6 +232,17 @@ class AutoFixtureBase(object):
         '''
         self.constraints.append(constraint)
 
+    def is_inheritance_parent(self, field):
+        '''
+        Checks if the field is the automatically created OneToOneField used by
+        django mulit-table inheritance
+        '''
+        return (
+            isinstance(field, related.OneToOneField) and
+            field.primary_key and
+            issubclass(field.model, field.rel.to)
+        )
+
     def get_generator(self, field):
         '''
         Return a value generator based on the field instance that is passed to
@@ -241,7 +252,7 @@ class AutoFixtureBase(object):
         '''
         if isinstance(field, fields.AutoField):
             return None
-        if isinstance(field, related.OneToOneField) and field.primary_key:
+        if self.is_inheritance_parent(field):
             return None
         if (
             field.default is not fields.NOT_PROVIDED and

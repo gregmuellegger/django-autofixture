@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.db.models.fields import related
 
 
 class InvalidConstraint(Exception):
@@ -7,13 +8,22 @@ class InvalidConstraint(Exception):
         super(InvalidConstraint, self).__init__(*args, **kwargs)
 
 
+def _is_unique_field(field):
+    if not field.unique:
+        return False
+    if field.primary_key:
+        # Primary key fields should not generally be checked for unique constraints, except when the
+        # primary key is a OneToOne mapping to an external table not via table inheritance, in which
+        # case we don't want to create new objects which will overwrite existing objects.
+        return isinstance(field, related.OneToOneField) and not issubclass(field.model, field.rel.to)
+    else:
+        return True
+
+
 def unique_constraint(model, instance):
     error_fields = []
     for field in instance._meta.fields:
-        if (
-                field.unique and
-                not field.primary_key and
-                getattr(instance, field.name) is not None):
+        if _is_unique_field(field):
             check = {field.name: getattr(instance, field.name)}
 
             unique = model._default_manager.filter(**check).count() == 0

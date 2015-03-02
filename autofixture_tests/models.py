@@ -137,6 +137,10 @@ class O2OModel(models.Model):
     o2o = models.OneToOneField(SimpleModel)
 
 
+class O2OPrimaryKeyModel(models.Model):
+    o2o = models.OneToOneField(SimpleModel, primary_key=True)
+
+
 class InheritModel(SimpleModel):
     extrafloatfield = models.FloatField()
 
