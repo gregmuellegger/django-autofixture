@@ -348,7 +348,8 @@ class TestUniqueConstraints(FileSystemCleanupTestCase):
         )
         self.assertIn(constraints.unique_constraint, fixture.constraints)
         fixture.create_one()
-        fixture.create_one()
+        with self.assertRaises(CreateInstanceError):
+            fixture.create_one()
 
     def test_unique_together_constraint_nulls(self):
         fixture = AutoFixture(
