@@ -100,11 +100,12 @@ class StringGenerator(Generator):
     singleline_chars = string.ascii_letters + u' '
     multiline_chars = singleline_chars + u'\n'
 
-    def __init__(self, chars=None, multiline=False, min_length=1, max_length=1000, *args, **kwargs):
+    def __init__(self, chars=None, match=None, multiline=False, min_length=1, max_length=1000, *args, **kwargs):
         assert min_length >= 0
         assert max_length >= 0
         self.min_length = min_length
         self.max_length = max_length
+        self.match = match
         if chars is None:
             if multiline:
                 self.chars = self.multiline_chars
@@ -119,6 +120,10 @@ class StringGenerator(Generator):
         value = u''
         for x in range(length):
             value += random.choice(self.chars)
+        if self.match is not None:
+            regex = re.compile(self.match)
+            if not regex.match(value):
+                return self.generate()
         return value
 
 
