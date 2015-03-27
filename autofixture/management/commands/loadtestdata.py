@@ -112,7 +112,7 @@ class Command(BaseCommand):
                         self.format_output(obj)))
         for field in instance._meta.many_to_many:
             qs = getattr(instance, field.name).all()
-            if qs.count():
+            if qs.exists():
                 print('|   {0} (count={1}):'.format(
                     field.name,
                     qs.count()))

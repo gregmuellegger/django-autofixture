@@ -26,8 +26,7 @@ def unique_constraint(model, instance):
         if _is_unique_field(field):
             check = {field.name: getattr(instance, field.name)}
 
-            unique = model._default_manager.filter(**check).count() == 0
-            if not unique:
+            if model._default_manager.filter(**check).exists():
                 error_fields.append(field)
     if error_fields:
         raise InvalidConstraint(error_fields)
@@ -44,8 +43,8 @@ def unique_together_constraint(model, instance):
                 check[field_name] = getattr(instance, field_name)
         if all(e is None for e in check.values()):
             continue
-        unique = model._default_manager.filter(**check).count() == 0
-        if not unique:
+
+        if model._default_manager.filter(**check).exists():
             error_fields.extend(
                 [instance._meta.get_field_by_name(field_name)[0]
                     for field_name in unique_fields])
