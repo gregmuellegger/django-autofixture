@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.10.0
+------
+
+* Supporting Django 1.7 style app configs in ``settings.INSTALLED_APPS``
+  when auto-importing autofixture definitions with
+  ``autofixture.autodiscover``.
+
 0.9.2
 -----
 
