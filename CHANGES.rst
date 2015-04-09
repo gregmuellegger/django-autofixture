@@ -7,6 +7,7 @@ Changelog
 * Supporting Django 1.7 style app configs in ``settings.INSTALLED_APPS``
   when auto-importing autofixture definitions with
   ``autofixture.autodiscover``.
+* Adding ``autofixture.generators.PositiveDecimalGenerator``.
 
 0.9.2
 -----
