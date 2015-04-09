@@ -165,29 +165,37 @@ def autodiscover():
     if LOADING:
         return
     LOADING = True
+    app_paths = {}
+
+    # For each app, we need to look for an autofixture.py inside that app's
+    # package. We can't use os.path here -- recall that modules may be
+    # imported different ways (think zip files) -- so we need to get
+    # the app's __path__ and look for autofixture.py on that path.
+
+    # Step 1: find out the app's __path__ Import errors here will (and
+    # should) bubble up, but a missing __path__ (which is legal, but weird)
+    # fails silently -- apps that do weird things with __path__ might
+    # need to roll their own autofixture registration.
 
     import imp
-    from django.conf import settings
+    try:
+        from django.apps import apps
 
-    for app in settings.INSTALLED_APPS:
-        # For each app, we need to look for an autofixture.py inside that app's
-        # package. We can't use os.path here -- recall that modules may be
-        # imported different ways (think zip files) -- so we need to get
-        # the app's __path__ and look for autofixture.py on that path.
+        for app_config in apps.get_app_configs():
+            app_paths[app_config.name] = [app_config.path]
 
-        # Step 1: find out the app's __path__ Import errors here will (and
-        # should) bubble up, but a missing __path__ (which is legal, but weird)
-        # fails silently -- apps that do weird things with __path__ might
-        # need to roll their own autofixture registration.
-        try:
+    except ImportError:
+        # Django < 1.7
+        from django.conf import settings
+
+        for app in settings.INSTALLED_APPS:
             mod = importlib.import_module(app)
-        except ImportError:
-            mod, _, _ = app.rpartition('.')
-        try:
-            app_path = mod.__path__
-        except AttributeError:
-            continue
+            try:
+                app_paths[app] = mod.__path__
+            except AttributeError:
+                continue
 
+    for app, app_path in app_paths.items():
         # Step 2: use imp.find_module to find the app's autofixtures.py. For some
         # reason imp.find_module raises ImportError if the app can't be found
         # but doesn't actually try to import the module. So skip this app if
@@ -205,16 +213,7 @@ def autodiscover():
             warnings.warn(u'Error while importing %s.autofixtures: %r' %
                 (mod.__name__, e))
 
-    for app in settings.INSTALLED_APPS:
-        try:
-            mod = importlib.import_module(app)
-        except ImportError:
-            mod, _, _ = app.rpartition('.')
-        try:
-            app_path = mod.__path__
-        except AttributeError:
-            continue
-
+    for app, app_path in app_paths.items():
         try:
             imp.find_module('tests', app_path)
         except ImportError:
