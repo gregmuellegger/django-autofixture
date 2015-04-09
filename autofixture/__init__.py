@@ -211,7 +211,7 @@ def autodiscover():
             importlib.import_module("%s.autofixtures" % app)
         except Exception as e:
             warnings.warn(u'Error while importing %s.autofixtures: %r' %
-                (mod.__name__, e))
+                (app, e))
 
     for app, app_path in app_paths.items():
         try:
@@ -223,7 +223,7 @@ def autodiscover():
             importlib.import_module("%s.tests" % app)
         except Exception as e:
             warnings.warn(u'Error while importing %s.tests: %r' %
-                (mod.__name__, e))
+                (app, e))
 
     # autodiscover was successful, reset loading flag.
     LOADING = False

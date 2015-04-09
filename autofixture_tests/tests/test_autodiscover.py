@@ -9,6 +9,4 @@ autofixture.autodiscover()
 class AutodiscoverTestCase(TestCase):
     def test_builtin_fixtures(self):
         from autofixture.autofixtures import UserFixture
-        self.assertEqual(autofixture.REGISTRY, {
-            User: UserFixture,
-        })
+        self.assertEqual(autofixture.REGISTRY[User], UserFixture)

@@ -1,3 +1,4 @@
+import django
 import os
 import warnings
 
@@ -55,10 +56,14 @@ INSTALLED_APPS = (
     'autofixture_tests.sample_app',
 )
 
+if django.VERSION >= (1, 7):
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'autofixture_tests.appconfig_test.apps.AppConfigTestConfig',
+    )
+
 MIDDLEWARE_CLASSES = ()
 
 
-import django
 if django.VERSION < (1, 6):
     TEST_RUNNER = 'discover_runner.DiscoverRunner'
 else:
