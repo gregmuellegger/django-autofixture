@@ -17,3 +17,4 @@ Thanks to all those developers.
   * Stella Lie - https://github.com/stellalie
   * Visgean Skeloru - https://github.com/Visgean
   * Andrew Pashkin - https://github.com/AndrewPashkin
+  * Isotoma Limited - https://www.isotoma.com/
