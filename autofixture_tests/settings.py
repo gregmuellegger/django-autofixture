@@ -55,6 +55,8 @@ INSTALLED_APPS = (
     'autofixture_tests.sample_app',
 )
 
+MIDDLEWARE_CLASSES = ()
+
 
 import django
 if django.VERSION < (1, 6):
