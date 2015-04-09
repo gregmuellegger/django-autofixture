@@ -93,7 +93,7 @@ class Command(BaseCommand):
     def print_instance(self, sender, model, instance, **kwargs):
         if self.verbosity < 1:
             return
-        print('{0}(pk={1}): {2}'.format(
+        print(u'{0}(pk={1}): {2}'.format(
             '.'.join((
                 model._meta.app_label,
                 model._meta.object_name)),
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                         self.format_output(obj)))
         for field in instance._meta.many_to_many:
             qs = getattr(instance, field.name).all()
-            if qs.count():
+            if qs.exists():
                 print('|   {0} (count={1}):'.format(
                     field.name,
                     qs.count()))

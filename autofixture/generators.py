@@ -314,6 +314,15 @@ class DecimalGenerator(Generator):
         return value
 
 
+class PositiveDecimalGenerator(DecimalGenerator):
+    def generate(self):
+        maxint = 10 ** self.max_digits - 1
+        value = (
+            Decimal(random.randint(0, maxint)) /
+            10 ** self.decimal_places)
+        return value
+
+
 class FirstNameGenerator(Generator):
     """ Generates a first name, either male or female """
 

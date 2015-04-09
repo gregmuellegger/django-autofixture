@@ -11,7 +11,7 @@ from ..models import y2k
 from ..models import (
     SimpleModel, OtherSimpleModel, DeepLinkModel1, DeepLinkModel2,
     NullableFKModel, BasicModel, UniqueTestModel, UniqueTogetherTestModel,
-    RelatedModel, O2OModel, InheritModel, InheritUniqueTogetherModel,
+    RelatedModel, O2OModel, O2OPrimaryKeyModel, InheritModel, InheritUniqueTogetherModel,
     M2MModel, ThroughModel, M2MModelThrough, SelfReferencingModel,
     UniqueNullFieldModel, UniqueTogetherNullFieldModel,
     MultipleUniqueTogetherNullFieldModel, SelfReferencingModelNoNull, GFKModel,
@@ -194,6 +194,26 @@ class TestRelations(FileSystemCleanupTestCase):
 
         self.assertEqual(set(SimpleModel.objects.all()), all_o2o)
 
+    def test_follow_fk_for_o2o_primary_key(self):
+        # OneToOneField on primary key should follow if it is not table inheritance
+        filler = AutoFixture(O2OPrimaryKeyModel, follow_fk=True)
+
+        simple = SimpleModel.objects.create()
+        obj = filler.create()[0]
+        self.assertEqual(obj.o2o, simple)
+
+        self.assertRaises(CreateInstanceError, filler.create)
+
+    def test_generate_fk_for_o2o_primary_key(self):
+        # OneToOneField on primary key should follow if it is not table inheritance
+        filler = AutoFixture(O2OPrimaryKeyModel, generate_fk=True)
+
+        all_o2o = set()
+        for obj in filler.create(10):
+            all_o2o.add(obj.o2o)
+
+        self.assertEqual(set(SimpleModel.objects.all()), all_o2o)
+
     def test_follow_m2m(self):
         related = AutoFixture(SimpleModel).create()[0]
         self.assertEqual(SimpleModel.objects.count(), 1)
@@ -328,7 +348,8 @@ class TestUniqueConstraints(FileSystemCleanupTestCase):
         )
         self.assertIn(constraints.unique_constraint, fixture.constraints)
         fixture.create_one()
-        fixture.create_one()
+        with self.assertRaises(CreateInstanceError):
+            fixture.create_one()
 
     def test_unique_together_constraint_nulls(self):
         fixture = AutoFixture(

@@ -61,7 +61,7 @@ class UserFixture(AutoFixture):
                 self.username)
 
     def unique_email(self, model, instance):
-        if User.objects.filter(email=instance.email):
+        if User.objects.filter(email=instance.email).exists():
             raise autofixture.InvalidConstraint(('email',))
 
     def prepare_class(self):
