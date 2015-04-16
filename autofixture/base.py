@@ -123,7 +123,7 @@ class AutoFixtureBase(object):
     def __init__(self, model,
             field_values=None, none_p=None, overwrite_defaults=None,
             constraints=None, follow_fk=None, generate_fk=None,
-            follow_m2m=None, generate_m2m=None):
+            follow_m2m=None, generate_m2m=None, using='default'):
         '''
         Parameters:
             ``model``: A model class which is used to create the test data.
@@ -164,6 +164,8 @@ class AutoFixtureBase(object):
             ``ManyToManyField``. Default is ``False`` which disables the
             generation of new related instances. The value of ``follow_m2m``
             will be ignored if this parameter is set.
+
+            ``using``: Using database parameter to pass to the save operation.
         '''
         self.model = model
         self.field_values = Values(self.__class__.field_values)
@@ -208,6 +210,8 @@ class AutoFixtureBase(object):
             self.add_constraint(constraint)
 
         self._field_generators = {}
+
+        self._using = using
 
         self.prepare_class()
 
@@ -395,7 +399,7 @@ class AutoFixtureBase(object):
             return
         setattr(instance, field.name, value)
 
-    def process_m2m(self, instance, field):
+    def process_m2m(self, instance, field, using=False):
         # check django's version number to determine how intermediary models
         # are checked if they are auto created or not.
         auto_created_through_model = False
@@ -430,8 +434,8 @@ class AutoFixtureBase(object):
                     field_values={
                         self_fk.name: instance,
                         related_fk.name: generators.InstanceGenerator(
-                            AutoFixture(field.rel.to))
-                    }),
+                            AutoFixture(field.rel.to, using=using))
+                    }, using=using),
                 min_count=min_count,
                 max_count=max_count,
                 **kwargs).generate()
@@ -472,7 +476,7 @@ class AutoFixtureBase(object):
         '''
         return instance
 
-    def create_one(self, commit=True):
+    def create_one(self, commit=True, using=False):
         '''
         Create and return one model instance. If *commit* is ``False`` the
         instance will not be saved and many to many relations will not be
@@ -489,6 +493,7 @@ class AutoFixtureBase(object):
         tries = self.tries
         instance = self.model()
         process = instance._meta.fields
+        using = self._using if not using else using
         while process and tries > 0:
             for field in process:
                 self.process_field(instance, field)
@@ -509,19 +514,20 @@ class AutoFixtureBase(object):
         instance = self.pre_process_instance(instance)
 
         if commit:
-            instance.save()
+            instance.save(using=using)
 
             #to handle particular case of GenericRelation
             #in Django pre 1.6 it appears in .many_to_many
             many_to_many = [f for f in instance._meta.many_to_many
                             if not isinstance(f, GenericRelation)]
             for field in many_to_many:
-                self.process_m2m(instance, field)
+                self.process_m2m(instance, field, using)
         signals.instance_created.send(
             sender=self,
             model=self.model,
             instance=instance,
-            committed=commit)
+            committed=commit,
+            using=using)
 
         post_process_kwargs = {}
         if 'commit' in inspect.getargspec(self.post_process_instance).args:
