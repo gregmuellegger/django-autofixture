@@ -24,7 +24,13 @@ def unique_constraint(model, instance):
     error_fields = []
     for field in instance._meta.fields:
         if _is_unique_field(field):
-            check = {field.name: getattr(instance, field.name)}
+            value = getattr(instance, field.name)
+
+            # If the value is none and the field allows nulls, skip it
+            if value is None and field.null:
+                continue
+
+            check = {field.name: value}
 
             if model._default_manager.filter(**check).exists():
                 error_fields.append(field)

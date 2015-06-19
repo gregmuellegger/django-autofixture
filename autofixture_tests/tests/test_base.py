@@ -348,8 +348,9 @@ class TestUniqueConstraints(FileSystemCleanupTestCase):
         )
         self.assertIn(constraints.unique_constraint, fixture.constraints)
         fixture.create_one()
-        with self.assertRaises(CreateInstanceError):
-            fixture.create_one()
+        # Creating another entry with a null value should not raise an
+        # exception as a unique column can contain multiple null values
+        fixture.create_one()
 
     def test_unique_together_constraint_nulls(self):
         fixture = AutoFixture(
