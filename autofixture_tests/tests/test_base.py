@@ -5,6 +5,7 @@ from decimal import Decimal
 from datetime import date, datetime
 from autofixture import generators, constraints
 from autofixture.base import AutoFixture, CreateInstanceError,  Link
+from autofixture.compat import get_field
 from autofixture.values import Values
 from . import FileSystemCleanupTestCase
 from ..models import y2k
@@ -325,17 +326,14 @@ class TestInheritModel(FileSystemCleanupTestCase):
 class TestUniqueConstraints(FileSystemCleanupTestCase):
     def test_unique_field(self):
         filler = AutoFixture(UniqueTestModel)
-        count = len(filler.model._meta.
-            get_field_by_name('choice1')[0].choices)
+        count = len(get_field(filler.model, 'choice1').choices)
         for obj in filler.create(count):
             pass
 
     def test_unique_together(self):
         filler = AutoFixture(UniqueTogetherTestModel)
-        count1 = len(filler.model._meta.
-            get_field_by_name('choice1')[0].choices)
-        count2 = len(filler.model._meta.
-            get_field_by_name('choice2')[0].choices)
+        count1 = len(get_field(filler.model, 'choice1').choices)
+        count2 = len(get_field(filler.model, 'choice2').choices)
         for obj in filler.create(count1 * count2):
             pass
 

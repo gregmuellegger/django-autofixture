@@ -1,3 +1,6 @@
+import django
+
+
 try:
     from django.contrib.contenttypes.fields import GenericForeignKey
 # For Django 1.6 and earlier
@@ -36,3 +39,10 @@ try:
     get_model = apps.get_model
 except ImportError:
     from django.db.models import get_model
+
+
+def get_field(model, field_name):
+    if django.VERSION < (1, 8):
+        return model._meta.get_field_by_name(field_name)[0]
+    else:
+        return model._meta.get_field(field_name)

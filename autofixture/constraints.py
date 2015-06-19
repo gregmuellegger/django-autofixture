@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db.models.fields import related
+from .compat import get_field
 
 
 class InvalidConstraint(Exception):
@@ -45,14 +46,15 @@ def unique_together_constraint(model, instance):
     for unique_fields in instance._meta.unique_together:
         check = {}
         for field_name in unique_fields:
-            if not instance._meta.get_field_by_name(field_name)[0].primary_key:
+            if not get_field(instance, field_name).primary_key:
                 check[field_name] = getattr(instance, field_name)
         if all(e is None for e in check.values()):
             continue
 
         if model._default_manager.filter(**check).exists():
-            error_fields.extend(
-                [instance._meta.get_field_by_name(field_name)[0]
-                    for field_name in unique_fields])
+            error_fields.extend([
+                get_field(instance, field_name)
+                for field_name in unique_fields
+            ])
     if error_fields:
         raise InvalidConstraint(error_fields)
