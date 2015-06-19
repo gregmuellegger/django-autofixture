@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.10.1
+------
+
+* Fixing unique constraint checks for multiple ``None`` values. Thanks to
+  Andrew Lewisohn for the patch. See `#66`_.
+
+.. _#66: https://github.com/gregmuellegger/django-autofixture/pull/66
+
 0.10.0
 ------
 
