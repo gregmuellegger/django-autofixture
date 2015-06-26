@@ -16,7 +16,10 @@ from ..models import (
     M2MModel, ThroughModel, M2MModelThrough, SelfReferencingModel,
     UniqueNullFieldModel, UniqueTogetherNullFieldModel,
     MultipleUniqueTogetherNullFieldModel, SelfReferencingModelNoNull, GFKModel,
-    GRModel)
+    GRModel, RelationWithCustomAutofixtureModel)
+
+
+autofixture.autodiscover()
 
 
 if sys.version_info[0] < 3:
@@ -255,6 +258,19 @@ class TestRelations(FileSystemCleanupTestCase):
             all_secondm2m.update(obj.secondm2m.all())
         self.assertEqual(SimpleModel.objects.count(), len(all_m2m))
         self.assertEqual(OtherSimpleModel.objects.count(), len(all_secondm2m))
+
+    def test_generate_m2m_with_custom_autofixture(self):
+        filler = AutoFixture(RelationWithCustomAutofixtureModel,
+            generate_fk=True,
+            generate_m2m=(1, 1))
+        instance = filler.create_one()
+        self.assertEqual(instance.users.count(), 1)
+        user = instance.users.get()
+
+        # Detect that the UserFixture was used.
+        self.assertTrue(' ' not in user.username)
+        self.assertTrue(' ' not in user.first_name)
+        self.assertTrue(' ' not in user.last_name)
 
     def test_generate_only_some_m2m(self):
         filler = AutoFixture(

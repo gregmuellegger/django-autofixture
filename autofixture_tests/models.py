@@ -196,3 +196,8 @@ dummy_storage = DummyStorage()
 class ImageModel(models.Model):
     imgfield = models.ImageField(upload_to='_autofixtures',
                                  storage=dummy_storage)
+
+
+class RelationWithCustomAutofixtureModel(models.Model):
+    user = models.ForeignKey('auth.User', related_name='user1+')
+    users = models.ManyToManyField('auth.User', related_name='user2+')
