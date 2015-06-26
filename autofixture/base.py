@@ -430,7 +430,7 @@ class AutoFixtureBase(object):
                     field_values={
                         self_fk.name: instance,
                         related_fk.name: generators.InstanceGenerator(
-                            AutoFixture(field.rel.to))
+                            autofixture.get(field.rel.to))
                     }),
                 min_count=min_count,
                 max_count=max_count,
