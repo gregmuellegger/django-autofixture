@@ -1,4 +1,7 @@
 language: python
+cache: 
+  - pip
+
 env:
   - TOX_ENV=docs
   - TOX_ENV=py26-14
@@ -21,7 +24,8 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq python2.6 python2.7 python3.3 pypy
   - export DJANGO_SETTINGS_MODULE=autofixture_tests.settings
-  - sudo pip install tox
+  - sudo -H pip install pip wheel 
+  - sudo -H pip install tox
 script:
   - tox -e $TOX_ENV -v
 branches:
