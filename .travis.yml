@@ -17,9 +17,6 @@ env:
   - TOX_ENV=pypy-16
   - TOX_ENV=pypy-17
 before_install:
-  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq python2.6 python2.7 python3.3 pypy
   - export DJANGO_SETTINGS_MODULE=autofixture_tests.settings
   - sudo pip install tox
 script:
@@ -27,4 +24,3 @@ script:
 branches:
   only:
     - master
-
