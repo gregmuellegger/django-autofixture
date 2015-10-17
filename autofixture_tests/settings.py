@@ -16,8 +16,6 @@ DATABASES = {
 
 SITE_ID = 1
 
-ROOT_URLCONF = 'autofixture_tests.urls'
-
 # Set in order to catch timezone aware vs unaware comparisons
 USE_TZ = True
 
@@ -38,7 +36,7 @@ MEDIA_URL = '/media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '0'
 
-# ROOT_URLCONF = 'autofixture_tests.urls'
+ROOT_URLCONF = 'autofixture_tests.urls'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
