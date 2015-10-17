@@ -625,16 +625,14 @@ class TestManagementCommand(FileSystemCleanupTestCase):
         self.original_registry = autofixture.REGISTRY
         autofixture.REGISTRY = {}
 
-    def call(self, *args):
-        if args:
-            return call_command('loadtestdata', '-v', '0', *args)
-        return call_command('loadtestdata')
+    def call(self, *args, **kwargs):
+        return call_command('loadtestdata', *args, verbosity=0, **kwargs)
 
     def tearDown(self):
         autofixture.REGISTRY = self.original_registry
 
     def test_empty(self):
-        self.call('')
+        self.call()
         self.assertEqual(SimpleModel.objects.count(), 0)
 
     def test_basic(self):
@@ -647,7 +645,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
 
     def test_generate_fk(self):
         self.call('autofixture_tests.DeepLinkModel2:1',
-                  '--generate-fk', 'related,related__related')
+                  generate_fk='related,related__related')
         obj = DeepLinkModel2.objects.get()
         self.assertTrue(obj.related)
         self.assertTrue(obj.related.related)
@@ -655,8 +653,8 @@ class TestManagementCommand(FileSystemCleanupTestCase):
 
     def test_generate_fk_with_no_follow(self):
         self.call('autofixture_tests.DeepLinkModel2:1',
-                  '--generate-fk', 'related,related__related',
-                  '--no-follow-fk')
+                  generate_fk='related,related__related',
+                  no_follow_fk=True)
         obj = DeepLinkModel2.objects.get()
         self.assertTrue(obj.related)
         self.assertTrue(obj.related.related)
@@ -664,7 +662,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
 
     def test_generate_fk_with_ALL(self):
         self.call('autofixture_tests.DeepLinkModel2:1',
-                  '--generate-fk', 'ALL')
+                  generate_fk='ALL')
         obj = DeepLinkModel2.objects.get()
         self.assertTrue(obj.related)
         self.assertTrue(obj.related.related)
@@ -675,7 +673,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
         AutoFixture(SimpleModel).create(1)
 
         self.call('autofixture_tests.NullableFKModel:1',
-                  '--no-follow-m2m')
+                  no_follow_m2m=True)
         obj = NullableFKModel.objects.get()
         self.assertEqual(obj.m2m.count(), 0)
 
@@ -684,7 +682,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
         AutoFixture(OtherSimpleModel).create(10)
 
         self.call('autofixture_tests.M2MModel:25',
-                  '--follow-m2m', 'm2m:3:3,secondm2m:0:10')
+                  follow_m2m='m2m:3:3,secondm2m:0:10')
 
         for obj in M2MModel.objects.all():
             self.assertEqual(obj.m2m.count(), 3)
@@ -692,7 +690,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
 
     def test_generate_m2m(self):
         self.call('autofixture_tests.M2MModel:10',
-                  '--generate-m2m', 'm2m:1:1,secondm2m:2:5')
+                  generate_m2m='m2m:1:1,secondm2m:2:5')
 
         all_m2m, all_secondm2m = set(), set()
         for obj in M2MModel.objects.all():
@@ -713,7 +711,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
 
     def test_use_option(self):
         self.call('autofixture_tests.SimpleModel:10',
-                  '-uautofixture_tests.tests.test_base.SimpleAutoFixture')
+                  use='autofixture_tests.tests.test_base.SimpleAutoFixture')
         for obj in SimpleModel.objects.all():
             self.assertEqual(obj.name, 'foo')
 
