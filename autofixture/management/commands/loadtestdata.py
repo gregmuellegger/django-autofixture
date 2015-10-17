@@ -25,64 +25,70 @@ information::
 
     django-admin.py help loadtestdata
 '''
+import django
 from django.utils.encoding import smart_text
 from django.db import models
 from django.core.management.base import BaseCommand, CommandError
-from optparse import make_option
-
 import autofixture
 from autofixture import signals
 from ...compat import atomic
 from ...compat import importlib
 from ...compat import get_model
 
+if django.VERSION < (1, 9):
+    from optparse import make_option
+else:
+    def make_option(*args, **kwargs):
+        return {'args': args, 'kwargs': kwargs}
+
 
 class Command(BaseCommand):
-    help = (
-        u'Create random model instances for testing purposes.'
-    )
+    help = 'Create random model instances for testing purposes.'
     args = 'app.Model:# [app.Model:# ...]'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-d', '--overwrite-defaults', action='store_true',
-            dest='overwrite_defaults', default=None, help=
-                u'Generate values for fields with default values. Default is '
-                u'to use default values.'),
-        make_option('--no-follow-fk', action='store_true', dest='no_follow_fk',
-            default=None, help=
-                u'Ignore foreignkeys while creating model instances.'),
-        make_option('--generate-fk', action='store', dest='generate_fk',
-            default=None, help=
-                u'Do not use already existing instances for ForeignKey '
-                u'relations. Create new instances instead. You can specify a '
-                u'comma sperated list of field names or ALL to indicate that '
-                u'all foreignkeys should be generated automatically.'),
-        make_option('--no-follow-m2m', action='store_true',
-            dest='no_follow_m2m', default=None, help=
-                u'Ignore many to many fields while creating model '
-                u'instances.'),
-        make_option('--follow-m2m', action='store', dest='follow_m2m',
-            default=None, help=
-                u'Specify minimum and maximum number of instances that are '
-                u'assigned to a m2m relation. Use two, colon separated '
-                u'numbers in the form of: min,max. Default is 1,5.\n'
-                u'You can limit following of many to many relations to '
-                u'specific fields using the following format:\n'
-                u'field1:min:max,field2:min:max ...'),
-        make_option('--generate-m2m', action='store', dest='generate_m2m',
-            default=None, help=
-                u'Specify minimum and maximum number of instances that are '
-                u'newly created and assigned to a m2m relation. Use two, '
-                u'colon separated numbers in the form of: min:max. Default is '
-                u'to not generate many to many related models automatically. '
-                u'You can select specific of many to many fields which are '
-                u'automatically generated. Use the following format:\n'
-                u'field1:min:max,field2:min:max ...'),
-        make_option('-u', '--use', action='store', dest='use',
-            default='', help=
-                u'Specify a autofixture subclass that is used to create the '
-                u'test data. E.g. myapp.autofixtures.MyAutoFixture'),
-    )
+    def __init__(self, *args, **kwargs):
+        params = (
+            make_option('-d', '--overwrite-defaults', action='store_true',
+                        dest='overwrite_defaults', default=None,
+                        help=u'Generate values for fields with default values. Default is to use ' +
+                        'default values.'),
+            make_option('--no-follow-fk', action='store_true', dest='no_follow_fk', default=None,
+                        help=u'Ignore foreignkeys while creating model instances.'),
+            make_option('--generate-fk', action='store', dest='generate_fk', default=None,
+                        help=u'Do not use already existing instances for ForeignKey relations. ' +
+                        'Create new instances instead. You can specify a comma sperated list of ' +
+                        'field names or ALL to indicate that all foreignkeys should be generated ' +
+                        'automatically.'),
+            make_option('--no-follow-m2m', action='store_true', dest='no_follow_m2m', default=None,
+                        help=u'Ignore many to many fields while creating model instances.'),
+            make_option('--follow-m2m', action='store', dest='follow_m2m', default=None,
+                        help=u'Specify minimum and maximum number of instances that are assigned ' +
+                        'to  a m2m relation. Use two, colon separated numbers in the form of: ' +
+                        'min,max. Default is 1,5.\nYou can limit following of many to many ' +
+                        'relations to specific fields using the following format:\nfield1:min:max' +
+                        ',field2:min:max ...'),
+            make_option('--generate-m2m', action='store', dest='generate_m2m', default=None,
+                        help=u'Specify minimum and maximum number of instances that are newly ' +
+                        'created and assigned to a m2m relation. Use two, colon separated ' +
+                        'numbers in the form of: min:max. Default is to not generate many to ' +
+                        'many related models automatically. You can select specific of many to ' +
+                        'many fields which are automatically generated. Use the following ' +
+                        'format:\nfield1:min:max,field2:min:max ...'),
+            make_option('-u', '--use', action='store', dest='use', default='',
+                        help=u'Specify a autofixture subclass that is used to create the test ' +
+                        'data. E.g. myapp.autofixtures.MyAutoFixture')
+        )
+
+        if django.VERSION < (1, 9):
+            self.option_list = BaseCommand.option_list + params
+        else:
+            self.argument_params = params
+        super(Command, self).__init__(*args, **kwargs)
+
+    def add_arguments(self, parser):
+        parser.add_argument('args', nargs='+')
+        for option in self.argument_params:
+            parser.add_argument(*option['args'], **option['kwargs'])
 
     def format_output(self, obj):
         output = smart_text(obj)
@@ -123,6 +129,7 @@ class Command(BaseCommand):
 
     @atomic
     def handle(self, *attrs, **options):
+        attrs = [x for x in attrs if x]
         error_option = None
         #
         # follow options
@@ -171,8 +178,7 @@ class Command(BaseCommand):
 
         if error_option:
             raise CommandError(
-                u'Invalid option {0}\n'
-                u'Expected: {1}=field:min:max,field2:min:max... (min and max must be numbers)'.format(
+                u'Invalid option {0}\nExpected: {1}=field:min:max,field2:min:max... (min and max must be numbers)'.format(
                     error_option,
                     error_option.split('=', 1)[0]))
 
@@ -192,9 +198,7 @@ class Command(BaseCommand):
                 count = int(count)
             except ValueError:
                 raise CommandError(
-                    u'Invalid argument: {0}\n'
-                    u'Expected: app_label.ModelName:count '
-                    u'(count must be a number)'.format(attr))
+                    u'Invalid argument: {0}\nExpected: app_label.ModelName:count (count must be a number)'.format(attr))
             model = get_model(app_label, model_label)
             if not model:
                 raise CommandError(

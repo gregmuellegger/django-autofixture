@@ -1,19 +1,22 @@
 import django
 
 
-try:
-    from django.contrib.contenttypes.fields import GenericForeignKey
-# For Django 1.6 and earlier
-except ImportError:
-    from django.contrib.contenttypes.generic import GenericForeignKey
+def get_GenericForeignKey():
+    try:
+        from django.contrib.contenttypes.fields import GenericForeignKey
+    # For Django 1.6 and earlier
+    except ImportError:
+        from django.contrib.contenttypes.generic import GenericForeignKey
+    return GenericForeignKey
 
 
-try:
-    from django.contrib.contenttypes.fields import GenericRelation
-# For Django 1.6 and earlier
-except ImportError:
-    from django.contrib.contenttypes.generic import GenericRelation
-
+def get_GenericRelation():
+    try:
+        from django.contrib.contenttypes.fields import GenericRelation
+    # For Django 1.6 and earlier
+    except ImportError:
+        from django.contrib.contenttypes.generic import GenericRelation
+    return GenericRelation
 
 try:
     from collections import OrderedDict
@@ -46,3 +49,17 @@ def get_field(model, field_name):
         return model._meta.get_field_by_name(field_name)[0]
     else:
         return model._meta.get_field(field_name)
+
+
+def get_remote_field(field):
+    if django.VERSION < (1, 9):
+        return field.rel
+    else:
+        return field.remote_field
+
+
+def get_remote_field_to(field):
+    if django.VERSION < (1, 9):
+        return field.rel.to
+    else:
+        return field.remote_field.model

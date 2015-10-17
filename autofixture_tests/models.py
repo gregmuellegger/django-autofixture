@@ -6,9 +6,13 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import utc
 
-from autofixture.compat import GenericForeignKey
-from autofixture.compat import GenericRelation
+from autofixture.compat import get_GenericForeignKey
+from autofixture.compat import get_GenericRelation
 
+try:
+    from django.db.models import GenericIPAddressField as IPAddressField
+except ImportError:
+    from django.models import IPAddressField
 
 filepath = os.path.dirname(os.path.abspath(__file__))
 
@@ -100,7 +104,7 @@ class BasicModel(models.Model):
     decimalfield = models.DecimalField(max_digits=10, decimal_places=4)
 
     emailfield = models.EmailField()
-    ipaddressfield = models.IPAddressField()
+    ipaddressfield = IPAddressField()
     urlfield = models.URLField()
     rfilepathfield = models.FilePathField(path=filepath, recursive=True)
     filepathfield = models.FilePathField(path=filepath)
@@ -179,11 +183,11 @@ class M2MModelThrough(models.Model):
 class GFKModel(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = get_GenericForeignKey()('content_type', 'object_id')
 
 
 class GRModel(models.Model):
-    gr = GenericRelation('GFKModel')
+    gr = get_GenericRelation()('GFKModel')
 
 
 class DummyStorage(FileSystemStorage):
