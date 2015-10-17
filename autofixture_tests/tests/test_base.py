@@ -631,12 +631,7 @@ class TestManagementCommand(FileSystemCleanupTestCase):
     def tearDown(self):
         autofixture.REGISTRY = self.original_registry
 
-    def test_empty(self):
-        self.call()
-        self.assertEqual(SimpleModel.objects.count(), 0)
-
     def test_basic(self):
-
         self.call('autofixture_tests.SimpleModel:1')
         self.assertEqual(SimpleModel.objects.count(), 1)
 
