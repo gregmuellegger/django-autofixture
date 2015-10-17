@@ -129,7 +129,6 @@ class Command(BaseCommand):
 
     @atomic
     def handle(self, *attrs, **options):
-        attrs = [x for x in attrs if x]
         error_option = None
         #
         # follow options
