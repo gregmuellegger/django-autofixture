@@ -25,7 +25,6 @@ env:
     - TOX_ENV=pypy-16
     - TOX_ENV=pypy-17
     - TOX_ENV=py27-master
-    - TOX_ENV=py33-master
     - TOX_ENV=py34-master
     - TOX_ENV=pypy-master
 
