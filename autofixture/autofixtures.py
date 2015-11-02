@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from autofixture import AutoFixture
 from autofixture import generators
+from .compat import get_field
 
 
 class UserFixture(AutoFixture):
@@ -62,7 +63,7 @@ class UserFixture(AutoFixture):
 
     def unique_email(self, model, instance):
         if User.objects.filter(email=instance.email).exists():
-            raise autofixture.InvalidConstraint(('email',))
+            raise autofixture.InvalidConstraint((get_field(model,'email'),))
 
     def prepare_class(self):
         self.add_constraint(self.unique_email)
