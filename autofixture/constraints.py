@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db.models.fields import related
-from .compat import get_field
+from .compat import get_field, get_remote_field_to
 
 
 class InvalidConstraint(Exception):
@@ -16,7 +16,8 @@ def _is_unique_field(field):
         # Primary key fields should not generally be checked for unique constraints, except when the
         # primary key is a OneToOne mapping to an external table not via table inheritance, in which
         # case we don't want to create new objects which will overwrite existing objects.
-        return isinstance(field, related.OneToOneField) and not issubclass(field.model, field.rel.to)
+        return (isinstance(field, related.OneToOneField) and
+                not issubclass(field.model, get_remote_field_to(field)))
     else:
         return True
 

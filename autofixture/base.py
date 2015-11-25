@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
 import warnings
-from django.db import models
 from django.db.models import fields, ImageField
 from django.db.models.fields import related
 from django.utils.six import with_metaclass
@@ -9,9 +8,8 @@ from django.utils.six import with_metaclass
 import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
-from .compat import GenericRelation
-from .compat import OrderedDict
 
+from .compat import OrderedDict, get_GenericRelation, get_remote_field, get_remote_field_to
 
 
 class CreateInstanceError(Exception):
@@ -109,6 +107,7 @@ class AutoFixtureBase(object):
         (fields.IntegerField, generators.IntegerGenerator),
         (fields.FloatField, generators.FloatGenerator),
         (fields.IPAddressField, generators.IPAddressGenerator),
+        (fields.GenericIPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
         (ImageField, generators.ImageGenerator),
@@ -240,7 +239,7 @@ class AutoFixtureBase(object):
         return (
             isinstance(field, related.OneToOneField) and
             field.primary_key and
-            issubclass(field.model, field.rel.to)
+            issubclass(field.model, get_remote_field_to(field))
         )
 
     def get_generator(self, field):
@@ -277,18 +276,18 @@ class AutoFixtureBase(object):
             return generators.ChoicesGenerator(choices=field.choices, **kwargs)
         if isinstance(field, related.ForeignKey):
             # if generate_fk is set, follow_fk is ignored.
-            is_self_fk = (field.rel.to().__class__ == self.model)
+            is_self_fk = (get_remote_field_to(field)().__class__ == self.model)
             if field.name in self.generate_fk and not is_self_fk:
                 return generators.InstanceGenerator(
                     autofixture.get(
-                        field.rel.to,
+                        get_remote_field_to(field),
                         follow_fk=self.follow_fk.get_deep_links(field.name),
                         generate_fk=self.generate_fk.get_deep_links(field.name)),
-                    limit_choices_to=field.rel.limit_choices_to)
+                    limit_choices_to=get_remote_field(field).limit_choices_to)
             if field.name in self.follow_fk:
                 selected = generators.InstanceSelector(
-                    field.rel.to,
-                    limit_choices_to=field.rel.limit_choices_to)
+                    get_remote_field_to(field),
+                    limit_choices_to=get_remote_field(field).limit_choices_to)
                 if selected.get_value() is not None:
                     return selected
             if field.blank or field.null:
@@ -298,8 +297,8 @@ class AutoFixtureBase(object):
                     u'Cannot resolve self referencing field "%s" to "%s" without null=True' % (
                         field.name,
                         '%s.%s' % (
-                            field.rel.to._meta.app_label,
-                            field.rel.to._meta.object_name,
+                            get_remote_field_to(field)._meta.app_label,
+                            get_remote_field_to(field)._meta.object_name,
                         )
                 ))
             raise CreateInstanceError(
@@ -307,24 +306,24 @@ class AutoFixtureBase(object):
                 u'"follow_fk" or "generate_fk" parameters.' % (
                     field.name,
                     '%s.%s' % (
-                        field.rel.to._meta.app_label,
-                        field.rel.to._meta.object_name,
+                        get_remote_field_to(field)._meta.app_label,
+                        get_remote_field_to(field)._meta.object_name,
                     )
             ))
         if isinstance(field, related.ManyToManyField):
             if field.name in self.generate_m2m:
                 min_count, max_count = self.generate_m2m[field.name]
                 return generators.MultipleInstanceGenerator(
-                    autofixture.get(field.rel.to),
-                    limit_choices_to=field.rel.limit_choices_to,
+                    autofixture.get(get_remote_field_to(field)),
+                    limit_choices_to=get_remote_field(field).limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
                     **kwargs)
             if field.name in self.follow_m2m:
                 min_count, max_count = self.follow_m2m[field.name]
                 return generators.InstanceSelector(
-                    field.rel.to,
-                    limit_choices_to=field.rel.limit_choices_to,
+                    get_remote_field_to(field),
+                    limit_choices_to=get_remote_field(field).limit_choices_to,
                     min_count=min_count,
                     max_count=max_count,
                     **kwargs)
@@ -334,8 +333,8 @@ class AutoFixtureBase(object):
                 u'Cannot assign instances of "%s" to ManyToManyField "%s". '
                 u'Provide either "follow_m2m" or "generate_m2m" argument.' % (
                     '%s.%s' % (
-                        field.rel.to._meta.app_label,
-                        field.rel.to._meta.object_name,
+                        get_remote_field_to(field)._meta.app_label,
+                        get_remote_field_to(field)._meta.object_name,
                     ),
                     field.name,
             ))
@@ -399,7 +398,7 @@ class AutoFixtureBase(object):
         # check django's version number to determine how intermediary models
         # are checked if they are auto created or not.
         auto_created_through_model = False
-        through = field.rel.through
+        through = get_remote_field(field).through
         auto_created_through_model = through._meta.auto_created
 
         if auto_created_through_model:
@@ -414,11 +413,11 @@ class AutoFixtureBase(object):
             related_fks = [fk
                 for fk in through._meta.fields
                 if isinstance(fk, related.ForeignKey) and \
-                    fk.rel.to is field.rel.to]
+                    get_remote_field_to(fk) is get_remote_field_to(field)]
             self_fks = [fk
                 for fk in through._meta.fields
                 if isinstance(fk, related.ForeignKey) and \
-                    fk.rel.to is self.model]
+                    get_remote_field_to(fk) is self.model]
             assert len(related_fks) == 1
             assert len(self_fks) == 1
             related_fk = related_fks[0]
@@ -430,7 +429,7 @@ class AutoFixtureBase(object):
                     field_values={
                         self_fk.name: instance,
                         related_fk.name: generators.InstanceGenerator(
-                            autofixture.get(field.rel.to))
+                            autofixture.get(get_remote_field_to(field)))
                     }),
                 min_count=min_count,
                 max_count=max_count,
@@ -514,7 +513,7 @@ class AutoFixtureBase(object):
             #to handle particular case of GenericRelation
             #in Django pre 1.6 it appears in .many_to_many
             many_to_many = [f for f in instance._meta.many_to_many
-                            if not isinstance(f, GenericRelation)]
+                            if not isinstance(f, get_GenericRelation())]
             for field in many_to_many:
                 self.process_m2m(instance, field)
         signals.instance_created.send(
