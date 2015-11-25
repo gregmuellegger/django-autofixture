@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.11.0 (in development)
------------------------
+0.11.0
+------
 
 * `#75`_: Support for Django 1.9. Thanks to Adam Dobrawy for the patch.
 * `#67`_: If many to many relations are created in a autofixture, we now make sure
