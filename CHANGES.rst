@@ -4,10 +4,12 @@ Changelog
 0.11.0 (in development)
 -----------------------
 
+* `#75`_: Support for Django 1.9. Thanks to Adam Dobrawy for the patch.
 * `#67`_: If many to many relations are created in a autofixture, we now make sure
   that a registered autofixture is used for this if there is any. Thanks to
   Andrew Lewisohn for the patch.
 
+.. _#75: https://github.com/gregmuellegger/django-autofixture/pull/75
 .. _#67: https://github.com/gregmuellegger/django-autofixture/pull/67
 
 0.10.1
