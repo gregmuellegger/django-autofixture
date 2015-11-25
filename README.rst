@@ -21,6 +21,12 @@ This is the usecase where autofixtures should help you to save time that can
 actually be spent on hacking.
 
 
+Requirements
+============
+
+* We require and support Django 1.4 to 1.9
+
+
 Installation
 ============
 
