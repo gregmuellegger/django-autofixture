@@ -148,8 +148,8 @@ class ImageGeneratorTests(FileSystemCleanupTestCase):
         self.assertTrue(dummy_storage.exists(o.imgfield.name))
 
 
-class GeopositionGeneratorTests(TestCase):
-    def test_geopositiond(self):
+class GeopositionGeneratorTests(FileSystemCleanupTestCase):
+    def test_geoposition(self):
         generate = generators.GeopositionGenerator()
         geoposition = generate()
         value_parts = geoposition.rsplit(',')
