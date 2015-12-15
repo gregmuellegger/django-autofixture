@@ -647,3 +647,12 @@ class ImageGenerator(Generator):
             path,
             ContentFile(get_placeholder_image(width, height))
         )
+
+
+class GeopositionGenerator(Generator):
+    def __init__(self, *args, **kwargs):
+        self.value = '%.6f,%.6f' % (random.uniform(-90, 90), random.uniform(-180, 180))
+        super(GeopositionGenerator, self).__init__(*args, **kwargs)
+
+    def generate(self):
+        return self.value
