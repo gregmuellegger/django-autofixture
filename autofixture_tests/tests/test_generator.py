@@ -146,3 +146,12 @@ class ImageGeneratorTests(FileSystemCleanupTestCase):
         o = AutoFixture(ImageModel).create_one()
 
         self.assertTrue(dummy_storage.exists(o.imgfield.name))
+
+
+class GeopositionGeneratorTests(TestCase):
+    def test_geopositiond(self):
+        generate = generators.GeopositionGenerator()
+        geoposition = generate()
+        value_parts = geoposition.rsplit(',')
+        self.assertTrue(-90 <= float(value_parts[0]) <= 90)
+        self.assertTrue(-180 <= float(value_parts[1]) <= 180)
