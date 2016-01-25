@@ -110,6 +110,7 @@ class AutoFixtureBase(object):
         (fields.GenericIPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
+        (fields.UUIDField, generators.UUIDGenerator),
         (ImageField, generators.ImageGenerator),
     ))
 
