@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import uuid
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 try:
@@ -647,3 +648,12 @@ class ImageGenerator(Generator):
             path,
             ContentFile(get_placeholder_image(width, height))
         )
+
+
+class UUIDGenerator(generators.Generator):
+    '''
+    Generates random uuid4.
+    '''
+
+    def generate(self):
+        return uuid.uuid4()
