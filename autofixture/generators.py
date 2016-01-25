@@ -650,7 +650,7 @@ class ImageGenerator(Generator):
         )
 
 
-class UUIDGenerator(generators.Generator):
+class UUIDGenerator(Generator):
     '''
     Generates random uuid4.
     '''
