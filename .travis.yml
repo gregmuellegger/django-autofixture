@@ -9,9 +9,6 @@ env:
     - DJANGO_SETTINGS_MODULE=autofixture_tests.settings
   matrix:
     - TOX_ENV=docs
-    - TOX_ENV=py26-14
-    - TOX_ENV=py26-15
-    - TOX_ENV=py26-16
     - TOX_ENV=py27-14
     - TOX_ENV=py27-15
     - TOX_ENV=py27-16
