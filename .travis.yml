@@ -43,4 +43,4 @@ deploy:
   on:
     tags: true
     repo: gregmuellegger/django-autofixture
-    condition: "$TOXENV = py35-18"
+    condition: "$TOX_ENV = py35-18"
