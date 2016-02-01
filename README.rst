@@ -2,9 +2,7 @@
 django-autofixture
 ==================
 
-.. image:: https://travis-ci.org/gregmuellegger/django-autofixture.png
-   :alt: Build Status
-   :target: https://travis-ci.org/gregmuellegger/django-autofixture
+|build| |package|
 
 This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
@@ -212,3 +210,13 @@ Happy autofixturing!
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
 .. _ForeignKey.limit_choices_to: http://docs.djangoproject.com/en/dev/ref/models/fields/#django.db.models.ForeignKey.limit_choices_to
+
+.. |build| image:: https://travis-ci.org/gregmuellegger/django-autofixture.svg?branch=master
+    :alt: Build Status
+    :scale: 100%
+    :target: https://travis-ci.org/gregmuellegger/django-autofixture
+
+.. |package| image:: https://badge.fury.io/py/django-autofixture.svg
+    :alt: Package Version
+    :scale: 100%
+    :target: http://badge.fury.io/py/django-autofixture
