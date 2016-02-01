@@ -110,9 +110,12 @@ class AutoFixtureBase(object):
         (fields.GenericIPAddressField, generators.IPAddressGenerator),
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
-        (fields.UUIDField, generators.UUIDGenerator),
         (ImageField, generators.ImageGenerator),
     ))
+
+    # UUIDField was added in Django 1.8
+    if hasattr(fields, 'UUIDField'):
+        field_to_generator[fields.UUIDField] = generators.UUIDGenerator
 
     field_values = Values()
 
