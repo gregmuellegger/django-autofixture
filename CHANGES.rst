@@ -4,6 +4,7 @@ Changelog
 0.11.1 (not released yet)
 -------------------------
 
+* `#81`_: Add support for UUID fields. Thanks to @jungornti for the patch.
 * `#77`_: Fixing a very rare crash in cases when a generated email in the
   ``UserFixture`` already exists. Thanks to Tien Nguyen for the patch.
 
