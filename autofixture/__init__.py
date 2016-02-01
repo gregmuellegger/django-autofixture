@@ -12,7 +12,7 @@ else:
     string_types = str
 
 
-__version__ = '0.11.0'
+__version__ = '0.12.0'
 
 
 REGISTRY = {}
