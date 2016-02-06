@@ -79,7 +79,7 @@ schemes are changing frequently, its hard to maintain all fixtures and to know
 exactly which objects are contained in the dumps etc...
 
 Autofixtures to the rescue! It lets you automatically generate models and all
-of their dependecies on the fly. Have a look at the following examples.
+of their dependencies on the fly. Have a look at the following examples.
 
 Lets start with the very basics. We create an ``AutoFixture`` instance for the
 ``Entry`` model and tell it to create ten model instances::
@@ -88,7 +88,7 @@ Lets start with the very basics. We create an ``AutoFixture`` instance for the
     fixture = AutoFixture(Entry)
     entries = fixture.create(10)
 
-Now you can play around and test your blog entries. By default dependecies of
+Now you can play around and test your blog entries. By default dependencies of
 foreignkeys and many to many relations are solved by randomly selecting an
 already existing object of the related model. What if you don't have one yet?
 You can provide the ``generate_fk`` attribute which allows the autofixture
