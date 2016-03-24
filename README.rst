@@ -8,15 +8,14 @@ This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
 load test data through command line.
 
-It is named *autofixture* because of the similarity of how I mainly used
-django's fixtures. Usually you add test data through the admin to see how your
-site looks with non static pages. You export data by using ``dumpdata`` to
+It is named *autofixture* because it is based on  django's fixtures. Without 
+*autofixture* you add test data through the admin to see how the non-static 
+pages on your site look. You export data by using ``dumpdata`` to
 send it to your colleagues or to preserve it before you make a ``manage.py
-reset app`` and so on. Your site gets more and more complex and adding test
-data gets more and more annoying.
+reset app`` and so on. As your site grows in complexity the process of adding
+and re-adding data becomes more and more annoying.
 
-This is the usecase where autofixtures should help you to save time that can
-actually be spent on hacking.
+This is where autofixtures will help!
 
 
 Requirements
@@ -45,18 +44,18 @@ The ``loadtestdata`` accepts the following syntax::
 
     python manage.py loadtestdata [options] app.Model:# [app.Model:# ...]
 
-Its nearly self explanatory. Supply names of models, prefixed with its app
+It's nearly self explanatory. Supply names of models, prefixed with its app
 name. After that, place a colon and tell the command how many objects you want
-to create. Here is an example how to create three categories and twenty
-entries for you blogging app::
+to create. Here is an example of how to create three categories and twenty
+entries for your blogging app::
 
     python manage.py loadtestdata blog.Category:3 blog.Entry:20
 
-Voila! You have ready to use testing data populated to your database. The
+Voila! You have ready-to-use testing data populated to your database. The
 model fields are filled with data by producing randomly generated values
 depending on the type of the field. E.g. text fields are filled with lorem
 ipsum dummies, date fields are populated with random dates from the last
-years etc.
+year etc.
 
 There are a few command line options available. Mainly to control the
 behavior of related fields. If foreingkey or many to many fields should be
@@ -67,44 +66,77 @@ information::
     python manage.py help loadtestdata
 
 
-Using autofixtures as tool for unittests
+Using autofixtures as a tool for unittests
 ========================================
 
-It has proofed that autofixtures have a great use for unittests. It has always
-bugged me that creating complex models for testing their behaviour was
-complicated. Sometimes models have strict restrictions or many related objects
-which they depend on. One solution would be to use traditional fixtures
-dumped from your production database. But while in development when database
-schemes are changing frequently, its hard to maintain all fixtures and to know
-exactly which objects are contained in the dumps etc...
+Testing the behavior of complex models has always bugged me. Sometimes models 
+have many restrictions or many related objects which they depend on. One solution 
+would be to use traditional fixtures dumped from your production database. But 
+while in development when database schemes are changing frequently, it can be time
+consuming and sometimes difficult to deep track of changes and what each dump contains.
 
-Autofixtures to the rescue! It lets you automatically generate models and all
-of their dependencies on the fly. Have a look at the following examples.
+Autofixtures to the rescue! 
 
-Lets start with the very basics. We create an ``AutoFixture`` instance for the
+Let's start with the basics. We create an ``AutoFixture`` instance for the
 ``Entry`` model and tell it to create ten model instances::
+
+(in Python shell)
 
     from autofixture import AutoFixture
     fixture = AutoFixture(Entry)
     entries = fixture.create(10)
 
-Now you can play around and test your blog entries. By default dependencies of
-foreignkeys and many to many relations are solved by randomly selecting an
-already existing object of the related model. What if you don't have one yet?
+Generic Example:
+
+    from autofixture import AutoFixture
+    fixture = AutoFixture(<replace with your model name>)
+    entries = fixture.create(10) #10 or the number of entries you would like
+
+Here are further examples for newer developers.  
+
+I have a Listing model and I want it populated with 10 objects.
+
+    from autofixture import AutoFixture
+    fixture = AutoFixture(Listing)
+    entries = fixture.create(10) 
+
+Here I've added field valules which allow you to default a field to 
+a certain value rather than the random entries supplied by *autofixture*.
+
+Generic Example including field_values:
+    
+    from <yourapp>.models import <your model>
+    fixture = AutoFixture(<your model>, field_values={‘<your field name>’:<value>})
+
+Specific example:
+
+    from main.models import Listing
+    fixture = AutoFixture(Listing,field_values={'needed_players':(randint(2,10))})
+    entries=fixture.create(30) 
+
+In the above, I wanted the 'needed_players' (in the Session model) to have only 
+numbers between 2 and 10, but I could have put {'needed_players':5} if I had wanted 
+all 'needed_players' instances to be 5.  
+
+========================================
+
+Now you can play around and test your blog entries. By default, dependencies of
+foreignkeys and many to many relations are populated by randomly selecting an
+already existing object of the related model. But, what if you don't have one yet?
 You can provide the ``generate_fk`` attribute which allows the autofixture
 instance to follow foreignkeys by generating new related models::
 
     fixture = AutoFixture(Entry, generate_fk=True)
 
-This generates new instance for *all* foreignkey fields of ``Entry``. Unless
+This generates new instances for *all* foreignkey fields of ``Entry``. Unless
 the model has a foreign key reference to itself, wherein the field will be set
-to None if allowed or raise a ``CreateInstanceError`` if not. This is to prevent
-max recursion depth errors. Its possible to limit this behaviour to single fields::
+to None if allowed or raise a ``CreateInstanceError``. This is to prevent
+max recursion depth errors. It's possible to limit this behaviour to single fields::
 
     fixture = AutoFixture(Entry, generate_fk=['author'])
 
 This will only create new authors automatically and doesn't touch other
-tables. The same is possible with many to many fields. But you need
+tables. The same is possible with many to many fields. But you need to
 additionally specify how many objects should be created for the m2m relation::
 
     fixture = AutoFixture(Entry, generate_m2m={'categories': (1,3)})
@@ -114,7 +146,7 @@ All created entry models get one to three new categories assigned.
 Setting custom values for fields
 --------------------------------
 
-However its often necessary to be sure that a specific field must have a
+As shown the the examples above, it's often necessary to have a specific field contain a
 specific value. This is easily achieved with the ``field_values`` attribute of
 ``AutoFixture``::
 
@@ -168,22 +200,22 @@ automatically like you can do with the admin autodiscover. Do so by running
 More
 ====
 
-There is so much more to explore which might be useful for you and your
+There is so much more to explore which might be useful tofrom  you and your
 projects:
 
 * There are ways to register custom ``AutoFixture`` subclasses with models
   that are automatically used when calling ``loadtestdata`` on the model.
 * More control for related models, even with relations of related models...
   (e.g. by using ``generate_fk=['author', 'author__user']``)
-* Custom constraints that are used to ensure that created the models are
-  valid (e.g. ``unique`` and ``unique_together`` constraints which are
+* Custom constraints that are used to ensure that created models are
+  valid (e.g. ``unique`` and ``unique_together`` constraints, which are
   already handled by default)
 
-I hope to explain this in the future with more details in a documentation. It
-will be written but is not finished yet. I wanted to get this project out to
-support you in development. But since its only python code you can easily
-study the source on your own and see in which ways it can be used. There are
-already some parts documented with doc strings which might also be helpful for you.
+I hope to explain this in the future with more detailed documentation. I am in the 
+process of writing it, but I am not finished.  I wanted to get this project out to
+support your development. But, since it's only python code you can easily change it to 
+suit your needs. There are already some parts documented with doc strings which 
+might also be helpful for you.
 
 
 Contribute
@@ -201,7 +233,7 @@ To start developing, make sure the test suite passes::
 
 Now go, do some coding.
 
-Feel free to drop me a message about critique or feature requests. You can get
+Feel free to drop me a message about critiques or feature requests. You can get
 in touch with me by mail_ or twitter_.
 
 Happy autofixturing!

@@ -1,0 +1,353 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"apt",
+				"apt_complex"
+			],
+			[
+				"latLng",
+				"myLatlng"
+			],
+			[
+				"list",
+				"listings_output"
+			],
+			[
+				"comp",
+				"complex_output"
+			],
+			[
+				"border-bottom",
+				"border-bottom-right-radius"
+			],
+			[
+				"app",
+				"append"
+			],
+			[
+				"M",
+				"MEDIA_ROOT"
+			],
+			[
+				"get",
+				"get_or_create"
+			],
+			[
+				"padd",
+				"padding-bottom"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"font",
+				"font-style"
+			],
+			[
+				"margin",
+				"margin-left"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"back",
+				"background-color"
+			],
+			[
+				"pub",
+				"pub_date"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 367.0,
+		"selected_items":
+		[
+			[
+				"control",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/dantheman/Development/projects/autofixture"
+	],
+	"file_history":
+	[
+		"/Users/dantheman/Development/projects/housing/quiz.py",
+		"/Users/dantheman/Development/projects/gamefinder/quiz.py",
+		"/Users/dantheman/Development/projects/housing/main/models.py.orig",
+		"/Users/dantheman/Development/projects/housing/main/models.py",
+		"/Users/dantheman/Development/projects/housing/main/templates/base.html.orig",
+		"/Users/dantheman/Development/projects/housing/googleauth.txt",
+		"/Users/dantheman/Development/projects/housing/housing/settings.py",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/gamefinder.sublime-project",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/gamefinder/settings.py",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/gamefinder/allauth_settings.py",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/gamefinder/local_setting.py",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/main/models.py",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/main/admin.py",
+		"/Users/dantheman/Library/Application Support/Sublime Text 3/Packages/Package Control/Package Control.sublime-settings",
+		"/Users/dantheman/Desktop/Development/projects/gamefinder/.gitignore",
+		"/Users/dantheman/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/templates/account/signup.html",
+		"/Users/dantheman/Desktop/Development/projects/housing/housing/settings.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/templates/socialaccount/signup.html",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/static/js/base.js",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/admin.py",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/allauth/app_settings.py",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/googlemaps/roads.py",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/googlemaps/places.py",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/googlemaps/geocoding.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/housing/local_settings.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0001_initial.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/static/css/base.css",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/allauth/templates/base.html",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/allauth/urls.py",
+		"/Users/dantheman/Desktop/Development/virtualenvs/housing/lib/python2.7/site-packages/allauth/exceptions.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/scripts/add_complexes.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/scripts/complex_list.csv",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0002_auto_20160229_1426.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0001_initial.py.orig",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/templates/detail_view.html",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0002_auto_20160224_1652.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/.gitignore",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0003_auto_20160218_1534.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/migrations/0002_auto_20160218_1531.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/models_BACKUP_19902.py",
+		"/Users/dantheman/Desktop/Development/projects/housing/main/.models_REMOTE_20052.py.swp",
+		"/Users/dantheman/Desktop/Development/projects/message_board/main/migrations/0001_initial.py",
+		"/Users/dantheman/Desktop/Development/projects/message_board/message_board/local_settings",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/css/styles.css",
+		"/Users/dantheman/Desktop/Development/projects/recipe/.gitignore",
+		"/Users/dantheman/Desktop/Development/projects/recipe/Procfile",
+		"/Users/dantheman/Desktop/Development/projects/recipe/recipe/wsgi.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/recipe/local_settings.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/scripts/get_recipes.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/recipes.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/recipes_detail.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/models.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/recipe/settings.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/js/jquery.min.js",
+		"/Users/dantheman/Desktop/Development/practice/recipesHTML/recipes.html",
+		"/Users/dantheman/Desktop/Development/practice/recipesHTML/recipes.js",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/recipe_form.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/js/skel.min.js",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/js/util.js",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/css/main.css",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/js/main.js",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/base.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/list_recipes.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/forms.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/recipe/urls.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templatetags/recipes_shuffler.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/templates/base2.html",
+		"/Users/dantheman/Library/Application Support/Sublime Text 3/Packages/User/Emmet.sublime-settings",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/static/index.html",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/slug.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/admin.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/migrations/0002_recipe_slug.py",
+		"/Users/dantheman/Desktop/Development/projects/recipe/main/migrations/0001_initial.py",
+		"/Users/dantheman/Desktop/Development/projects/playplace/templates/plays/plays.html",
+		"/Users/dantheman/Desktop/Development/projects/playplace/templates/plays/actors.html",
+		"/Users/dantheman/Desktop/Development/projects/playplace/plays/models.py",
+		"/Users/dantheman/Desktop/Development/projects/playplace/plays/migrations/0001_initial.py",
+		"/Users/dantheman/Desktop/Development/projects/playplace/plays/migrations/0002_ticket_holder.py",
+		"/Users/dantheman/Desktop/Development/projects/playplace/plays/migrations/0003_auto_20160127_2312.py",
+		"/Users/dantheman/Desktop/Development/projects/playplace/plays/migrations/0002_auto_20160127_2254.py",
+		"/Library/WebServer/Documents/zen.html",
+		"/Library/WebServer/Documents/zen.css",
+		"/Library/WebServer/Documents/powder.html",
+		"/Library/WebServer/Documents/powder.css",
+		"/Users/dantheman/Desktop/Development/practice/zen.css",
+		"/Users/dantheman/Desktop/Development/practice/zen.html",
+		"/Users/dantheman/Desktop/Development/projects/suorganizer/helloworld/views.py",
+		"/Users/dantheman/Desktop/Development/projects/stateParks/stateParks/scripts/visitation.csv",
+		"/Users/dantheman/Desktop/Development/projects/stateParks/stateParks/scripts/visitation.csv.numbers",
+		"/Users/dantheman/Desktop/Development/projects/stateParks/stateParks/main/models.py"
+	],
+	"find":
+	{
+		"height": 25.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"boolean",
+			"top",
+			"login",
+			"LOGIN_URL",
+			"requet",
+			"statePark",
+			"0",
+			"mapElement",
+			"first",
+			"complex",
+			"initAuto",
+			"base",
+			"appartment",
+			"apartment",
+			"complex",
+			"#nav",
+			"#rec",
+			".a ",
+			".a",
+			"styles.css",
+			"#nav",
+			".panel",
+			".alt",
+			"#header",
+			"js",
+			"content",
+			"header",
+			"alt",
+			"actions",
+			"index",
+			"assets/",
+			"box-shadow",
+			"wayland",
+			"fade",
+			"border",
+			"audo"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"apt_complex",
+			"complex",
+			"base",
+			"Weyland"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "autofixture.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 267.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
