@@ -201,9 +201,12 @@ def autodiscover():
         # but doesn't actually try to import the module. So skip this app if
         # its autofixtures.py doesn't exist
         try:
-            imp.find_module('autofixtures', app_path)
+            file, _, _ = imp.find_module('autofixtures', app_path)
         except ImportError:
             continue
+        else:
+            if file:
+                file.close()
 
         # Step 3: import the app's autofixtures file. If this has errors we want them
         # to bubble up.
@@ -215,9 +218,12 @@ def autodiscover():
 
     for app, app_path in app_paths.items():
         try:
-            imp.find_module('tests', app_path)
+            file, _, _ = imp.find_module('tests', app_path)
         except ImportError:
             continue
+        else:
+            if file:
+                file.close()
 
         try:
             importlib.import_module("%s.tests" % app)

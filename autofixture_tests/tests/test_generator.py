@@ -109,16 +109,18 @@ class ImageGeneratorTests(FileSystemCleanupTestCase):
         file_path = os.path.join(settings.MEDIA_ROOT, media_file)
         self.assertTrue(os.path.exists(file_path))
 
-        image = Image.open(file_path)
-        self.assertTrue(image.size in generators.ImageGenerator.default_sizes)
+        with open(file_path, 'rb') as f:
+            image = Image.open(f)
+            self.assertTrue(image.size in generators.ImageGenerator.default_sizes)
 
     def test_width_height(self):
         media_file = generators.ImageGenerator(125, 225).generate()
         file_path = os.path.join(settings.MEDIA_ROOT, media_file)
         self.assertTrue(os.path.exists(file_path))
 
-        image = Image.open(file_path)
-        self.assertTrue(image.size, (125, 225))
+        with open(file_path, 'rb') as f:
+            image = Image.open(f)
+            self.assertTrue(image.size, (125, 225))
 
     def test_filenames_dont_clash(self):
         media_file = generators.ImageGenerator(100, 100).generate()
