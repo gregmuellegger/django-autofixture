@@ -63,3 +63,16 @@ def get_remote_field_to(field):
         return field.rel.to
     else:
         return field.remote_field.model
+
+
+try:
+    # added in Python 3.0
+    from inspect import signature
+    def getargnames(callable):
+        return list(signature(callable).parameters.keys())
+
+except ImportError:
+    # loud DeprecationWarnings in 3.5
+    from inspect import getargspec
+    def getargnames(callable):
+        return getargspec(callable).args
