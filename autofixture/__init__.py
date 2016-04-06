@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import inspect
 import sys
 import warnings
 from autofixture.base import AutoFixture
 from autofixture.constraints import InvalidConstraint
+from autofixture.compat import getargnames
 
 
 if sys.version_info[0] < 3:
@@ -126,7 +126,7 @@ def create(model, count, *args, **kwargs):
         autofixture_class = AutoFixture
     # Get keyword arguments that the create_one method accepts and pass them
     # into create_one instead of AutoFixture.__init__
-    argnames = set(inspect.getargspec(autofixture_class.create_one).args)
+    argnames = set(getargnames(autofixture_class.create_one))
     argnames -= set(['self'])
     create_kwargs = {}
     for argname in argnames:

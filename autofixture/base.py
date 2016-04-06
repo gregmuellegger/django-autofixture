@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import inspect
 import warnings
 from django.db.models import fields, ImageField
 from django.db.models.fields import related
@@ -8,8 +7,13 @@ from django.utils.six import with_metaclass
 import autofixture
 from autofixture import constraints, generators, signals
 from autofixture.values import Values
-
-from .compat import OrderedDict, get_GenericRelation, get_remote_field, get_remote_field_to
+from autofixture.compat import (
+    OrderedDict,
+    get_GenericRelation,
+    get_remote_field,
+    get_remote_field_to,
+    getargnames,
+)
 
 
 class CreateInstanceError(Exception):
@@ -527,7 +531,7 @@ class AutoFixtureBase(object):
             committed=commit)
 
         post_process_kwargs = {}
-        if 'commit' in inspect.getargspec(self.post_process_instance).args:
+        if 'commit' in getargnames(self.post_process_instance):
             post_process_kwargs['commit'] = commit
         else:
             warnings.warn(
