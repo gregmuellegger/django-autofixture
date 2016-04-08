@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.12.1 (in development)
+-----------------------
+
+* `#86`_: Less deprecation warnings when using django-autofixture on Python
+  3.5. Thanks to Nick Timkovich for the patch.
+* `#87`_: Closing files properly, so you should see less ``ResourceWarnings``
+  while using django-autofixture. Thanks to Nick Timkovich for the patch.
+
+.. _#86: https://github.com/gregmuellegger/django-autofixture/pull/86
+.. _#87: https://github.com/gregmuellegger/django-autofixture/pull/87
+
 0.12.0
 ------
 
