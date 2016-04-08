@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.12.1 (in development)
------------------------
+0.12.1
+------
 
 * `#85`_: Better examples in README. Thanks to Dan Hitt for the patch.
 * `#86`_: Less deprecation warnings when using django-autofixture on Python
