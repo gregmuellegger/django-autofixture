@@ -67,7 +67,7 @@ information::
 
 
 Using autofixtures as a tool for unittests
-========================================
+==========================================
 
 Testing the behavior of complex models has always bugged me. Sometimes models
 have many restrictions or many related objects which they depend on. One
