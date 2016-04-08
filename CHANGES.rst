@@ -21,6 +21,9 @@ Changelog
 * `#77`_: Fixing a very rare crash in cases when a generated email in the
   ``UserFixture`` already exists. Thanks to Tien Nguyen for the patch.
 
+.. _#77: https://github.com/gregmuellegger/django-autofixture/pull/77
+.. _#81: https://github.com/gregmuellegger/django-autofixture/pull/81
+
 0.11.0
 ------
 
