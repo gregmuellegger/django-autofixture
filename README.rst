@@ -8,8 +8,8 @@ This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
 load test data through command line.
 
-It is named *autofixture* because it is based on  django's fixtures. Without 
-*autofixture* you add test data through the admin to see how the non-static 
+It is named *autofixture* because it is based on  django's fixtures. Without
+*autofixture* you add test data through the admin to see how the non-static
 pages on your site look. You export data by using ``dumpdata`` to
 send it to your colleagues or to preserve it before you make a ``manage.py
 reset app`` and so on. As your site grows in complexity the process of adding
@@ -69,69 +69,67 @@ information::
 Using autofixtures as a tool for unittests
 ========================================
 
-Testing the behavior of complex models has always bugged me. Sometimes models 
-have many restrictions or many related objects which they depend on. One solution 
-would be to use traditional fixtures dumped from your production database. But 
-while in development when database schemes are changing frequently, it can be time
-consuming and sometimes difficult to deep track of changes and what each dump contains.
+Testing the behavior of complex models has always bugged me. Sometimes models
+have many restrictions or many related objects which they depend on. One
+solution would be to use traditional fixtures dumped from your production
+database. But while in development when database schemes are changing
+frequently, it can be time consuming and sometimes difficult to deep track of
+changes and what each dump contains.
 
-Autofixtures to the rescue! 
+Autofixtures to the rescue!
 
 Let's start with the basics. We create an ``AutoFixture`` instance for the
 ``Entry`` model and tell it to create ten model instances::
 
-(in Python shell)
+    >>> from autofixture import AutoFixture
+    >>> fixture = AutoFixture(Entry)
+    >>> entries = fixture.create(10)
 
-    from autofixture import AutoFixture
-    fixture = AutoFixture(Entry)
-    entries = fixture.create(10)
+Here are further examples for newer developers.
 
-Generic Example:
+I have a ``Listing`` model and I want it populated with 10 objects.
 
-    from autofixture import AutoFixture
-    fixture = AutoFixture(<replace with your model name>)
-    entries = fixture.create(10) #10 or the number of entries you would like
+::
 
-Here are further examples for newer developers.  
+    >>> from autofixture import AutoFixture
+    >>> fixture = AutoFixture(Listing)
+    >>> entries = fixture.create(10)
 
-I have a Listing model and I want it populated with 10 objects.
-
-    from autofixture import AutoFixture
-    fixture = AutoFixture(Listing)
-    entries = fixture.create(10) 
-
-Here I've added field valules which allow you to default a field to 
-a certain value rather than the random entries supplied by *autofixture*.
+Here I've added field values which allow you to default a field to a certain
+value rather than the random entries supplied by *autofixture*.
 
 Generic Example including field_values:
-    
-    from <yourapp>.models import <your model>
-    fixture = AutoFixture(<your model>, field_values={‘<your field name>’:<value>})
 
-Specific example:
+::
+
+    from <yourapp>.models import <your model>
+    fixture = AutoFixture(<your model>, field_values={'<your field name>':<value>})
+
+Specific example::
 
     from main.models import Listing
-    fixture = AutoFixture(Listing,field_values={'needed_players':(randint(2,10))})
-    entries=fixture.create(30) 
+    fixture = AutoFixture(Listing, field_values={'needed_players': randint(2,10)})
+    entries=fixture.create(30)
 
-In the above, I wanted the 'needed_players' (in the Session model) to have only 
-numbers between 2 and 10, but I could have put {'needed_players':5} if I had wanted 
-all 'needed_players' instances to be 5.  
+In the above, I wanted the ``'needed_players'`` (in the Session model) to have
+only numbers between 2 and 10, but I could have put ``{'needed_players': 5}``
+if I had wanted all ``'needed_players'`` instances to be ``5``.
 
 ========================================
 
-Now you can play around and test your blog entries. By default, dependencies of
-foreignkeys and many to many relations are populated by randomly selecting an
-already existing object of the related model. But, what if you don't have one yet?
-You can provide the ``generate_fk`` attribute which allows the autofixture
-instance to follow foreignkeys by generating new related models::
+Now you can play around and test your blog entries. By default, dependencies
+of foreignkeys and many to many relations are populated by randomly selecting
+an already existing object of the related model. But, what if you don't have
+one yet?  You can provide the ``generate_fk`` attribute which allows the
+autofixture instance to follow foreignkeys by generating new related models::
 
     fixture = AutoFixture(Entry, generate_fk=True)
 
 This generates new instances for *all* foreignkey fields of ``Entry``. Unless
 the model has a foreign key reference to itself, wherein the field will be set
-to None if allowed or raise a ``CreateInstanceError``. This is to prevent
-max recursion depth errors. It's possible to limit this behaviour to single fields::
+to None if allowed or raise a ``CreateInstanceError``. This is to prevent max
+recursion depth errors. It's possible to limit this behaviour to single
+fields::
 
     fixture = AutoFixture(Entry, generate_fk=['author'])
 
@@ -146,9 +144,9 @@ All created entry models get one to three new categories assigned.
 Setting custom values for fields
 --------------------------------
 
-As shown the the examples above, it's often necessary to have a specific field contain a
-specific value. This is easily achieved with the ``field_values`` attribute of
-``AutoFixture``::
+As shown the the examples above, it's often necessary to have a specific field
+contain a specific value. This is easily achieved with the ``field_values``
+attribute of ``AutoFixture``::
 
     fixture = AutoFixture(Entry,
         field_values={'pub_date': datetime(2010, 2, 1)})
@@ -157,18 +155,17 @@ specific value. This is easily achieved with the ``field_values`` attribute of
 Limiting the set of models assigned to a ForeignKey field
 ----------------------------------------------------------
 
-You could, for example, limit the Users assigned to a foreignkey field to only 
-non-staff Users.  Or create Entries for all Blogs not belonging to Yoko Ono.  
+You could, for example, limit the Users assigned to a foreignkey field to only
+non-staff Users. Or create Entries for all Blogs not belonging to Yoko Ono.
 Use the same construction as ForeignKey.limit_choices_to_ attribute::
 
     from autofixture import AutoFixture, generators
-    fixture = AutoFixture(Entry,
-            field_values={
-                'blog': generators.InstanceSelector(Blog, 
-                    limit_choices_to={'name__ne':"Yoko Ono's blog"})
-                          } )
+    fixture = AutoFixture(Entry, field_values={
+        'blog': generators.InstanceSelector(
+            Blog,
+            limit_choices_to={'name__ne':"Yoko Ono's blog"})
+    })
 
-    
 
 Custom autofixtures
 ===================
@@ -200,7 +197,7 @@ automatically like you can do with the admin autodiscover. Do so by running
 More
 ====
 
-There is so much more to explore which might be useful tofrom  you and your
+There is so much more to explore which might be useful to you and your
 projects:
 
 * There are ways to register custom ``AutoFixture`` subclasses with models
@@ -211,12 +208,6 @@ projects:
   valid (e.g. ``unique`` and ``unique_together`` constraints, which are
   already handled by default)
 
-I hope to explain this in the future with more detailed documentation. I am in the 
-process of writing it, but I am not finished.  I wanted to get this project out to
-support your development. But, since it's only python code you can easily change it to 
-suit your needs. There are already some parts documented with doc strings which 
-might also be helpful for you.
-
 
 Contribute
 ==========
@@ -225,7 +216,7 @@ You can find the latest development version on github_. Get there and fork it,
 file bugs or send me nice wishes.
 
 To start developing, make sure the test suite passes::
-    
+
     virtualenv .env
     source .env/bin/activate
     pip install -r requirements/tests.txt
