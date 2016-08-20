@@ -221,9 +221,9 @@ class FloatGenerator(IntegerGenerator):
         value = super(FloatGenerator, self).generate()
         value = float(value)
         if self.decimal_digits:
-            digits = random.randint(1, 10 ^ self.decimal_digits) - 1
+            digits = random.randint(1, 10 ** self.decimal_digits) - 1
             digits = float(digits)
-            value = value + digits / (10 ^ self.decimal_digits)
+            value = value + digits / (10 ** self.decimal_digits)
         return value
 
 
