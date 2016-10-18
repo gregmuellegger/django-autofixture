@@ -80,11 +80,11 @@ or specific generators to specific fields. However remember to use the
 ``lambda`` statement in the example. It's in fact also just a shorter
 definition of a method.
 
-*A note on subclassing subclasses and turtles all the way down:* Some times
+*A note on subclassing subclasses and turtles all the way down:* Sometimes
 it's usefull for a project to have a common base class for all the registered
-*AutoFixtures*. This is ofcourse possible and very usable since you don't need
+*AutoFixtures*. This is possible and easy since you don't need
 to re-define all the field definitions in the nested ``Values`` class. The
-:class:`~autofixture.base.AutoFixture` class is caring about this and will
+:class:`~autofixture.base.AutoFixture` class cares about this and will
 collect all ``Values`` of base classes and merge them together. For
 clarification here a short example::
 
