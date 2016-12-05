@@ -368,6 +368,13 @@ class LastNameGenerator(Generator):
     def generate(self):
         return random.choice(self.surname)
 
+class FullNameGenerator(Generator):
+    """ Generates a full name joining FirstName and LastName """
+
+    def generate(self):
+        return " ".join([FirstNameGenerator().generate(), \
+                         LastNameGenerator().generate()])
+
 
 class EmailGenerator(StringGenerator):
     chars = string.ascii_lowercase
