@@ -148,9 +148,3 @@ class ImageGeneratorTests(FileSystemCleanupTestCase):
         o = AutoFixture(ImageModel).create_one()
 
         self.assertTrue(dummy_storage.exists(o.imgfield.name))
-
-    def test_point(self):
-        from django.contrib.gis.geos import Point
-        point = generators.PointFieldGenerator().generate()
-
-        self.assertIsInstance(point, Point)
