@@ -1,4 +1,4 @@
-
+from django.contrib.gis.geos import Point
 from django.test.utils import override_settings
 
 from autofixture import generators
@@ -21,6 +21,6 @@ class GeoDjangoPointTests(FileSystemCleanupTestCase):
         'autofixture_tests.sample_app',
     ))
     def test_point(self):
-        from django.contrib.gis.geos import Point
+
         point = generators.PointFieldGenerator().generate()
         self.assertIsInstance(point, Point)

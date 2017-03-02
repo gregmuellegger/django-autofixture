@@ -670,10 +670,7 @@ class UUIDGenerator(Generator):
 # Geo
 class PointFieldGenerator(Generator):
 
-    latitude = 19.99
-    longitude = 73.78
-
     def generate(self):
-        dec_lat = random.random() / 100
-        dec_lon = random.random() / 100
-        return Point(self.longitude + dec_lat, self.latitude + dec_lon)
+        latitude = random.uniform(-90, 90)
+        longitude = random.uniform(-180, 180)
+        return Point(longitude, latitude)
