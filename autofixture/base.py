@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import warnings
 from django.db.models import fields, ImageField
+from django.conf import settings
 from django.db.models.fields import related
 from django.utils.six import with_metaclass
 
@@ -14,6 +15,9 @@ from autofixture.compat import (
     get_remote_field_to,
     getargnames,
 )
+
+if 'django.contrib.gis' in settings.INSTALLED_APPS:
+    from django.contrib.gis.db.models import PointField
 
 
 class CreateInstanceError(Exception):
@@ -120,6 +124,9 @@ class AutoFixtureBase(object):
     # UUIDField was added in Django 1.8
     if hasattr(fields, 'UUIDField'):
         field_to_generator[fields.UUIDField] = generators.UUIDGenerator
+
+    if 'django.contrib.gis' in settings.INSTALLED_APPS:
+        field_to_generator[PointField] = generators.PointFieldGenerator
 
     field_values = Values()
 
