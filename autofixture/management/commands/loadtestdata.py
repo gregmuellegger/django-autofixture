@@ -192,8 +192,8 @@ class Command(BaseCommand):
         models = []
         for attr in attrs:
             try:
-                app_label, model_label = attr.split('.')
-                model_label, count = model_label.split(':')
+                app_label, model_label = attr.rsplit('.', 1)
+                model_label, count = model_label.rsplit(':', 1)
                 count = int(count)
             except ValueError:
                 raise CommandError(
