@@ -18,6 +18,12 @@ and re-adding data becomes more and more annoying.
 This is where autofixtures will help!
 
 
+Documentation
+=============
+
+Read the documentation_ online.
+
+
 Requirements
 ============
 
@@ -229,6 +235,7 @@ in touch with me by mail_ or twitter_.
 
 Happy autofixturing!
 
+.. _documentation: http://pythonhosted.org/django-autofixture/
 .. _github: https://github.com/gregmuellegger/django-autofixture
 .. _mail: mailto:gregor@muellegger.de
 .. _twitter: http://twitter.com/gregmuellegger
