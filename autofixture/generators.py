@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
 import uuid
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.contrib.gis.geos import Point
+#from django.contrib.gis.geos import Point
 try:
     from django.utils import lorem_ipsum
 except ImportError:
@@ -668,9 +669,10 @@ class UUIDGenerator(Generator):
 
 
 # Geo
-class PointFieldGenerator(Generator):
+if 'django.contrib.gis' in settings.INSTALLED_APPS:
+    class PointFieldGenerator(Generator):
 
-    def generate(self):
-        latitude = random.uniform(-90, 90)
-        longitude = random.uniform(-180, 180)
-        return Point(longitude, latitude)
+        def generate(self):
+            latitude = random.uniform(-90, 90)
+            longitude = random.uniform(-180, 180)
+            return Point(longitude, latitude)
