@@ -4,7 +4,6 @@ import uuid
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-#from django.contrib.gis.geos import Point
 try:
     from django.utils import lorem_ipsum
 except ImportError:
@@ -670,6 +669,8 @@ class UUIDGenerator(Generator):
 
 # Geo
 if 'django.contrib.gis' in settings.INSTALLED_APPS:
+    from django.contrib.gis.geos import Point
+
     class PointFieldGenerator(Generator):
 
         def generate(self):
