@@ -4,7 +4,7 @@ django-autofixture
 
 |build| |package|
 
-`Compatible with Django version 2.X`
+> Compatible with Django version 2.X
 
 This app aims to provide a simple way of loading masses of randomly generated
 test data into your development database. You can use a management command to
