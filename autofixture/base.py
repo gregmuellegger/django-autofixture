@@ -407,7 +407,11 @@ class AutoFixtureBase(object):
         value = self.get_value(field)
         if value is self.IGNORE_FIELD:
             return
-        setattr(instance, field.name, value)
+        elif isinstance(field, related.ManyToManyField):
+            instance.save()
+            getattr(instance, field.name).set(value)
+        else:
+            setattr(instance, field.name, value)
 
     def process_m2m(self, instance, field):
         # check django's version number to determine how intermediary models
