@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.admin',
 
@@ -56,8 +57,28 @@ if django.VERSION >= (1, 7):
         'autofixture_tests.appconfig_test.apps.AppConfigTestConfig',
     )
 
-MIDDLEWARE_CLASSES = ()
+MIDDLEWARE = (
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+)
 
+
+TEMPLATES = (
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': ['templates'],
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+)
 
 if django.VERSION < (1, 6):
     TEST_RUNNER = 'discover_runner.DiscoverRunner'

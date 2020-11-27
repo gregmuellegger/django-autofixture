@@ -58,15 +58,16 @@ class MultipleUniqueTogetherNullFieldModel(models.Model):
 
 
 class DeepLinkModel1(models.Model):
-    related = models.ForeignKey('SimpleModel')
+    related = models.ForeignKey('SimpleModel', on_delete=models.CASCADE)
     related2 = models.ForeignKey('SimpleModel',
                                  related_name='deeplinkmodel1_rel2',
+                                 on_delete=models.CASCADE,
                                  null=True,
                                  blank=True)
 
 
 class DeepLinkModel2(models.Model):
-    related = models.ForeignKey('DeepLinkModel1')
+    related = models.ForeignKey('DeepLinkModel1', on_delete=models.CASCADE)
 
 
 class NullableFKModel(models.Model):
@@ -129,20 +130,21 @@ class UniqueTogetherTestModel(models.Model):
 
 
 class RelatedModel(models.Model):
-    related = models.ForeignKey(BasicModel, related_name='rel1')
+    related = models.ForeignKey(BasicModel, related_name='rel1', on_delete=models.CASCADE)
     limitedfk = models.ForeignKey(SimpleModel,
                                   limit_choices_to={'name__exact': 'foo'},
                                   related_name='rel2',
+                                  on_delete=models.CASCADE,
                                   null=True,
                                   blank=True)
 
 
 class O2OModel(models.Model):
-    o2o = models.OneToOneField(SimpleModel)
+    o2o = models.OneToOneField(SimpleModel, on_delete=models.CASCADE)
 
 
 class O2OPrimaryKeyModel(models.Model):
-    o2o = models.OneToOneField(SimpleModel, primary_key=True)
+    o2o = models.OneToOneField(SimpleModel, primary_key=True, on_delete=models.CASCADE)
 
 
 class InheritModel(SimpleModel):
@@ -157,11 +159,11 @@ class InheritUniqueTogetherModel(SimpleModel):
 
 
 class SelfReferencingModel(models.Model):
-    parent_self = models.ForeignKey('self', blank=True, null=True)
+    parent_self = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
 
 
 class SelfReferencingModelNoNull(models.Model):
-    parent_self = models.ForeignKey('self')
+    parent_self = models.ForeignKey('self', on_delete=models.CASCADE)
 
 
 class M2MModel(models.Model):
@@ -171,8 +173,8 @@ class M2MModel(models.Model):
 
 
 class ThroughModel(models.Model):
-    simple = models.ForeignKey('SimpleModel')
-    other = models.ForeignKey('M2MModelThrough')
+    simple = models.ForeignKey('SimpleModel', on_delete=models.CASCADE)
+    other = models.ForeignKey('M2MModelThrough', on_delete=models.CASCADE)
 
 
 class M2MModelThrough(models.Model):
@@ -181,7 +183,7 @@ class M2MModelThrough(models.Model):
 
 
 class GFKModel(models.Model):
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = get_GenericForeignKey()('content_type', 'object_id')
 
@@ -203,5 +205,5 @@ class ImageModel(models.Model):
 
 
 class RelationWithCustomAutofixtureModel(models.Model):
-    user = models.ForeignKey('auth.User', related_name='user1+')
+    user = models.ForeignKey('auth.User', related_name='user1+', on_delete=models.CASCADE)
     users = models.ManyToManyField('auth.User', related_name='user2+')
