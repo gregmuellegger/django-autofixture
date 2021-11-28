@@ -21,7 +21,7 @@ This is where autofixtures will help!
 Requirements
 ============
 
-* We require and support Django 1.4 to 1.9
+* We require and support Django >= 1.4
 
 
 Installation
