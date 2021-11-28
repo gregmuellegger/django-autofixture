@@ -10,3 +10,4 @@ db.sqlite
 *.egg-info
 *.pyc
 *.swp
+venv/
