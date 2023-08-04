@@ -674,3 +674,13 @@ class PointFieldGenerator(Generator):
         latitude = random.uniform(-90, 90)
         longitude = random.uniform(-180, 180)
         return Point(longitude, latitude)
+
+
+# SRPATCHEDJSON
+class SRPatchedJSONFieldGenerator(Generator):
+    '''
+    Generates empty json
+    '''
+
+    def generate(self):
+        return dict({})

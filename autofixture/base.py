@@ -7,6 +7,7 @@ from django.utils.six import with_metaclass
 
 import autofixture
 from autofixture import constraints, generators, signals
+from autofixture.fields import SRPatchedJSONField
 from autofixture.values import Values
 from autofixture.compat import (
     OrderedDict,
@@ -119,6 +120,7 @@ class AutoFixtureBase(object):
         (fields.TextField, generators.LoremGenerator),
         (fields.TimeField, generators.TimeGenerator),
         (ImageField, generators.ImageGenerator),
+        (SRPatchedJSONField, generators.SRPatchedJSONFieldGenerator),
     ))
 
     # UUIDField was added in Django 1.8
